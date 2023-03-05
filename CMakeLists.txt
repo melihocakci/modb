@@ -21,6 +21,7 @@ add_executable(${TARGET_NAME})
 target_include_directories(${TARGET_NAME} 
     PRIVATE include
     PRIVATE ${BDB_DIR}/include
+    PRIVATE ${LSI_DIR}/include
 )
 
 target_sources(${TARGET_NAME} 
@@ -30,6 +31,7 @@ target_sources(${TARGET_NAME}
 
 target_link_libraries(${TARGET_NAME} 
     ${BDB_DIR}/lib/libdb_cxx.so
+    ${LSI_DIR}/lib/libspatialindex.so
 )
 
 set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 20)

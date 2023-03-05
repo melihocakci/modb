@@ -6,6 +6,6 @@ public:
 
 private:
     // no need for copy and assignment
-    SequenceExample(const SequenceExample&);
-    void operator = (const SequenceExample&);
+    SequenceExample(const SequenceExample&) = delete;
+    void operator = (const SequenceExample&) = delete;
 };

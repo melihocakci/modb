@@ -3,14 +3,12 @@
 #include <bdb/db_cxx.h>
 #include <mos/SequenceExample.h>
 
-#define	SEQUENCE	"my_sequence"
+#define	SEQUENCE "my_sequence"
 
 using std::cout;
 using std::cerr;
 
-SequenceExample::SequenceExample()
-{
-}
+SequenceExample::SequenceExample() = default;
 
 void SequenceExample::run(bool removeExistingDatabase, const char* fileName)
 {
