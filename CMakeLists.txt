@@ -10,7 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(BDB_DIR /usr/local/BerkeleyDB.18.1)
 
 # Location of the libstapialindex installation
-set(LSI_DIR /usr/local/libspatialindex)
+set(LSI_DIR /usr/local/spatialindex)
 
 ###################################################################
 
@@ -20,8 +20,6 @@ add_executable(${TARGET_NAME})
 
 target_include_directories(${TARGET_NAME} 
     PRIVATE include
-    PRIVATE ${BDB_DIR}/include
-    PRIVATE ${LSI_DIR}/include
 )
 
 target_sources(${TARGET_NAME} 

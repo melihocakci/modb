@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include <bdb/db_cxx.h>
+#include <berkeleydb/db_cxx.h>
 #include <mos/SequenceExample.h>
 
 #define	SEQUENCE "my_sequence"

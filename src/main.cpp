@@ -21,10 +21,11 @@ extern "C" {
 #include <unistd.h>
 #endif
 
-#include <bdb/db_cxx.h>
+#include <berkeleydb/db_cxx.h>
 #include <mos/SequenceExample.h>
+#include <spatialindex/SpatialIndex.h>
 
-#define	DATABASE	"sequence.db"
+#define	DATABASE "sequence.db"
 
 using std::cout;
 using std::cerr;
