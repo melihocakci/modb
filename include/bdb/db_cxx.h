@@ -50,7 +50,7 @@
 
 #include <stdarg.h>
 
-
+#define	HAVE_CXX_STDHEADERS 1
 #ifdef HAVE_CXX_STDHEADERS
 #include <iostream>
 #include <exception>
