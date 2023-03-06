@@ -1,22 +1,22 @@
 ## Installing Berkeley DB
 
-cd build_unix
-../dist/configure --enable-cxx
-make
+    cd build_unix
+    ../dist/configure --enable-cxx
+    make
 
-sudo make prefix=/usr/local \
-docdir=/usr/local/docs/berkeleydb \
-includedir=/usr/local/include/berkeleydb \
-install
+    sudo make prefix=/usr/local \
+    docdir=/usr/local/docs/berkeleydb \
+    includedir=/usr/local/include/berkeleydb \
+    install
 
 ## Installing spatialindex
 
-mkdir build
-cd build
-cmake ..
-make
+    mkdir build
+    cd build
+    cmake ..
+    make
 
-sudo make install
+    sudo make install
 
 ## Debugging
 
