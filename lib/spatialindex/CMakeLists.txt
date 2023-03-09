@@ -52,7 +52,7 @@ set(SIDX_VERSION_STRING "${SIDX_VERSION_MAJOR}.${SIDX_VERSION_MINOR}.${SIDX_VERS
 # libspatialindex general cmake options
 #------------------------------------------------------------------------------
 
-option(SIDX_BUILD_TESTS "Enables integrated test suites" OFF)
+option(SIDX_BUILD_TESTS "Enables integrated test suites" ON)
 
 
 # Name of C++ library

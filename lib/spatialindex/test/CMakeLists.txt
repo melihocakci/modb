@@ -1,5 +1,7 @@
 include_directories(../include)
 
+set(INSTALL_DIR /usr/local/bin)
+
 set (DIR geometry)
 set (SOURCES
         Intersection
@@ -8,6 +10,8 @@ set (SOURCES
 foreach (test ${SOURCES})
     add_executable(test-${DIR}-${test} ${DIR}/${test}.cc)
     target_link_libraries(test-${DIR}-${test} ${SIDX_LIB_NAME})
+    install(TARGETS test-${DIR}-${test} DESTINATION ${INSTALL_DIR})
+
 endforeach()
 
 set (DIR rtree)
@@ -22,6 +26,8 @@ set (SOURCES
 foreach (test ${SOURCES})
     add_executable(test-${DIR}-${test} ${DIR}/${test}.cc)
     target_link_libraries(test-${DIR}-${test} ${SIDX_LIB_NAME})
+    install(TARGETS test-${DIR}-${test} DESTINATION ${INSTALL_DIR})
+
 endforeach()
 
 set (DIR mvrtree)
@@ -36,6 +42,8 @@ set (SOURCES
 foreach (test ${SOURCES})
     add_executable(test-${DIR}-${test} ${DIR}/${test}.cc)
     target_link_libraries(test-${DIR}-${test} ${SIDX_LIB_NAME})
+    install(TARGETS test-${DIR}-${test} DESTINATION ${INSTALL_DIR})
+
 endforeach()
 
 set (DIR tprtree)
@@ -50,6 +58,7 @@ set (SOURCES
 foreach (test ${SOURCES})
     add_executable(test-${DIR}-${test} ${DIR}/${test}.cc ${DIR}/RandomGenerator.cc)
     target_link_libraries(test-${DIR}-${test} ${SIDX_LIB_NAME})
+    install(TARGETS test-${DIR}-${test} DESTINATION ${INSTALL_DIR})
 endforeach()
 
 add_subdirectory(gtest)
