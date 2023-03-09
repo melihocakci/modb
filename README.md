@@ -1,6 +1,6 @@
 ## Installing Berkeley DB
 
-    cd build_unix
+    cd lib/berkeleydb/build_unix
     ../dist/configure --enable-cxx
     make
 
@@ -11,6 +11,7 @@
 
 ## Installing spatialindex
 
+    cd lib/spatialindex
     mkdir build
     cd build
     cmake ..

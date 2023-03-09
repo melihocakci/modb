@@ -40,6 +40,8 @@ usage()
 int
 main(int argc, char* argv[])
 {
+    Tools::PropertySet* ps;
+
     int ch, rflag;
     const char* database;
 
