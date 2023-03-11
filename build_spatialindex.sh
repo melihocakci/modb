@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# build and install spatialindex
+# builds spatialindex
 pushd lib/spatialindex > /dev/null
-mkdir build
+mkdir -p build
 pushd build > /dev/null
 cmake -D SIDX_BUILD_TESTS=ON ..
 make
 
+# installs spatialindex
 sudo make install

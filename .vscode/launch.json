@@ -3,13 +3,106 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [     
+    "configurations": [
         {
-            "name": "(gdb) Launch",
+            "name": "test-rtee-Generator",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/debug/bin/mos",
-            "args": ["-r","sequence.db"],
+            "program": "${workspaceRoot}/lib/spatialindex/build/bin/test-rtree-Generator",
+            "args": [
+                "10000",
+                "100",
+                ">",
+                "d"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test-rtee-RTreeLoad",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/lib/spatialindex/build/bin/test-rtree-RTreeLoad",
+            "args": [
+                "data",
+                "tree",
+                "20",
+                "10NN"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test-rtee-RTreeQuery",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/lib/spatialindex/build/bin/test-rtree-RTreeQuery",
+            "args": [
+                "queries",
+                "tree",
+                "10NN",
+                ">",
+                "res"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test-rtee-Exhaustive",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/lib/spatialindex/build/bin/test-rtree-Exhaustive",
+            "args": [
+                ".t",
+                "10NN",
+                ">",
+                "res2"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -28,6 +121,5 @@
                 }
             ]
         }
-
     ]
 }

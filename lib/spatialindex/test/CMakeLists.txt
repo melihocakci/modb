@@ -1,5 +1,6 @@
 include_directories(../include)
 
+set(CMAKE_BUILD_TYPE Debug)
 set(INSTALL_DIR /usr/local/bin)
 
 set (DIR geometry)
