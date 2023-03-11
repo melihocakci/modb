@@ -4,7 +4,7 @@
 pushd lib/spatialindex > /dev/null
 mkdir build
 pushd build > /dev/null
-cmake ..
+cmake -D SIDX_BUILD_TESTS=ON ..
 make
 
 sudo make install
