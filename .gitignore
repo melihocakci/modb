@@ -5,4 +5,8 @@ release/
 *.db
 data
 queries
+tree.idx
+d
+res
+tree.dat
 *.vcproj

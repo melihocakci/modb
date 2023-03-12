@@ -336,7 +336,7 @@ void SpatialIndex::MVRTree::MVRTree::nearestNeighborQuery(uint32_t, const IShape
 void SpatialIndex::MVRTree::MVRTree::nearestNeighborQuery(uint32_t k, const IShape& query, IVisitor& v)
 {
 	if (query.getDimension() != m_dimension) throw Tools::IllegalArgumentException("nearestNeighborQuery: Shape has the wrong number of dimensions.");
-	NNComparator nnc;
+	NNComparator nnc; 
 	nearestNeighborQuery(k, query, v, nnc);
 }
 
