@@ -16,6 +16,7 @@
 #   ...
 
 set(CMAKE_BUILD_TYPE Debug)
+
 set(SIDX_HEADERS_DIR "${PROJECT_SOURCE_DIR}/include/spatialindex/")
 set(SIDX_HEADERS_CAPI_DIR "${PROJECT_SOURCE_DIR}/include/spatialindex/capi")
 set(SIDX_HPP "")

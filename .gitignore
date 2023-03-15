@@ -2,11 +2,13 @@ build/
 debug/
 release/
 
-*.db
 data
 queries
-tree.idx
 d
+.t
 res
-tree.dat
+res2
+*.db
+*.idx
+*.dat
 *.vcproj

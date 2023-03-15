@@ -610,10 +610,6 @@ void SpatialIndex::RTree::RTree::nearestNeighborQuery(uint32_t k, const IShape& 
 			v.visitData(*(static_cast<IData*>(pFirst->m_pEntry)));
 			++(m_stats.m_u64QueryResults);
 			++count;
-			int a = 0;
-			if(knearest!=0) {
-				printf("[LOG] knearest neigboor distance is found.");	
-			}
 			knearest = pFirst->m_minDist;
 			delete pFirst->m_pEntry;
 		}

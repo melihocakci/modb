@@ -4,7 +4,7 @@
 pushd lib/spatialindex > /dev/null
 mkdir -p build
 pushd build > /dev/null
-cmake -D SIDX_BUILD_TESTS=ON ..
+cmake -DSIDX_BUILD_TESTS=ON ..
 make
 
 # installs spatialindex
