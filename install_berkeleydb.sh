@@ -6,7 +6,4 @@ pushd lib/berkeleydb/build_unix > /dev/null
 make
 
 # installs Berkeley DB
-sudo make prefix=/usr/local \
-docdir=/usr/local/docs/berkeleydb \
-includedir=/usr/local/include/berkeleydb \
-install
+sudo make prefix=/usr/local install
