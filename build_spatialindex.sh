@@ -19,5 +19,13 @@ pushd build > /dev/null
 cmake -D SIDX_BUILD_TESTS=ON ..
 make
 
+# checks if compilation finished successfully
+ret=$?
+if [ $ret != 0 ];
+then
+    echo "Compilation failed"
+    exit
+fi
+
 # installs spatialindex
 sudo make install
