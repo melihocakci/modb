@@ -31,7 +31,6 @@ set (SOURCES
 
 
 if(Boost_FOUND)
-    message("Ben Buradayım")
     foreach (test ${SOURCES})
         include_directories(${Boost_INCLUDE_DIRS}) 
         add_executable(test-${DIR}-${test} ${DIR}/${test}.cc)

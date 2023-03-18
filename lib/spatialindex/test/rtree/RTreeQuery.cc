@@ -83,15 +83,40 @@ public:
 		cout << v[0]->getIdentifier() << " " << v[1]->getIdentifier() << endl;
 	}
 };
-
 // example of a Strategy pattern.
 // traverses the tree by level.
 class MyQueryStrategy : public SpatialIndex::IQueryStrategy
 {
 private:
-	queue<id_type> ids;
+    Gnuplot gp;
+    std::queue<id_type> ids;
 
 public:
+    MyQueryStrategy() : gp() {
+		gp << "set xrange [-2:2]\nset yrange [-2:2]\n";
+	}
+    MyQueryStrategy(const MyQueryStrategy&) = delete;
+    MyQueryStrategy& operator=(const MyQueryStrategy&) = delete;
+    MyQueryStrategy(MyQueryStrategy&& other) noexcept
+        : gp(), ids(std::move(other.ids))
+    {
+		gp << "set xrange [-2:2]\nset yrange [-2:2]\n"; // Set the range of the plot
+
+    }
+    MyQueryStrategy& operator=(MyQueryStrategy&& other) noexcept
+    {
+        if (this != &other) {
+            
+            ids = std::move(other.ids);
+        }
+        return *this;
+    }
+    ~MyQueryStrategy()
+    {
+        gp << "plot -1 notitle\n";
+    }
+
+
 	void getNextEntry(const IEntry& entry, id_type& nextEntry, bool& hasNext) override
 	{
 		IShape* ps;
@@ -105,29 +130,41 @@ public:
 		cerr << pr->m_pLow[0] << " " << pr->m_pLow[1] << endl << endl << endl;
 		// print node MBRs gnuplot style!
 
+		
+		
+		// std::vector<std::pair<double, double> > xy_pts_A;
+		// for(double x=-2; x<2; x+=0.01) {
+		// 	double y = x*x*x;
+		// 	xy_pts_A.push_back(std::make_pair(x, y));
+		// }
+
+		// std::vector<std::pair<double, double> > xy_pts_B;
+		// for(double alpha=0; alpha<1; alpha+=1.0/24.0) {
+		// 	double theta = alpha*2.0*3.14159;
+		// 	xy_pts_B.push_back(std::make_pair(cos(theta), sin(theta)));
+		// }
+
+		// gp << "set xrange [-2:2]\nset yrange [-2:2]\n";
+		// // Data will be sent via a temporary file.  These are erased when you call
+		// // gp.clearTmpfiles() or when gp goes out of scope.  If you pass a filename
+		// // (e.g. "gp.file1d(pts, 'mydata.dat')"), then the named file will be created
+		// // and won't be deleted (this is useful when creating a script).
+		// // gp << "reset";
+		// // gp << "set style rect back fs empty border lc rgb '#008800'";
+		// // gp << "set object rect from" << pr->m_pLow[0] << " " << pr->m_pLow[1] << " to " << pr->m_pHigh[0] <<  " " << pr->m_pHigh[1] << " lw " << 0.001;  
+		
+		// gp << "plot" << gp.file1d(xy_pts_A) << "with lines title 'cubic',"
+		// 	<< gp.file1d(xy_pts_B) << "with points title 'circle'" << std::endl;
+
+
+
+  // Draw the rectangle
+  		std::cerr << "set object " << entry.getIdentifier() <<" rectangle from "<< pr->m_pLow[0] <<"," << pr->m_pLow[1] << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1] <<" fillcolor rgba '1,0,0,0.5' fillstyle solid\n";
+		gp << "set object " << entry.getIdentifier() << " rectangle from "<< pr->m_pLow[0] <<"," << pr->m_pLow[1] << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1] <<" fillcolor rgb rgba '1,0,0,0.5' fillstyle solid\n";
+
+  
+
 		delete ps;
-		Gnuplot gp;
-
-		std::vector<std::pair<double, double> > xy_pts_A;
-		for(double x=-2; x<2; x+=0.01) {
-			double y = x*x*x;
-			xy_pts_A.push_back(std::make_pair(x, y));
-		}
-
-		std::vector<std::pair<double, double> > xy_pts_B;
-		for(double alpha=0; alpha<1; alpha+=1.0/24.0) {
-			double theta = alpha*2.0*3.14159;
-			xy_pts_B.push_back(std::make_pair(cos(theta), sin(theta)));
-		}
-
-		gp << "set xrange [-2:2]\nset yrange [-2:2]\n";
-		// Data will be sent via a temporary file.  These are erased when you call
-		// gp.clearTmpfiles() or when gp goes out of scope.  If you pass a filename
-		// (e.g. "gp.file1d(pts, 'mydata.dat')"), then the named file will be created
-		// and won't be deleted (this is useful when creating a script).
-		gp << "plot" << gp.file1d(xy_pts_A) << "with lines title 'cubic',"
-			<< gp.file1d(xy_pts_B) << "with points title 'circle'" << std::endl;
-
 		const INode* n = dynamic_cast<const INode*>(&entry);
 
 		// traverse only index nodes at levels 2 and higher.
@@ -142,6 +179,7 @@ public:
 		if (! ids.empty())
 		{
 			nextEntry = ids.front(); ids.pop();
+
 			hasNext = true;
 		}
 		else
@@ -150,6 +188,7 @@ public:
 		}
 	}
 };
+
 
 // example of a Strategy pattern.
 // find the total indexed space managed by the index (the MBR of the root).
