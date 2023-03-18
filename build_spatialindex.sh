@@ -1,16 +1,15 @@
 #!/bin/bash
 
-packageInfo=$(dpkg -s libboost-dev)
-_=${packageInfo#*:}
-isPackagesFound=${packageInfo%"$_"}
-
-if [[ "$isPackagesFound" =~ ^dpkg-query: ]]; then
-    echo "Strings are equal"
-    sudo apt-get update
-    sudo apt-get install gnuplot
-    sudo apt-get install libboost-all-dev
-    sudo apt-get install libgnuplot-iostream-dev
+if dpkg-query -W -f='${Status}' libgnuplot-iostream-dev | grep -q "install ok installed"; then
+  echo "gnuplot is installed"
+else
+  echo "gnuplot is not installed"
+  sudo apt-get update
+  sudo apt-get install gnuplot
+  sudo apt-get install libboost-all-dev
+  sudo apt-get install libgnuplot-iostream-dev
 fi
+
 
 # changes the starting directory to the script's location
 scriptdir=$(dirname $0)
