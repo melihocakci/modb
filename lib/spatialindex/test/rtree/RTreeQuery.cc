@@ -31,6 +31,7 @@
 
 // include library header file.
 #include <spatialindex/SpatialIndex.h>
+#include "gnuplot-iostream.h"
 
 using namespace SpatialIndex;
 using namespace std;
@@ -97,14 +98,35 @@ public:
 		entry.getShape(&ps);
 		Region* pr = dynamic_cast<Region*>(ps);
 
-		cout << pr->m_pLow[0] << " " << pr->m_pLow[1] << endl;
-		cout << pr->m_pHigh[0] << " " << pr->m_pLow[1] << endl;
-		cout << pr->m_pHigh[0] << " " << pr->m_pHigh[1] << endl;
-		cout << pr->m_pLow[0] << " " << pr->m_pHigh[1] << endl;
-		cout << pr->m_pLow[0] << " " << pr->m_pLow[1] << endl << endl << endl;
-			// print node MBRs gnuplot style!
+		cerr << pr->m_pLow[0] << " " << pr->m_pLow[1] << endl;
+		cerr << pr->m_pHigh[0] << " " << pr->m_pLow[1] << endl;
+		cerr << pr->m_pHigh[0] << " " << pr->m_pHigh[1] << endl;
+		cerr << pr->m_pLow[0] << " " << pr->m_pHigh[1] << endl;
+		cerr << pr->m_pLow[0] << " " << pr->m_pLow[1] << endl << endl << endl;
+		// print node MBRs gnuplot style!
 
 		delete ps;
+		Gnuplot gp;
+
+		std::vector<std::pair<double, double> > xy_pts_A;
+		for(double x=-2; x<2; x+=0.01) {
+			double y = x*x*x;
+			xy_pts_A.push_back(std::make_pair(x, y));
+		}
+
+		std::vector<std::pair<double, double> > xy_pts_B;
+		for(double alpha=0; alpha<1; alpha+=1.0/24.0) {
+			double theta = alpha*2.0*3.14159;
+			xy_pts_B.push_back(std::make_pair(cos(theta), sin(theta)));
+		}
+
+		gp << "set xrange [-2:2]\nset yrange [-2:2]\n";
+		// Data will be sent via a temporary file.  These are erased when you call
+		// gp.clearTmpfiles() or when gp goes out of scope.  If you pass a filename
+		// (e.g. "gp.file1d(pts, 'mydata.dat')"), then the named file will be created
+		// and won't be deleted (this is useful when creating a script).
+		gp << "plot" << gp.file1d(xy_pts_A) << "with lines title 'cubic',"
+			<< gp.file1d(xy_pts_B) << "with points title 'circle'" << std::endl;
 
 		const INode* n = dynamic_cast<const INode*>(&entry);
 
@@ -146,6 +168,8 @@ public:
 
 		IShape* ps;
 		entry.getShape(&ps);
+		std::cerr << "indexed space" << m_indexedSpace << std::endl;	
+
 		ps->getMBR(m_indexedSpace);
 		delete ps;
 	}
@@ -244,10 +268,10 @@ int main(int argc, char** argv)
 			count++;
 		}
 
-		MyQueryStrategy2 qs;
+		MyQueryStrategy qs;
 		tree->queryStrategy(qs);
 
-		cerr << "Indexed space: " << qs.m_indexedSpace << endl;
+		// cerr << "Indexed space: " << qs.m_indexedSpace << endl;
 		cerr << "Operations: " << count << endl;
 		cerr << *tree;
 		cerr << "Index I/O: " << indexIO << endl;

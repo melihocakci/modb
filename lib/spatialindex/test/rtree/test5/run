@@ -1,0 +1,10 @@
+#! /bin/bash
+
+echo Generating dataset
+test-rtree-Generator 10000 0 > d
+awk '{if ($1 != 2) print $0}' < d > data
+awk '{if ($1 == 2) print $0}' < d > queries
+rm -rf d
+
+echo Creating new R-Tree
+test-rtree-RTreeLoad data tree 20 10NN

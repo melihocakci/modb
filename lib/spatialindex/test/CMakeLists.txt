@@ -1,6 +1,11 @@
-set(CMAKE_BUILD_TYPE Debug)
 
+
+
+find_package(Boost  COMPONENTS filesystem system iostreams REQUIRED)
+# include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../lib/gnuplot-iostream") # if library is external 
 include_directories(../include)
+
+set(CMAKE_BUILD_TYPE Debug)
 
 set(INSTALL_DIR /usr/local/bin)
 
@@ -25,12 +30,16 @@ set (SOURCES
         RTreeQuery)
 
 
-foreach (test ${SOURCES})
-    add_executable(test-${DIR}-${test} ${DIR}/${test}.cc)
-    target_link_libraries(test-${DIR}-${test} ${SIDX_LIB_NAME})
-    install(TARGETS test-${DIR}-${test} DESTINATION ${INSTALL_DIR})
+if(Boost_FOUND)
+    message("Ben Buradayım")
+    foreach (test ${SOURCES})
+        include_directories(${Boost_INCLUDE_DIRS}) 
+        add_executable(test-${DIR}-${test} ${DIR}/${test}.cc)
+        target_link_libraries(test-${DIR}-${test} ${SIDX_LIB_NAME} ${Boost_LIBRARIES})
+        install(TARGETS test-${DIR}-${test} DESTINATION ${INSTALL_DIR})
 
-endforeach()
+    endforeach()
+endif()
 
 set (DIR mvrtree)
 set (SOURCES
