@@ -1,10 +1,10 @@
 ## Installing Berkeley DB
 
-    sudo bash -c "./build_berkeleydb"
+    sudo bash -c "./build_berkeleydb.sh"
 
 ## Installing spatialindex
 
-    sudo bash -c "./build_spatialindex"
+    sudo bash -c "./build_spatialindex.sh"
 
 ## Building modbs
 

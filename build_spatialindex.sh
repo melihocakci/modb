@@ -1,4 +1,5 @@
 #!/bin/bash
+
 packageInfo=$(dpkg -s libboost-dev)
 _=${packageInfo#*:}
 isPackagesFound=${packageInfo%"$_"}
@@ -11,6 +12,9 @@ if [[ "$isPackagesFound" =~ ^dpkg-query: ]]; then
     sudo apt-get install libgnuplot-iostream-dev
 fi
 
+# changes the starting directory to the script's location
+scriptdir=$(dirname $0)
+pushd $scriptdir
 
 # builds spatialindex
 pushd lib/spatialindex > /dev/null
@@ -24,7 +28,7 @@ ret=$?
 if [ $ret != 0 ];
 then
     echo "Compilation failed"
-    exit
+    exit 1
 fi
 
 # installs spatialindex
