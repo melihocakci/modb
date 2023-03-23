@@ -7,12 +7,12 @@
 class MyQueryStrategy: public SpatialIndex::IQueryStrategy
 {
 private:
-    Gnuplot gp;
+    gnuplotio::Gnuplot gp;
     std::queue<SpatialIndex::id_type> ids;
 
 public:
     MyQueryStrategy(): gp() {
-        gp << "set xrange [0:1]\nset yrange [0:1]\n";
+        gp << "set xrange [-0.05:1.15]\nset yrange [-0.05:1.15]\n";
     }
 
     ~MyQueryStrategy()
@@ -28,7 +28,10 @@ public:
 
         const SpatialIndex::INode* n = dynamic_cast<const SpatialIndex::INode*>(&entry);
 
-        if (n != nullptr && n->getLevel() >= 1)
+        if (n == nullptr)
+        {
+        }
+        else if (n->getLevel() >= 1)
         {
             for (uint32_t cChild = 0; cChild < n->getChildrenCount(); cChild++)
             {
@@ -36,22 +39,20 @@ public:
             }
         }
 
-        if (n != nullptr && n->getLevel() == 0) {
+        if (n->getLevel() == 0) {
             // Draw the rectangle
             std::cerr << "set object " << entry.getIdentifier()
                 << " rectangle from "
                 << pr->m_pLow[0] << "," << pr->m_pLow[1]
                 << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1]
-                << " fillstyle empty border lc rgb 'black' lw 2\n";
+                << " fillstyle empty border lc rgb 'black' lw 1\n";
 
             gp << "set object " << entry.getIdentifier()
                 << " rectangle from "
                 << pr->m_pLow[0] << "," << pr->m_pLow[1]
                 << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1]
-                << " fillstyle empty border lc rgb 'black' lw 2\n";
+                << " fillstyle empty border lc rgb 'black' lw 1\n";
         }
-
-        delete ps;
 
         if (!ids.empty())
         {
@@ -64,6 +65,8 @@ public:
         {
             hasNext = false;
         }
+
+        delete ps;
     }
 };
 

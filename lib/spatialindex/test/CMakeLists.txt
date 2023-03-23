@@ -1,6 +1,3 @@
-
-
-
 find_package(Boost  COMPONENTS filesystem system iostreams REQUIRED)
 # include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../lib/gnuplot-iostream") # if library is external 
 include_directories(../include)

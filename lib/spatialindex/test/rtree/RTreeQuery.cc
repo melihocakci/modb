@@ -5,7 +5,7 @@
  * Copyright (c) 2002, Marios Hadjieleftheriou
  *
  * All rights reserved.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -43,14 +43,14 @@ using namespace std;
 // example of a Visitor pattern.
 // findes the index and leaf IO for answering the query and prints
 // the resulting data IDs to stdout.
-class MyVisitor : public IVisitor
+class MyVisitor: public IVisitor
 {
 public:
-	size_t m_indexIO{0};
-	size_t m_leafIO{0};
+	size_t m_indexIO{ 0 };
+	size_t m_leafIO{ 0 };
 
 public:
-    MyVisitor() = default;
+	MyVisitor() = default;
 
 	void visitNode(const INode& n) override
 	{
@@ -62,7 +62,7 @@ public:
 	{
 		IShape* pS;
 		d.getShape(&pS);
-			// do something.
+		// do something.
 		delete pS;
 
 		// data should be an array of characters representing a Region as a string.
@@ -75,7 +75,7 @@ public:
 		delete[] pData;
 
 		cout << d.getIdentifier() << endl;
-			// the ID of this data entry is an answer to the query. I will just print it to stdout.
+		// the ID of this data entry is an answer to the query. I will just print it to stdout.
 	}
 
 	void visitData(std::vector<const IData*>& v) override
@@ -83,102 +83,68 @@ public:
 		cout << v[0]->getIdentifier() << " " << v[1]->getIdentifier() << endl;
 	}
 };
-// example of a Strategy pattern.
-// traverses the tree by level.
-class MyQueryStrategy : public SpatialIndex::IQueryStrategy
+
+class MyQueryStrategy: public SpatialIndex::IQueryStrategy
 {
 private:
-    Gnuplot gp;
-    std::queue<id_type> ids;
+	gnuplotio::Gnuplot gp;
+	std::queue<SpatialIndex::id_type> ids;
 
 public:
-    MyQueryStrategy() : gp() {
-		gp << "set xrange [-2:2]\nset yrange [-2:2]\n";
+	MyQueryStrategy(): gp() {
+		gp << "set xrange [-0.05:1.15]\nset yrange [-0.05:1.15]\n";
 	}
-    MyQueryStrategy(const MyQueryStrategy&) = delete;
-    MyQueryStrategy& operator=(const MyQueryStrategy&) = delete;
-    MyQueryStrategy(MyQueryStrategy&& other) noexcept
-        : gp(), ids(std::move(other.ids))
-    {
-		gp << "set xrange [-2:2]\nset yrange [-2:2]\n"; // Set the range of the plot
 
-    }
-    MyQueryStrategy& operator=(MyQueryStrategy&& other) noexcept
-    {
-        if (this != &other) {
-            
-            ids = std::move(other.ids);
-        }
-        return *this;
-    }
-    ~MyQueryStrategy()
-    {
-        gp << "plot -1 notitle\n";
-    }
-
-
-	void getNextEntry(const IEntry& entry, id_type& nextEntry, bool& hasNext) override
+	~MyQueryStrategy()
 	{
-		IShape* ps;
+		gp << "plot -1 notitle\n";
+	}
+
+	void getNextEntry(const SpatialIndex::IEntry& entry, SpatialIndex::id_type& nextEntry, bool& hasNext) override
+	{
+		SpatialIndex::IShape* ps;
 		entry.getShape(&ps);
-		Region* pr = dynamic_cast<Region*>(ps);
+		SpatialIndex::Region* pr = dynamic_cast<SpatialIndex::Region*>(ps);
 
-		cerr << pr->m_pLow[0] << " " << pr->m_pLow[1] << endl;
-		cerr << pr->m_pHigh[0] << " " << pr->m_pLow[1] << endl;
-		cerr << pr->m_pHigh[0] << " " << pr->m_pHigh[1] << endl;
-		cerr << pr->m_pLow[0] << " " << pr->m_pHigh[1] << endl;
-		cerr << pr->m_pLow[0] << " " << pr->m_pLow[1] << endl << endl << endl;
-		// print node MBRs gnuplot style!
+		const SpatialIndex::INode* n = dynamic_cast<const SpatialIndex::INode*>(&entry);
 
-		
-		
-		// std::vector<std::pair<double, double> > xy_pts_A;
-		// for(double x=-2; x<2; x+=0.01) {
-		// 	double y = x*x*x;
-		// 	xy_pts_A.push_back(std::make_pair(x, y));
-		// }
-
-		// std::vector<std::pair<double, double> > xy_pts_B;
-		// for(double alpha=0; alpha<1; alpha+=1.0/24.0) {
-		// 	double theta = alpha*2.0*3.14159;
-		// 	xy_pts_B.push_back(std::make_pair(cos(theta), sin(theta)));
-		// }
-
-		// gp << "set xrange [-2:2]\nset yrange [-2:2]\n";
-		// // Data will be sent via a temporary file.  These are erased when you call
-		// // gp.clearTmpfiles() or when gp goes out of scope.  If you pass a filename
-		// // (e.g. "gp.file1d(pts, 'mydata.dat')"), then the named file will be created
-		// // and won't be deleted (this is useful when creating a script).
-		// // gp << "reset";
-		// // gp << "set style rect back fs empty border lc rgb '#008800'";
-		// // gp << "set object rect from" << pr->m_pLow[0] << " " << pr->m_pLow[1] << " to " << pr->m_pHigh[0] <<  " " << pr->m_pHigh[1] << " lw " << 0.001;  
-		
-		// gp << "plot" << gp.file1d(xy_pts_A) << "with lines title 'cubic',"
-		// 	<< gp.file1d(xy_pts_B) << "with points title 'circle'" << std::endl;
-
-
-
-  // Draw the rectangle
-  		std::cerr << "set object " << entry.getIdentifier() <<" rectangle from "<< pr->m_pLow[0] <<"," << pr->m_pLow[1] << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1] <<" fillcolor rgba '1,0,0,0.5' fillstyle solid\n";
-		gp << "set object " << entry.getIdentifier() << " rectangle from "<< pr->m_pLow[0] <<"," << pr->m_pLow[1] << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1] <<" fillcolor rgb rgba '1,0,0,0.5' fillstyle solid\n";
-
-  
-
-		delete ps;
-		const INode* n = dynamic_cast<const INode*>(&entry);
-
-		// traverse only index nodes at levels 2 and higher.
-		if (n != nullptr && n->getLevel() > 1)
-		{
-			for (uint32_t cChild = 0; cChild < n->getChildrenCount(); cChild++)
+		if (n != nullptr) {
+			if (n->getLevel() >= 1)
 			{
-				ids.push(n->getChildIdentifier(cChild));
+				for (uint32_t cChild = 0; cChild < n->getChildrenCount(); cChild++)
+				{
+					ids.push(n->getChildIdentifier(cChild));
+				}
+			}
+			else if (n->getLevel() == 0) {
+				gp << "set object " << entry.getIdentifier()
+					<< " rectangle from "
+					<< pr->m_pLow[0] << "," << pr->m_pLow[1]
+					<< " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1]
+					<< " fillstyle empty border lc rgb 'black' lw 1\n";
+
+				for (uint32_t cChild = 0; cChild < n->getChildrenCount(); ++cChild)
+				{
+					SpatialIndex::IShape* childShape;
+					n->getChildShape(cChild, &childShape);
+
+					SpatialIndex::Region childRegion;
+					childShape->getMBR(childRegion);
+
+					gp << "set object " << n->getIdentifier() << cChild
+						<< " rectangle from "
+						<< childRegion.getLow(0) << "," << childRegion.getLow(1)
+						<< " to " << childRegion.getHigh(0) << "," << childRegion.getHigh(1)
+						<< " fillstyle empty border lc rgb 'red' lw 1\n";
+				}
 			}
 		}
 
-		if (! ids.empty())
+
+		if (!ids.empty())
 		{
-			nextEntry = ids.front(); ids.pop();
+			nextEntry = ids.front();
+			ids.pop();
 
 			hasNext = true;
 		}
@@ -186,33 +152,11 @@ public:
 		{
 			hasNext = false;
 		}
-	}
-};
 
-
-// example of a Strategy pattern.
-// find the total indexed space managed by the index (the MBR of the root).
-class MyQueryStrategy2 : public IQueryStrategy
-{
-public:
-	Region m_indexedSpace;
-
-public:
-	void getNextEntry(const IEntry& entry, id_type& /* nextEntry */, bool& hasNext) override
-	{
-		// the first time we are called, entry points to the root.
-
-		// stop after the root.
-		hasNext = false;
-
-		IShape* ps;
-		entry.getShape(&ps);
-		std::cerr << "indexed space" << m_indexedSpace << std::endl;	
-
-		ps->getMBR(m_indexedSpace);
 		delete ps;
 	}
 };
+
 
 int main(int argc, char** argv)
 {
@@ -236,7 +180,7 @@ int main(int argc, char** argv)
 		}
 
 		ifstream fin(argv[1]);
-		if (! fin)
+		if (!fin)
 		{
 			cerr << "Cannot open query file " << argv[1] << "." << endl;
 			return -1;
@@ -244,14 +188,14 @@ int main(int argc, char** argv)
 
 		string baseName = argv[2];
 		IStorageManager* diskfile = StorageManager::loadDiskStorageManager(baseName);
-			// this will try to locate and open an already existing storage manager.
+		// this will try to locate and open an already existing storage manager.
 
 		StorageManager::IBuffer* file = StorageManager::createNewRandomEvictionsBuffer(*diskfile, 10, false);
-			// applies a main memory random buffer on top of the persistent storage manager
-			// (LRU buffer, etc can be created the same way).
+		// applies a main memory random buffer on top of the persistent storage manager
+		// (LRU buffer, etc can be created the same way).
 
-		// If we need to open an existing tree stored in the storage manager, we only
-		// have to specify the index identifier as follows
+	// If we need to open an existing tree stored in the storage manager, we only
+	// have to specify the index identifier as follows
 		ISpatialIndex* tree = RTree::loadRTree(*file, 1);
 
 		size_t count = 0;
@@ -265,7 +209,7 @@ int main(int argc, char** argv)
 		while (fin)
 		{
 			fin >> op >> id >> x1 >> y1 >> x2 >> y2;
-			if (! fin.good()) continue; // skip newlines, etc.
+			if (!fin.good()) continue; // skip newlines, etc.
 
 			if (op == QUERY)
 			{
@@ -278,13 +222,13 @@ int main(int argc, char** argv)
 				{
 					Region r = Region(plow, phigh, 2);
 					tree->intersectsWithQuery(r, vis);
-						// this will find all data that intersect with the query range.
+					// this will find all data that intersect with the query range.
 				}
 				else if (queryType == 1)
 				{
 					Point p = Point(plow, 2);
 					tree->nearestNeighborQuery(10, p, vis);
-						// this will find the 10 nearest neighbors.
+					// this will find the 10 nearest neighbors.
 				}
 				else
 				{
@@ -294,8 +238,8 @@ int main(int argc, char** argv)
 
 				indexIO += vis.m_indexIO;
 				leafIO += vis.m_leafIO;
-					// example of the Visitor pattern usage, for calculating how many nodes
-					// were visited.
+				// example of the Visitor pattern usage, for calculating how many nodes
+				// were visited.
 			}
 			else
 			{
@@ -320,8 +264,8 @@ int main(int argc, char** argv)
 		delete tree;
 		delete file;
 		delete diskfile;
-			// delete the buffer first, then the storage manager
-			// (otherwise the the buffer will fail writting the dirty entries).
+		// delete the buffer first, then the storage manager
+		// (otherwise the the buffer will fail writting the dirty entries).
 	}
 	catch (Tools::Exception& e)
 	{
