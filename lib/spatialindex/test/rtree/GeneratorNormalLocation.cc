@@ -5,7 +5,7 @@
  * Copyright (c) 2002, Marios Hadjieleftheriou
  *
  * All rights reserved.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -25,6 +25,8 @@
  * DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
 
+#include <boost/random.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 #include <spatialindex/tools/Tools.h>
 #include <cmath>
@@ -54,25 +56,29 @@ int main(int argc, char** argv)
 {
 	if (argc != 5)
 	{
-		std::cerr << "Usage: " << argv[0] << " number_of_data time_instants." << std::endl;
+		std::cerr << "Usage: " << argv[0] << " number_of_data time_instants mean sigma" << std::endl;
 		return -1;
 	}
 
 	size_t simulationLength = atol(argv[2]);
 	size_t numberOfObjects = atol(argv[1]);
 
-	size_t mean = atol(argv[3]);
-	size_t std = atol(argv[4]);
+	double mean = std::stod(argv[3]);
+	double std = std::stod(argv[4]);
 
 	std::map<size_t, Region> data;
 	Tools::Random rnd;
 
+	boost::variate_generator<boost::mt19937, boost::normal_distribution<>>
+		rndNormal(boost::mt19937(time(0)),
+			boost::normal_distribution<>(mean, std));
+
 	for (size_t i = 0; i < numberOfObjects; i++)
 	{
-		double x = rnd.nextNormalDouble(0.5,0.1);
-		double y = rnd.nextNormalDouble(0.5,0.1);
-		double dx = rnd.nextUniformDouble(0.0001, 0.1);
-		double dy = rnd.nextUniformDouble(0.0001, 0.1);
+		double x = rndNormal();
+		double y = rndNormal();
+		double dx = rnd.nextUniformDouble(0.01, 0.1);
+		double dy = rnd.nextUniformDouble(0.01, 0.1);
 		Region r = Region(x, y, x + dx, y + dy);
 
 		data.insert(std::pair<size_t, Region>(i, r));
@@ -117,12 +123,12 @@ int main(int argc, char** argv)
 			std::cout << DELETE << " " << id << " " << (*itMap).second.m_xmin << " " << (*itMap).second.m_ymin << " "
 				<< (*itMap).second.m_xmax << " " << (*itMap).second.m_ymax << std::endl;
 
-			double x = rnd.nextNormalDouble(0.5,0.1);
-			double dx = rnd.nextUniformDouble(0.0001, 0.1);
+			double x = rndNormal();
+			double dx = rnd.nextUniformDouble(0.01, 0.1);
 			(*itMap).second.m_xmin = x;
 			(*itMap).second.m_xmax = x + dx;
-			double y = rnd.nextNormalDouble(0.5,0.1);
-			double dy = rnd.nextUniformDouble(0.0001, 0.1);
+			double y = rndNormal();
+			double dy = rnd.nextUniformDouble(0.01, 0.1);
 			(*itMap).second.m_ymin = y;
 			(*itMap).second.m_ymax = y + dy;
 

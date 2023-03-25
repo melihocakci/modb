@@ -28,8 +28,6 @@
 #include <ctime>
 #include <limits>
 #include <spatialindex/tools/Tools.h>
-#include <boost/random.hpp>
-#include <boost/random/normal_distribution.hpp>
 
 #ifndef HAVE_SRAND48
 #include <spatialindex/tools/rand48.h>
@@ -638,19 +636,6 @@ double Tools::Random::nextUniformDouble()
 double Tools::Random::nextUniformDouble(double low, double high)
 {
 	return (high - low) * nextUniformDouble() + low;
-}
-
-double Tools::Random::nextNormalDouble(double mean, double std){
-
-  boost::mt19937 rng; // I don't seed it on purpouse (it's not relevant)
-
-  boost::normal_distribution<> nd(mean, std);
-
-  boost::variate_generator<boost::mt19937&, 
-                           boost::normal_distribution<> > var_nor(rng, nd);
-
-   return var_nor();
-			
 }
 
 bool Tools::Random::flipCoin()
