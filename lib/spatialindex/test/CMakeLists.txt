@@ -23,6 +23,7 @@ set (SOURCES
         Exhaustive
         Generator
         RTreeBulkLoad
+        GeneratorNormalLocation
         RTreeLoad
         RTreeQuery)
 
