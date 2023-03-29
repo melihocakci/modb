@@ -67,8 +67,8 @@ int main(int argc, char** argv)
 	{
 		double x = rnd.nextUniformDouble();
 		double y = rnd.nextUniformDouble();
-		double dx = rnd.nextUniformDouble(0.0001, 0.1);
-		double dy = rnd.nextUniformDouble(0.0001, 0.1);
+		double dx = rnd.nextUniformDouble(0.01, 0.1);
+		double dy = rnd.nextUniformDouble(0.01, 0.1);
 		Region r = Region(x, y, x + dx, y + dy);
 
 		data.insert(std::pair<size_t, Region>(i, r));
@@ -114,11 +114,11 @@ int main(int argc, char** argv)
 				<< (*itMap).second.m_xmax << " " << (*itMap).second.m_ymax << std::endl;
 
 			double x = rnd.nextUniformDouble();
-			double dx = rnd.nextUniformDouble(0.0001, 0.1);
+			double dx = rnd.nextUniformDouble(0.01, 0.1);
 			(*itMap).second.m_xmin = x;
 			(*itMap).second.m_xmax = x + dx;
 			double y = rnd.nextUniformDouble();
-			double dy = rnd.nextUniformDouble(0.0001, 0.1);
+			double dy = rnd.nextUniformDouble(0.01, 0.1);
 			(*itMap).second.m_ymin = y;
 			(*itMap).second.m_ymax = y + dy;
 

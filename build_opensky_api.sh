@@ -3,9 +3,10 @@
 scriptdir=$(dirname $0)
 pushd $scriptdir
 
-pushd lib
-git clone https://github.com/openskynetwork/opensky-api
+git submodule update --init --recursive
 
-pushd opensky-api/python
-sudo apt install python3-pip
+pushd lib/opensky-api/python
+
+sudo apt update
+sudo apt install python3 python3-pip
 sudo python3 setup.py install

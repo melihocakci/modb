@@ -5,9 +5,7 @@ if dpkg-query -W -f='${Status}' libgnuplot-iostream-dev | grep -q "install ok in
 else
   echo "gnuplot is not installed"
   sudo apt-get update
-  sudo apt-get install gnuplot
-  sudo apt-get install libboost-all-dev
-  sudo apt-get install libgnuplot-iostream-dev
+  sudo apt-get install gnuplot libboost-all-dev libgnuplot-iostream-dev
 fi
 
 
