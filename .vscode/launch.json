@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "AccessExample",
+            "name": "bdb_example_load",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/bin/AccessExample",
+            "program": "${workspaceRoot}/build/bin/bdb_example_load",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -29,34 +29,10 @@
             ]
         },
         {
-            "name": "SequenceExample",
+            "name": "bdb_example_read",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/bin/SequenceExample",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "BtRecExample",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceRoot}/build/bin/BtRecExample",
+            "program": "${workspaceRoot}/build/bin/bdb_example_read",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

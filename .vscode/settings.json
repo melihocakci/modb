@@ -58,7 +58,16 @@
         "utility": "cpp",
         "variant": "cpp",
         "*.ipp": "c",
-        "forward_list": "c"
+        "forward_list": "c",
+        "strstream": "cpp",
+        "cinttypes": "cpp",
+        "unordered_set": "cpp",
+        "algorithm": "cpp",
+        "iterator": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "cfenv": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17"
 }
