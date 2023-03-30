@@ -11,23 +11,53 @@ find_package(Boost  COMPONENTS filesystem system iostreams REQUIRED)
 
 set_property(GLOBAL PROPERTY CXX_STANDARD 17)
 
+include_directories(
+    PRIVATE include
+    PRIVATE ${Boost_INCLUDE_DIRS}
+)
+
+link_libraries(
+    db_cxx
+    spatialindex
+    ${Boost_LIBRARIES}
+)
+
 ###################################################################
 
 set(TARGET_NAME leaf_plot)
 
 add_executable(${TARGET_NAME})
 
-target_include_directories(${TARGET_NAME}
-    PRIVATE include
-    PRIVATE ${Boost_INCLUDE_DIRS}
-)
-
-target_link_libraries(${TARGET_NAME} 
-    db_cxx
-    spatialindex
-    ${Boost_LIBRARIES}
-)
-
 target_sources(${TARGET_NAME} 
     PRIVATE src/leaf_plot.cpp
+)
+
+###################################################################
+
+set(TARGET_NAME BtRecExample)
+
+add_executable(${TARGET_NAME})
+
+target_sources(${TARGET_NAME} 
+    PRIVATE src/BtRecExample.cpp
+)
+
+###################################################################
+
+set(TARGET_NAME SequenceExample)
+
+add_executable(${TARGET_NAME})
+
+target_sources(${TARGET_NAME} 
+    PRIVATE src/SequenceExample.cpp
+)
+
+###################################################################
+
+set(TARGET_NAME AccessExample)
+
+add_executable(${TARGET_NAME})
+
+target_sources(${TARGET_NAME} 
+    PRIVATE src/AccessExample.cpp
 )
