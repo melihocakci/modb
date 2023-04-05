@@ -6,18 +6,18 @@
  * $Id$
  */
 
- // File: excxx_example_database_load.cpp
+// File: excxx_example_database_load.cpp
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 
-#include <bdb_examples/MyDb.hpp>
-#include <bdb_examples/gettingStartedCommon.hpp>
+#include "MyDb.hpp"
+#include "gettingStartedCommon.hpp"
 
 #ifdef _WIN32
 extern "C" {
-    extern int getopt(int, char* const*, const char*);
-    extern char* optarg;
+  extern int getopt(int, char * const *, const char *);
+  extern char *optarg;
 }
 #else
 #include <unistd.h>
@@ -30,8 +30,8 @@ extern "C" {
 } while (0)
 
 // Forward declarations
-void loadInventoryDB(MyDb&, std::string&);
-void loadVendorDB(MyDb&, std::string&);
+void loadInventoryDB(MyDb &, std::string &);
+void loadVendorDB(MyDb &, std::string &);
 
 using namespace std;
 
@@ -39,44 +39,44 @@ int
 usage()
 {
     std::cout << "example_database_load [-b <path to data files>]"
-        << " [-h <database home directory>]" << std::endl;
+              << " [-h <database home directory>]" << std::endl;
 
     std::cout << "Note: If -b -h is specified, then the path must end"
-        << " with your system's path delimiter (/ or \\)"
-        << std::endl;
+              << " with your system's path delimiter (/ or \\)"
+              << std::endl;
     return (-1);
 }
 
 // Loads the contents of vendors.txt and inventory.txt into
 // Berkeley DB databases.
 int
-main(int argc, char* argv[])
+main (int argc, char *argv[])
 {
 
-    int ch;
-    char lastChar;
+   int ch;
+   char lastChar;
 
-    // Initialize the path to the database files
-    std::string basename("./");
-    std::string databaseHome("./");
+   // Initialize the path to the database files
+   std::string basename("./");
+   std::string databaseHome("./");
 
-    // Database names
-    std::string vDbName("vendordb.db");
-    std::string iDbName("inventorydb.db");
-    std::string itemSDbName("itemname.sdb");
+   // Database names
+   std::string vDbName("vendordb.db");
+   std::string iDbName("inventorydb.db");
+   std::string itemSDbName("itemname.sdb");
 
     // Parse the command line arguments
     while ((ch = getopt(argc, argv, "b:h:")) != EOF)
         switch (ch) {
         case 'h':
             databaseHome = optarg;
-            lastChar = databaseHome[databaseHome.size() - 1];
+            lastChar = databaseHome[databaseHome.size() -1];
             if (lastChar != '/' && lastChar != '\\')
                 return (usage());
             break;
         case 'b':
             basename = optarg;
-            lastChar = basename[basename.size() - 1];
+            lastChar = basename[basename.size() -1];
             if (lastChar != '/' && lastChar != '\\')
                 return (usage());
             break;
@@ -100,22 +100,20 @@ main(int argc, char* argv[])
 
         // Associate the primary and the secondary
         inventoryDB.getDb().associate(NULL,
-            &(itemnameSDB.getDb()),
-            get_item_name,
-            0);
+                                      &(itemnameSDB.getDb()),
+                                      get_item_name,
+                                      0);
 
         // Load the inventory database
         loadInventoryDB(inventoryDB, inventoryFile);
 
         // Load the vendor database
         loadVendorDB(vendorDB, vendorFile);
-    }
-    catch (DbException& e) {
+    } catch(DbException &e) {
         std::cerr << "Error loading databases. " << std::endl;
         std::cerr << e.what() << std::endl;
         return (e.get_errno());
-    }
-    catch (std::exception& e) {
+    } catch(std::exception &e) {
         std::cerr << "Error loading databases. " << std::endl;
         std::cerr << e.what() << std::endl;
         return (-1);
@@ -129,7 +127,7 @@ main(int argc, char* argv[])
 // Used to locate the first pound sign (a field delimiter)
 // in the input string.
 size_t
-getNextPound(std::string& theString, std::string& substring)
+getNextPound(std::string &theString, std::string &substring)
 {
     size_t pos = theString.find("#");
     substring.assign(theString, 0, pos);
@@ -139,7 +137,7 @@ getNextPound(std::string& theString, std::string& substring)
 
 // Loads the contents of the inventory.txt file into a database
 void
-loadInventoryDB(MyDb& inventoryDB, std::string& inventoryFile)
+loadInventoryDB(MyDb &inventoryDB, std::string &inventoryFile)
 {
     InventoryData inventoryData;
     std::string substring;
@@ -148,10 +146,10 @@ loadInventoryDB(MyDb& inventoryDB, std::string& inventoryFile)
     COMPQUIET(nextPound, 0);
 
     std::ifstream inFile(inventoryFile.c_str(), std::ios::in);
-    if (!inFile)
+    if ( !inFile )
     {
         std::cerr << "Could not open file '" << inventoryFile
-            << "'. Giving up." << std::endl;
+                  << "'. Giving up." << std::endl;
         throw std::exception();
     }
 
@@ -182,8 +180,8 @@ loadInventoryDB(MyDb& inventoryDB, std::string& inventoryFile)
             nextPound = getNextPound(stringBuf, substring);
             inventoryData.setVendor(substring);
 
-            void* buff = (void*)inventoryData.getSKU().c_str();
-            size_t size = inventoryData.getSKU().size() + 1;
+            void *buff = (void *)inventoryData.getSKU().c_str();
+            size_t size = inventoryData.getSKU().size()+1;
             Dbt key(buff, (u_int32_t)size);
 
             buff = inventoryData.getBuffer();
@@ -201,13 +199,13 @@ loadInventoryDB(MyDb& inventoryDB, std::string& inventoryFile)
 
 // Loads the contents of the vendors.txt file into a database
 void
-loadVendorDB(MyDb& vendorDB, std::string& vendorFile)
+loadVendorDB(MyDb &vendorDB, std::string &vendorFile)
 {
     std::ifstream inFile(vendorFile.c_str(), std::ios::in);
-    if (!inFile)
+    if ( !inFile )
     {
         std::cerr << "Could not open file '" << vendorFile
-            << "'. Giving up." << std::endl;
+                  << "'. Giving up." << std::endl;
         throw std::exception();
     }
 
@@ -218,21 +216,21 @@ loadVendorDB(MyDb& vendorDB, std::string& vendorFile)
         std::getline(inFile, stringBuf);
         memset(&my_vendor, 0, sizeof(VENDOR));
 
-        // Scan the line into the structure.
-        // Convenient, but not particularly safe.
-        // In a real program, there would be a lot more
-        // defensive code here.
+         // Scan the line into the structure.
+         // Convenient, but not particularly safe.
+         // In a real program, there would be a lot more
+         // defensive code here.
         sscanf(stringBuf.c_str(),
-            "%20[^#]#%20[^#]#%20[^#]#%3[^#]#%6[^#]#%13[^#]#%20[^#]#%20[^\n]",
-            my_vendor.name, my_vendor.street,
-            my_vendor.city, my_vendor.state,
-            my_vendor.zipcode, my_vendor.phone_number,
-            my_vendor.sales_rep, my_vendor.sales_rep_phone);
+          "%20[^#]#%20[^#]#%20[^#]#%3[^#]#%6[^#]#%13[^#]#%20[^#]#%20[^\n]",
+          my_vendor.name, my_vendor.street,
+          my_vendor.city, my_vendor.state,
+          my_vendor.zipcode, my_vendor.phone_number,
+          my_vendor.sales_rep, my_vendor.sales_rep_phone);
 
         Dbt key(my_vendor.name, (u_int32_t)strlen(my_vendor.name) + 1);
         Dbt data(&my_vendor, sizeof(VENDOR));
 
-        int result2written = vendorDB.getDb().put(NULL, &key, &data, 0);
+        vendorDB.getDb().put(NULL, &key, &data, 0);
     }
 
     inFile.close();
