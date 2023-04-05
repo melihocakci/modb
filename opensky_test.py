@@ -14,10 +14,10 @@ global unitArea # now it is global
 class Location:
 
     def __init__(self, longitude: float, latitude: float) -> None:
-        self.longitute = longitude
+        self.longitude = longitude
         self.latitude = latitude
 
-    longitute : float
+    longitude : float
     latitude : float
 
 class Rectangle:
@@ -35,12 +35,12 @@ class Rectangle:
     height: float
 
 class Region:
-    def __init__(self, location: Location, region: Rectangle ) -> None:
+    def __init__(self, location: Location, area: Rectangle ) -> None:
         self.center = location
-        self.region = region
+        self.area = area
  
     center : Location
-    region : Rectangle
+    area : Rectangle
 
 class Record:
 
@@ -77,12 +77,12 @@ class RecordStateDto:
 
 
 lastKnownState = defaultdict(str) # RecordStateDto
-samplingCoefficient = 3
+samplingCoefficient = 3 # this is value initiated the best 
 
 while True:
 
-    unitArea = 0.1
-    s = api.get_states()
+    unit = 0.1 # maximum length a plane can take in that moment
+    s = api.get_states() 
 
 
     for state in s.states:
@@ -92,18 +92,25 @@ while True:
         location = Location(longitude=longitude, latitude=latitute)
 
         oid = state.icao24
-        region = Region(location=location, region=Rectangle(unit=unitArea))
-        record = Record(oid, location, region)
+        region = Region(location=location, area=Rectangle(unit=unit))
         lastKnownRegion = None
 
         if(lastKnownState.get(oid) != None):
             lastKnownRegion = lastKnownState[oid].record.baseLocation
 
-        lastKnownState[oid] = RecordStateDto(record=record, velocity=state.velocity)
 
         if(lastKnownRegion != None):
             ## region value will be created
-            break
+            height = abs(lastKnownRegion.latitude-region.center.latitude)
+            width = abs(region.lastKnownRegion.longitude-region.center.longitude)
+            region.area.width = width * samplingCoefficient ## samplingCoeffient is 
+            region.area.height = height * samplingCoefficient
+
+        record = Record(oid, location, region)
+        # subprocess pipe for read by cpp
+        lastKnownState[oid] = RecordStateDto(record=record, velocity=state.velocity)
+
+            
 
     time.sleep(1)
 
