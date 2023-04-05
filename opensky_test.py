@@ -1,6 +1,6 @@
 from opensky_api import OpenSkyApi
 from collections import defaultdict
-
+from Sender import Sender
 import json
 import time
 import os, tempfile
@@ -109,6 +109,7 @@ while True:
 
         record = Record(oid, location, region)
 
+        sender = Sender()
         # subprocess ipc pipe for read by cpp
         tmpdir = tempfile.mkdtemp()
         filename = os.path.join(tmpdir, 'myfifo')
@@ -127,8 +128,8 @@ while True:
 
         lastKnownState[oid] = RecordStateDto(record=record, velocity=state.velocity)
         
-            
-
+    
+    
     time.sleep(1)
 
 
