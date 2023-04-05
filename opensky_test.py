@@ -3,6 +3,7 @@ from collections import defaultdict
 
 import json
 import time
+import os, tempfile
 
 api = OpenSkyApi(username='onrdmr2', password='425262026Asd')
 
@@ -81,7 +82,7 @@ samplingCoefficient = 3 # this is value initiated the best
 
 while True:
 
-    unit = 0.1 # maximum length a plane can take in that moment
+    unit = 0.3 # maximum length a plane can take in that moment
     s = api.get_states() 
 
 
@@ -102,14 +103,30 @@ while True:
         if(lastKnownRegion != None):
             ## region value will be created
             height = abs(lastKnownRegion.latitude-region.center.latitude)
-            width = abs(region.lastKnownRegion.longitude-region.center.longitude)
+            width = abs(lastKnownRegion.longitude-region.center.longitude)
             region.area.width = width * samplingCoefficient ## samplingCoeffient is 
             region.area.height = height * samplingCoefficient
 
         record = Record(oid, location, region)
-        # subprocess pipe for read by cpp
-        lastKnownState[oid] = RecordStateDto(record=record, velocity=state.velocity)
 
+        # subprocess ipc pipe for read by cpp
+        tmpdir = tempfile.mkdtemp()
+        filename = os.path.join(tmpdir, 'myfifo')
+        print(filename)
+        try:
+            os.mkfifo(filename)
+        except OSError as e:
+            print ("Failed to create FIFO: %s" % e)
+        else:
+            fifo = open(filename, 'w')
+            # write stuff to fifo
+            print >> fifo, "hello"
+            fifo.close()
+            os.remove(filename)
+            os.rmdir(tmpdir)
+
+        lastKnownState[oid] = RecordStateDto(record=record, velocity=state.velocity)
+        
             
 
     time.sleep(1)

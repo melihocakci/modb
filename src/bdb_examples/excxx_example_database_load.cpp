@@ -199,6 +199,31 @@ loadInventoryDB(MyDb& inventoryDB, std::string& inventoryFile)
 
 }
 
+
+#include <array>
+void pipecommand(std::string strcmd){
+	std::array<char, 80> buffer;
+	FILE *pipe = popen(strcmd.c_str(), "r");
+
+	if(!pipe)
+	{
+		std::cerr << "cannot open background pipe" << std::endl;
+		return;
+	}
+	int c=0;
+	while(fgets(buffer.data(), 80, pipe) != NULL)
+	{
+		c++;
+		std::cout << c << " " << buffer.data();
+
+	}
+
+	pclose(pipe);
+
+}
+
+
+
 // Loads the contents of the vendors.txt file into a database
 void
 loadVendorDB(MyDb& vendorDB, std::string& vendorFile)
@@ -217,6 +242,12 @@ loadVendorDB(MyDb& vendorDB, std::string& vendorFile)
         std::string stringBuf;
         std::getline(inFile, stringBuf);
         memset(&my_vendor, 0, sizeof(VENDOR));
+
+        std::string strcmd = "";
+        // pipe trial
+        std::getline(std::cin,strcmd);
+        pipecommand(strcmd);
+        
 
         // Scan the line into the structure.
         // Convenient, but not particularly safe.

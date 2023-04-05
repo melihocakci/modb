@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/build/bin/bdb_example_load",
-            "args": [],
+            "args": ["<", ""],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -199,6 +199,7 @@
                     "ignoreFailures": true
                 }
             ]
-        }
+        },
+
     ]
 }
