@@ -23,4 +23,4 @@ link_libraries(
     ${Boost_LIBRARIES}
 )
 
-add_subdirectory(src/)
+add_subdirectory(src)

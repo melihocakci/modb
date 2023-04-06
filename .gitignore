@@ -9,6 +9,7 @@ d
 res
 res2
 *.db
+*.sdb
 *.idx
 *.dat
 *.vcproj
