@@ -1,75 +1,25 @@
 from opensky_api import OpenSkyApi
 from collections import defaultdict
 from Sender import Sender
+from DataModels import Record, Rectangle, Location, Region
 import json
 import time
-import os, tempfile
+from dataclasses import dataclass
 
 api = OpenSkyApi(username='onrdmr2', password='425262026Asd')
 
 
 global unitArea # now it is global
 
-
-
-class Location:
-
-    def __init__(self, longitude: float, latitude: float) -> None:
-        self.longitude = longitude
-        self.latitude = latitude
-
-    longitude : float
-    latitude : float
-
-class Rectangle:
-    
-    def __init__(self, width=None, height=None, unit=None) -> None:
-        if unit == None:
-            self.width = width
-            self.height = height
-        else:
-            self.width = unit
-            self.height = unit
-
-
-    width: float 
-    height: float
-
-class Region:
-    def __init__(self, location: Location, area: Rectangle ) -> None:
-        self.center = location
-        self.area = area
- 
-    center : Location
-    area : Rectangle
-
-class Record:
-
-    def __init__(self, oid: str,  baseLocation: Location, probabilityRegion: Region) -> None:
-        self.oid = oid
-        self.baseLocation = baseLocation
-        self.probabilityRegion = probabilityRegion
-
-    baseLocation : Location
-    probabilityRegion : Rectangle
-    oid : int
-
-    def __iter__(self):
-        yield from {
-            "oid": self.oid,
-            "r": self.center,
-            "c": self.probabilityRegion.center,
-            "W": self.probabilityRegion.region
-        }.items()
-
-    def __repr__(self):
-        return self.__str__()
-
+@dataclass
 class RecordStateDto:
 
     def __init__(self, record:Record, velocity: float) -> None:
         self.record = record
         self.velocity = velocity
+
+    def toJsonRecord(self):
+        return json.dumps(record.dict())
 
     record : Record
     velocity : float
@@ -109,25 +59,13 @@ while True:
 
         record = Record(oid, location, region)
 
-        sender = Sender()
-        # subprocess ipc pipe for read by cpp
-        tmpdir = tempfile.mkdtemp()
-        filename = os.path.join(tmpdir, 'myfifo')
-        print(filename)
-        try:
-            os.mkfifo(filename)
-        except OSError as e:
-            print ("Failed to create FIFO: %s" % e)
-        else:
-            fifo = open(filename, 'w')
-            # write stuff to fifo
-            print >> fifo, "hello"
-            fifo.close()
-            os.remove(filename)
-            os.rmdir(tmpdir)
+        sender = Sender("mypipe")
+
 
         lastKnownState[oid] = RecordStateDto(record=record, velocity=state.velocity)
-        
+
+
+        lastKnownState[oid].toJsonRecord()        
     
     
     time.sleep(1)
