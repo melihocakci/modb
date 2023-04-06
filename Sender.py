@@ -2,50 +2,63 @@ import json
 import time
 import os, tempfile
 
-# subprocess ipc pipe for read by cpp
-tmpdir = tempfile.mkdtemp()
-filename = os.path.join(tmpdir, 'myfifo')
-print(filename)
-
+# Subprocess ipc pipe for read by cpp
+# This class function is send data to pipe and write onto it
+# initial configuration made in constructor
+# then open the fifo based pipe
+# and after readers are taken in pipe like outside cpp,python etc.
+# 
+# this class also receiver compatible with private methods
 class Sender:
     foo: str
     
-    def __init__(self):
-        foo = "I am sender prototype"
+    # pipe creation logic in constructor
+    def __init__(self, pipename):
+        self.pipename = pipename
+        self.tmpdir = tempfile.mkdtemp()
+        self.path2fifo = os.path.join(self.tmpdir, self.pipename)
+        print( "pipe is configuration at : " + self.path2fifo)
 
 
-    def openFifo(filename):
-        os.mkfifo(filename)
-        fifo = open(filename, 'w')
-        fifo.write("some testing data\n")
+    def __del__(self):
+        self.fifo.close()
+        os.remove(self.path2fifo)
+        os.rmdir(self.tmpdir)
 
-    def readFifo(filename):
-        fifo = open(filename, 'r')
+    def openFifo(self):
+        try:
+
+            os.mkfifo(self.path2fifo)
+            print("pipe opening, please add reader to it :" + self.path2fifo)
+            self.fifo = open(self.path2fifo, 'w')
+            self.fifo.write("some testing data\n")
+            print("pipe opened at :" + self.path2fifo)
+
+
+        except OSError as e:
+            print ("Failed to create FIFO: %s" % e)
+
+
+    def _readFifo(self):
+        readerFifo = open(self.path2fifo, 'r')
         while True:
-            data = fifo.read()
+            data = readerFifo.read()
             if len(data) == 0:
                 break
             print('Received:', data)
 
-    def exampleSender():
-        try:
-            # p1 = Process(target=openFifo, args=(filename,))
-            # p1.start()
+    def sendData(self, data):
+        self.fifo.write(data)
 
-            # p2 = Process(target=readFifo, args=(filename,))
-            # p2.start()
+    def sendDataWithFlushBuffer(self, data):
+        self.fifo.write(data)
+        self.fifo.flush()
 
-            os.mkfifo(filename)
-            fifo = open(filename, 'w')
-            fifo.write("some testing data\n")
+    def flushBuffer(self):
+        self.fifo.flush()
 
-        except OSError as e:
-            print ("Failed to create FIFO: %s" % e)
-        else:
-            fifo = open(filename, 'w')
-            # write stuff to fifo
-            print >> fifo, "hello"
-            fifo.close()
-            os.remove(filename)
-            os.rmdir(tmpdir)
+    def pipeLocation(self):
+        return self.path2fifo
 
+    def _setPipeLocation(self, path):
+        self.path2fifo = path
