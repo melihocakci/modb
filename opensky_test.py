@@ -30,6 +30,12 @@ class RecordStateDto:
 lastKnownState = defaultdict(str) # RecordStateDto
 samplingCoefficient = 3 # this is value initiated the best 
 
+
+# pipe configuration are made
+sender = Sender("mypipe")
+sender.openFifo()
+
+
 while True:
 
     unit = 0.3 # maximum length a plane can take in that moment
@@ -59,14 +65,11 @@ while True:
 
         record = Record(oid, location, region)
 
-        sender = Sender("mypipe")
-
-
         lastKnownState[oid] = RecordStateDto(record=record, velocity=state.velocity)
+        recordJsonData = lastKnownState[oid].toJsonRecord()
+        
 
-
-        lastKnownState[oid].toJsonRecord()        
-    
+        sender.sendDataWithFlushBuffer(recordJsonData)
     
     time.sleep(1)
 
