@@ -31,7 +31,7 @@ extern "C" {
 
 // Forward declarations
 void loadInventoryDB(MyDb&, std::string&);
-void loadVendorDB(MyDb&, std::string&);
+void loadVendorDB(MyDb&, std::string&, std::ifstream& pipeStream);
 
 using namespace std;
 
@@ -104,11 +104,33 @@ main(int argc, char* argv[])
             get_item_name,
             0);
 
+
         // Load the inventory database
         loadInventoryDB(inventoryDB, inventoryFile);
 
-        // Load the vendor database
-        loadVendorDB(vendorDB, vendorFile);
+        
+
+        
+        std::string defaultPipeLocation = "/home/onur/moving-object-db-system/pipe/mypipe";
+        std::ifstream pipeStream;
+        // Step 1 : arg path exist
+        if(argv[1] != nullptr) {
+            std::ifstream pipeStream{argv[1]};
+        } 
+        // Step 2: if there is in appsetting
+        else if(true) {
+            throw std::logic_error("Not implemented yet");
+        }
+        // Step 3: default program path 
+        else {
+            std::ifstream pipeStream{defaultPipeLocation};
+            if( pipeStream.peek() == std::ifstream::traits_type::eof()) {
+                throw std::invalid_argument("there is no way to pipe data. Do you start pipe resource like opensky.py");
+            }
+
+        }
+
+        loadVendorDB(vendorDB, vendorFile, pipeStream);
     }
     catch (DbException& e) {
         std::cerr << "Error loading databases. " << std::endl;
@@ -226,7 +248,7 @@ void pipecommand(std::string strcmd){
 
 // Loads the contents of the vendors.txt file into a database
 void
-loadVendorDB(MyDb& vendorDB, std::string& vendorFile)
+loadVendorDB(MyDb& vendorDB, std::string& vendorFile, std::ifstream& pipeStream)
 {
     std::ifstream inFile(vendorFile.c_str(), std::ios::in);
     if (!inFile)
@@ -245,8 +267,11 @@ loadVendorDB(MyDb& vendorDB, std::string& vendorFile)
 
         std::string strcmd = "";
         // pipe trial
-        std::getline(std::cin,strcmd);
-        pipecommand(strcmd);
+        
+
+        std::string line;
+        std::getline(pipeStream, line);
+        std::cout << line << '\n';
         
 
         // Scan the line into the structure.

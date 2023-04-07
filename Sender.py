@@ -31,12 +31,13 @@ class Sender:
             os.mkfifo(self.path2fifo)
             print("pipe opening, please add reader to it :" + self.path2fifo)
             self.fifo = open(self.path2fifo, 'w')
-            self.fifo.write("some testing data\n")
+            # self.fifo.write("some testing data\n")
             print("pipe opened at :" + self.path2fifo)
 
 
         except OSError as e:
             print ("Failed to create FIFO: %s" % e)
+            raise Exception("Fifo does exist")
 
 
     def _readFifo(self):
@@ -51,14 +52,37 @@ class Sender:
         self.fifo.write(data)
 
     def sendDataWithFlushBuffer(self, data):
-        self.fifo.write(data)
+        self.fifo.write(data+"\n")
         self.fifo.flush()
 
     def flushBuffer(self):
         self.fifo.flush()
 
     def pipeLocation(self):
-        return self.path2fifo
+        return self.path2f55ifo
+    def _setPipeDirectory(self, directoryPath):
+        self.tmpdir = directoryPath
+        self.path2fifo = os.path.join(self.tmpdir, self.pipename)
+        print("setting new pipe location to " + self.path2fifo)
 
-    def _setPipeLocation(self, path):
+    def writePipeFilePath2AppSetting(self):
+        file = "appsetting.json"
+        if(os.path.exists(file)):
+            appSetting = open(file,'w+')
+            appSetting.seek(0)
+            jsonData=json.load(appSetting)
+            jsonData['pipePath'] = self.path2fifo
+            appSetting.seek(0)
+            json.dump(jsonData, appSetting)
+        else:
+            appSetting = open("appsetting.json", 'w+')
+            appSetting.write('{}')
+            appSetting.seek(0)
+            jsonData=json.loads(appSetting.read())
+            jsonData['pipePath'] = self.path2fifo
+            appSetting.seek(0)
+
+            json.dump(jsonData, appSetting)
+
+    def _setPipeLocationWithPipename(self, path):
         self.path2fifo = path

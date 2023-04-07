@@ -33,7 +33,11 @@ samplingCoefficient = 3 # this is value initiated the best
 
 # pipe configuration are made
 sender = Sender("mypipe")
+sender._setPipeDirectory("./pipe")
+
+sender.writePipeFilePath2AppSetting()
 sender.openFifo()
+
 
 
 while True:

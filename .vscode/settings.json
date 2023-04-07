@@ -67,7 +67,16 @@
         "memory_resource": "cpp",
         "numeric": "cpp",
         "random": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "any": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "coroutine": "cpp",
+        "source_location": "cpp",
+        "numbers": "cpp",
+        "ranges": "cpp",
+        "stop_token": "cpp",
+        "semaphore": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17"
 }
