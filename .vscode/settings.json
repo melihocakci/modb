@@ -76,7 +76,10 @@
         "numbers": "cpp",
         "ranges": "cpp",
         "stop_token": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "valarray": "cpp",
+        "regex": "cpp",
+        "shared_mutex": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17"
 }

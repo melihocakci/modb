@@ -4,6 +4,9 @@
 #include <string>
 #include <fstream>
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 
 
 const char* dbFileName{ "test.db" };
@@ -92,13 +95,20 @@ void apiCallStarter () {
 
 int main(int argc, char** argv) {
     apiCallStarter();
+    std::string line;
+
+
+    int i = 0;
+
+    std::ifstream f("/home/onur/moving-object-db-system/appsetting.json");
+    json data = json::parse(f);
 
     std::cout << "if it is called twice" << std::endl;
-    std::ifstream file{argv[1]};
-    std::string line;
-    while(true) {
+    std::ifstream file{data["pipePath"]};
+    while(i < 1000) {
         std::getline(file, line);
         std::cout << line << '\n';
+        i++;
     }
     return 0;
 }
