@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
+
+
 
 const char* dbFileName{ "test.db" };
 
@@ -18,7 +21,7 @@ private:
     int m_value;
 };
 
-int main() {
+bool exampleLoad() {
     try
     {
         Db myDb{ NULL, 0 };
@@ -61,5 +64,41 @@ int main() {
         std::cerr << e.what() << std::endl;
         return 1;
     }
+    return true;
+}
 
+void apiCallStarter () {
+    std::string filename = "api_call/opensky_test.py";
+    std::string command = "python3 ";
+    command += filename;
+
+    pid_t c_pid = fork();
+
+    if (c_pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+
+    } else if (c_pid > 0) {
+        std::cout << "printed from parent process" << getpid() << std::endl;
+    } else {
+        system(command.c_str());
+        std::cout << "printed from child process" << getpid() << std::endl; 
+    }
+
+    // fscanf(in, "%s");
+
+    // pclose(in);
+}
+
+int main(int argc, char** argv) {
+    apiCallStarter();
+
+    std::cout << "if it is called twice" << std::endl;
+    std::ifstream file{argv[1]};
+    std::string line;
+    while(true) {
+        std::getline(file, line);
+        std::cout << line << '\n';
+    }
+    return 0;
 }

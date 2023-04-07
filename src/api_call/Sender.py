@@ -1,6 +1,8 @@
 import json
-import time
 import os, tempfile
+
+## PLACEMENT OF THIS FILE IN PROCET STRUCTURE IS IMPORTANT CHECK 00001 IN FILE
+##
 
 # Subprocess ipc pipe for read by cpp
 # This class function is send data to pipe and write onto it
@@ -66,16 +68,17 @@ class Sender:
         print("setting new pipe location to " + self.path2fifo)
 
     def writePipeFilePath2AppSetting(self):
-        file = "appsetting.json"
+        file = os.path.dirname(os.path.abspath(__file__)) + "/../../appsetting.json" ## this file can be change if placement of Sender.py CHANGE | 00001
         if(os.path.exists(file)):
-            appSetting = open(file,'w+')
+            appSetting = open(file,'r')
             appSetting.seek(0)
-            jsonData=json.load(appSetting)
+            jsonData=json.loads(appSetting.read()) 
             jsonData['pipePath'] = self.path2fifo
             appSetting.seek(0)
-            json.dump(jsonData, appSetting)
+            appSettingW = open(file,'w+')
+            json.dump(jsonData, appSettingW)
         else:
-            appSetting = open("appsetting.json", 'w+')
+            appSetting = open(file, 'w+')
             appSetting.write('{}')
             appSetting.seek(0)
             jsonData=json.loads(appSetting.read())

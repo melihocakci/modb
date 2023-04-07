@@ -12,3 +12,10 @@
     cd build
     cmake ..
     make
+
+## For using pipe
+
+    cd src/pipe_example
+    g++ pipe.cpp -o pipe
+    python3 opensky_test.py
+
