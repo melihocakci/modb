@@ -14,7 +14,7 @@ global unitArea # now it is global
 @dataclass
 class RecordStateDto:
 
-    def __init__(self, record:Record, velocity: float) -> None:
+    def __init__(self, record: Record, velocity: float) -> None:
         self.record = record
         self.velocity = velocity
 

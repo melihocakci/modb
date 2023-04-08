@@ -7,7 +7,12 @@
 #include <cstdint>
 #include <cstring>
 
+
 const std::string dbFileName{ "test.db" };
+
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 
 class Plane {
 public:
@@ -120,16 +125,21 @@ void apiCallStarter() {
 }
 
 int main(int argc, char** argv) {
-    // apiCallStarter();
+    apiCallStarter();
+    std::string line;
 
-    // std::cout << "if it is called twice" << std::endl;
-    // std::ifstream file{argv[1]};
-    // std::string line;
-    // while (true) {
-    //     std::getline(file, line);
-    //     std::cout << line << '\n';
-    // }
-    // return 0;
 
-    exampleLoad();
+    int i = 0;
+
+    std::ifstream f("/home/onur/moving-object-db-system/appsetting.json");
+    json data = json::parse(f);
+
+    std::cout << "if it is called twice" << std::endl;
+    std::ifstream file{data["pipePath"]};
+    while(i < 1000) {
+        std::getline(file, line);
+        std::cout << line << '\n';
+        i++;
+    }
+    return 0;
 }
