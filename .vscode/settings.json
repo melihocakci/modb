@@ -76,7 +76,8 @@
         "numbers": "cpp",
         "ranges": "cpp",
         "stop_token": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "*.incl": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17"
 }

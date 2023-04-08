@@ -1,13 +1,18 @@
 #include <db_cxx.h>
 #include <modb/Plane.h>
 
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/serialization.hpp>
+
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <unistd.h>
 #include <cstdint>
-#include <cstring>
 #include <memory>
+#include <sstream>
 
 const std::string dbFileName{ "plane.db" };
 
@@ -21,12 +26,14 @@ int exampleLoad() {
         modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
         std::string planeOid = plane.getOid();
 
-        
-        std::unique_ptr<uint8_t> buffer = std::make_unique<uint8_t>(100);
-        size_t buf_size = plane.fillBuffer(buffer.get());
+        std::ostringstream oss{};
+        boost::archive::binary_oarchive oa(oss);
 
-        Dbt key(&planeOid, static_cast<uint32_t>(sizeof(planeOid)));
-        Dbt value(buffer.get(), static_cast<uint32_t>(buf_size));
+        oa << plane;
+        std::string serialized{oss.str()};
+
+        Dbt key(const_cast<char*>(planeOid.c_str()), static_cast<uint32_t>(planeOid.length() + 1));
+        Dbt value(const_cast<char*>(serialized.c_str()), static_cast<uint32_t>(serialized.length() + 1));
 
         myDb.put(NULL, &key, &value, 0);
 
@@ -41,7 +48,16 @@ int exampleLoad() {
             return 1;
         }
 
-        modb::Plane readRecord(reinterpret_cast<uint8_t*>(retVal.get_data()));
+        uint32_t tmp = retVal.get_size();
+
+        std::string newObject{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
+
+        std::istringstream iss{newObject};
+        boost::archive::binary_iarchive ia{iss};
+
+        modb::Plane readRecord;
+
+        ia >> readRecord;
 
         std::cout << "key is " << readRecord.getOid() << std::endl;
     }

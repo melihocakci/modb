@@ -4,28 +4,25 @@
 #include <modb/Point.h>
 
 #include <string>
-#include <cstdint>
 
 namespace modb {
     class Plane {
     public:
-        Plane() = delete;
+        Plane() = default;
 
         Plane(std::string oid, modb::Point baseLocation, modb::Point mbrLocation, double mbrWidth);
 
-        Plane(uint8_t* buffer);
-
-        ~Plane() = default;
-
-        size_t fillBuffer(uint8_t* buffer);
+        template <class Archive>
+        inline void serialize(Archive& ar, unsigned int) {
+            ar& m_oid;
+            ar& m_baseLocation;
+            ar& m_mbrLocation;
+            ar& m_mbrWidth;
+        }
 
         std::string getOid();
 
     private:
-        template <typename T> void putInBuffer(T* object, uint8_t* buffer, size_t& offset);
-
-        template <typename T> void getFromBuffer(T* object, uint8_t* buffer, size_t& offset);
-
         std::string m_oid;
 
         modb::Point m_baseLocation;

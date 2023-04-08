@@ -8,6 +8,12 @@ namespace modb {
         double latitude;
 
         ~Point() = default;
+
+        template <class Archive>
+        inline void serialize(Archive& ar, unsigned int) {
+            ar& longitude;
+            ar& latitude;
+        }
     };
 }
 
