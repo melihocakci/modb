@@ -77,6 +77,7 @@
         "ranges": "cpp",
         "stop_token": "cpp",
         "semaphore": "cpp",
+        "*.incl": "cpp"
         "valarray": "cpp",
         "regex": "cpp",
         "shared_mutex": "cpp"

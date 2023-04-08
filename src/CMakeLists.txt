@@ -29,3 +29,14 @@ add_executable(${TARGET_NAME})
 target_sources(${TARGET_NAME} 
     PRIVATE bdb-test.cpp
 )
+
+###################################################################
+
+set(TARGET_NAME modb)
+
+add_executable(${TARGET_NAME})
+
+target_sources(${TARGET_NAME} 
+    PRIVATE main.cpp
+    PRIVATE Plane.cpp
+)

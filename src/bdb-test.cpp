@@ -3,17 +3,42 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <unistd.h>
+#include <cstdint>
+#include <cstring>
+
+
+const std::string dbFileName{ "test.db" };
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 
-
-const char* dbFileName{ "test.db" };
-
-class Record {
+class Plane {
 public:
-    Record(int key, int value): m_key{ key }, m_value{ value } {}
+    Plane(int key, int value): m_key{ key }, m_value{ value } {}
+
+    Plane(uint8_t* buffer) {
+        int offset{ 0 };
+
+        std::memcpy(&m_key, &buffer[offset], sizeof(m_key));
+        offset += sizeof(m_key);
+
+        std::memcpy(&m_value, &buffer[offset], sizeof(m_value));
+        offset += sizeof(m_value);
+    }
+
+    size_t fillBuffer(uint8_t* buffer) {
+        size_t offset{ 0 };
+
+        std::memcpy(&buffer[offset], &m_key, sizeof(m_key));
+        offset += sizeof(m_key);
+
+        std::memcpy(&buffer[offset], &m_value, sizeof(m_value));
+        offset += sizeof(m_value);
+
+        return offset;
+    }
 
     int getKey() { return m_key; }
 
@@ -24,18 +49,21 @@ private:
     int m_value;
 };
 
-bool exampleLoad() {
+int exampleLoad() {
     try
     {
         Db myDb{ NULL, 0 };
         myDb.set_error_stream(&std::cerr);
-        myDb.open(NULL, dbFileName, NULL, DB_BTREE, DB_CREATE, 0);
+        myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
-        Record myRecord{ 1, 111 };
-        auto myKey = myRecord.getKey();
+        Plane myRecord{ 1, 111 };
+        uint8_t buffer[100];
 
-        Dbt key(reinterpret_cast<void*>(&myKey), static_cast<uint32_t>(sizeof(myKey)));
-        Dbt value(reinterpret_cast<void*>(&myRecord), static_cast<uint32_t>(sizeof(myRecord)));
+        int myKey = myRecord.getKey();
+        size_t buf_size = myRecord.fillBuffer(buffer);
+
+        Dbt key(&myKey, static_cast<uint32_t>(sizeof(myKey)));
+        Dbt value(&buffer, static_cast<uint32_t>(buf_size));
 
         myDb.put(NULL, &key, &value, 0);
 
@@ -50,10 +78,10 @@ bool exampleLoad() {
             return 1;
         }
 
-        Record* readRecord = reinterpret_cast<Record*>(retVal.get_data());
+        Plane readRecord(reinterpret_cast<uint8_t*>(retVal.get_data()));
 
-        std::cout << "key is " << readRecord->getKey() << std::endl;
-        std::cout << "value is " << readRecord->getValue() << std::endl;
+        std::cout << "key is " << readRecord.getKey() << std::endl;
+        std::cout << "value is " << readRecord.getValue() << std::endl;
     }
     catch (DbException& e)
     {
@@ -67,10 +95,11 @@ bool exampleLoad() {
         std::cerr << e.what() << std::endl;
         return 1;
     }
-    return true;
+
+    return 0;
 }
 
-void apiCallStarter () {
+void apiCallStarter() {
     std::string filename = "api_call/opensky_test.py";
     std::string command = "python3 ";
     command += filename;
@@ -81,11 +110,13 @@ void apiCallStarter () {
         perror("fork");
         exit(EXIT_FAILURE);
 
-    } else if (c_pid > 0) {
+    }
+    else if (c_pid > 0) {
         std::cout << "printed from parent process" << getpid() << std::endl;
-    } else {
+    }
+    else {
         system(command.c_str());
-        std::cout << "printed from child process" << getpid() << std::endl; 
+        std::cout << "printed from child process" << getpid() << std::endl;
     }
 
     // fscanf(in, "%s");
