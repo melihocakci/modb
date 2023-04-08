@@ -4,8 +4,10 @@
 namespace modb {
     class Point {
     public:
-        double longitude;
-        double latitude;
+        float longitude;
+        float latitude;
+
+        Point(Point &other) = default;
 
         ~Point() = default;
 
