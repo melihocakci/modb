@@ -8,7 +8,8 @@
 namespace modb {
     class Plane {
     public:
-        Plane() = default;
+        Plane();
+        
 
         Plane(std::string oid, modb::Point baseLocation, modb::Point mbrLocation, float mbrWidth);
 

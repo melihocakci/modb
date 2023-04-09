@@ -7,6 +7,9 @@ namespace modb {
         float longitude;
         float latitude;
 
+        Point() = default;
+
+
         Point(Point &other) = default;
 
         ~Point() = default;
