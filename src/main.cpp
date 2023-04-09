@@ -19,49 +19,46 @@ const std::string dbFileName{ "plane.db" };
 int exampleLoad() {
     try
     {
-        Db myDb{ NULL, 0 };
-        myDb.set_error_stream(&std::cerr);
-        myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
+        Db planeDB{ NULL, 0 };
+        planeDB.set_error_stream(&std::cerr);
+        planeDB.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
-        modb::Point{1,2};
+        const modb::Plane plane{ "a3a5d9", { 12.2354, 17.3522 }, { 65.4543, 95.1235 }, 36.9276 };
 
-        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
-        std::string planeOid = plane.getOid();
+        std::ostringstream outputStream{};
+        boost::archive::binary_oarchive outputArchive(outputStream);
 
-        std::ostringstream oss{};
-        boost::archive::binary_oarchive oa(oss);
+        outputArchive << plane;
+        std::string outputBuffer{outputStream.str()};
 
-        oa << plane;
-        std::string serialized{oss.str()};
+        Dbt key(const_cast<char*>(plane.oid.c_str()), static_cast<uint32_t>(plane.oid.length() + 1));
+        Dbt value(const_cast<char*>(outputBuffer.c_str()), static_cast<uint32_t>(outputBuffer.length() + 1));
 
-        Dbt key(const_cast<char*>(planeOid.c_str()), static_cast<uint32_t>(planeOid.length() + 1));
-        Dbt value(const_cast<char*>(serialized.c_str()), static_cast<uint32_t>(serialized.length() + 1));
-
-        myDb.put(NULL, &key, &value, 0);
+        planeDB.put(NULL, &key, &value, 0);
 
         Dbc* cursorp;
-        myDb.cursor(NULL, &cursorp, 0);
+        planeDB.cursor(NULL, &cursorp, 0);
 
         Dbt retVal;
         int ret = cursorp->get(&key, &retVal, DB_SET);
 
         if (ret) {
-            std::cerr << "No records found for '" << planeOid << "'" << std::endl;
+            std::cerr << "No records found for '" << plane.oid << "'" << std::endl;
             return 1;
         }
 
         uint32_t tmp = retVal.get_size();
 
-        std::string newObject{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
+        std::string inputBuffer{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
+        std::istringstream inputStream{inputBuffer};
+        boost::archive::binary_iarchive inputArchive{inputStream};
 
-        std::istringstream iss{newObject};
-        boost::archive::binary_iarchive ia{iss};
+        modb::Plane tmpPlane;
+        inputArchive >> tmpPlane;
 
-        modb::Plane readRecord;
+        const modb::Plane retPLane{std::move(tmpPlane)};
 
-        ia >> readRecord;
-
-        std::cout << "key is " << readRecord.getOid() << std::endl;
+        std::cout << "key is " << retPLane.oid << std::endl;
     }
     catch (DbException& e)
     {
