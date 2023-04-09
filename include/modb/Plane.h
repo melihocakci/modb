@@ -8,35 +8,24 @@
 namespace modb {
     class Plane {
     public:
-        Plane();
-        
+        std::string oid;
+        Point baseLocation;
+        Point mbrLocation;
+        float mbrWidth;
 
-        Plane(std::string oid, modb::Point baseLocation, modb::Point mbrLocation, float mbrWidth);
+        Plane() = default;
+
+        Plane(Plane& other) = default;
+
+        ~Plane() = default;
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {
-            ar& m_oid;
-            ar& m_baseLocation;
-            ar& m_mbrLocation;
-            ar& m_mbrWidth;
+            ar& oid;
+            ar& baseLocation;
+            ar& mbrLocation;
+            ar& mbrWidth;
         }
-
-        std::string getOid();
-
-        modb::Point getBaseLocation();
-
-        modb::Point getMbrLocation();
-
-        float getMbrWidth();
-
-    private:
-        std::string m_oid;
-
-        modb::Point m_baseLocation;
-
-        modb::Point m_mbrLocation;
-
-        float m_mbrWidth;
     };
 }
 

@@ -9,8 +9,7 @@ namespace modb {
 
         Point() = default;
 
-
-        Point(Point &other) = default;
+        Point(Point& other) = default;
 
         ~Point() = default;
 
