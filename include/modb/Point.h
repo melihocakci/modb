@@ -7,11 +7,13 @@ namespace modb {
         float longitude;
         float latitude;
 
-        Point() = default;
+        Point();
 
-        Point(Point& other) = default;
+        Point(Point& other);
 
-        ~Point() = default;
+        Point(Point&& other);
+
+        Point(float longitude, float latitude);
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {

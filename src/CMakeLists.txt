@@ -38,4 +38,6 @@ add_executable(${TARGET_NAME})
 
 target_sources(${TARGET_NAME} 
     PRIVATE main.cpp
+    PRIVATE Plane.cpp
+    PRIVATE Point.cpp
 )

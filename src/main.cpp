@@ -23,7 +23,7 @@ int exampleLoad() {
         planeDB.set_error_stream(&std::cerr);
         planeDB.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
-        const modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
+        const modb::Plane plane{ "a3a5d9", { 12.2354, 17.3522 }, { 65.4543, 95.1235 }, 36.9276 };
 
         std::ostringstream outputStream{};
         boost::archive::binary_oarchive outputArchive(outputStream);
@@ -53,10 +53,12 @@ int exampleLoad() {
         std::istringstream inputStream{inputBuffer};
         boost::archive::binary_iarchive inputArchive{inputStream};
 
-        modb::Plane readRecord;
-        inputArchive >> readRecord;
+        modb::Plane tmpPlane;
+        inputArchive >> tmpPlane;
 
-        std::cout << "key is " << readRecord.oid << std::endl;
+        const modb::Plane retPLane{std::move(tmpPlane)};
+
+        std::cout << "key is " << retPLane.oid << std::endl;
     }
     catch (DbException& e)
     {

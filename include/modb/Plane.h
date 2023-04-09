@@ -13,11 +13,13 @@ namespace modb {
         Point mbrLocation;
         float mbrWidth;
 
-        Plane() = default;
+        Plane();
 
-        Plane(Plane& other) = default;
+        Plane(Plane& other);
 
-        ~Plane() = default;
+        Plane(Plane&& other);
+
+        Plane(std::string oid, Point baseLocation, Point mbrLocation, float mbrWidth);
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {
