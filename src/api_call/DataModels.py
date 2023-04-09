@@ -74,7 +74,7 @@ class Record:
     oid : int
 
     def dict(self):
-        return {'oid': self.oid, 'baseLocaton': self.baseLocation.__dict__, 'probabilityRegion': self.probabilityRegion.dict() }
+        return {'oid': self.oid, 'baseLocation': self.baseLocation.__dict__, 'probabilityRegion': self.probabilityRegion.dict() }
 
 
 if __name__ == "test":

@@ -1,5 +1,7 @@
 #include <db_cxx.h>
 
+#include <modb/DatabaseResource.h>
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -99,6 +101,8 @@ int exampleLoad() {
     return 0;
 }
 
+
+
 void apiCallStarter() {
     std::string filename = "api_call/opensky_test.py";
     std::string command = "python3 ";
@@ -119,27 +123,47 @@ void apiCallStarter() {
         std::cout << "printed from child process" << getpid() << std::endl;
     }
 
-    // fscanf(in, "%s");
-
-    // pclose(in);
 }
 
+
 int main(int argc, char** argv) {
+    // modb::DatabaseResource resource;
+
+
+ 
     apiCallStarter();
     std::string line;
 
-
     int i = 0;
 
-    std::ifstream f("/home/onur/moving-object-db-system/appsetting.json");
-    json data = json::parse(f);
+    std::ifstream f("/home/onur/moving-object-db-system/appsetting.json"); // this place is in /etc while building production code
+    json appSetting = json::parse(f);
 
     std::cout << "if it is called twice" << std::endl;
-    std::ifstream file{data["pipePath"]};
+    std::ifstream file{appSetting["pipePath"]};
     while(i < 1000) {
         std::getline(file, line);
+
+        // there will be two database in this system 
+        // First : data that be in r-tree is primary db.
+        // Second : data that be in continuosly peek api
+
+        // convert line to json
+        json data = json::parse(line);
+
+        // convert json to Plane format 
+
+
+        // serialize object
+
+
+        // write berkeleydb
+
+
+
         std::cout << line << '\n';
         i++;
     }
+
     return 0;
 }
