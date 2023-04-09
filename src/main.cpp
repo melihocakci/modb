@@ -25,7 +25,7 @@ int exampleLoad2() {
         modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
 
         const std::string planeOid = plane.getOid();
-        std::string serialized = dbResource.Serializer().Serialize(plane);
+        std::string serialized = dbResource.Serializer_().Serialize(plane);
 
         dbResource.WriteKeyValuePair(planeOid, serialized);
 
@@ -45,7 +45,7 @@ int exampleLoad2() {
         std::cerr << e.what() << std::endl;
         return 1;
     }
-
+    return 0;
 }
 
 int exampleLoad() {

@@ -28,7 +28,9 @@ add_executable(${TARGET_NAME})
 
 target_sources(${TARGET_NAME} 
     PRIVATE bdb-test.cpp
-    PRIVATE DatabaseResource.cpp
+    # PRIVATE Plane.cpp
+    # PRIVATE Point.cpp
+    # PRIVATE DatabaseResource.cpp
 )
 
 ###################################################################
@@ -37,9 +39,11 @@ set(TARGET_NAME modb)
 
 add_executable(${TARGET_NAME})
 
+
 target_sources(${TARGET_NAME} 
     PRIVATE main.cpp
     PRIVATE Plane.cpp
     PRIVATE Point.cpp
-
+    # PRIVATE DatabaseResource.cpp
+    PRIVATE DatabaseResource.Plane.cpp
 )

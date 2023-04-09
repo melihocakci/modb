@@ -1,8 +1,11 @@
+#ifndef DATABASERESOURCE_INL
+#define DATABASERESOURCE_INL
 
 #include <modb/DatabaseResource.h>
 #include <sstream>
 
-template<typename T> const std::string& modb::Serializer<T>::Serialize(T data) {
+
+template<typename T>  std::string& modb::Serializer<T>::Serialize(T data) {
     T plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
 
     std::ostringstream oss{};
@@ -15,8 +18,8 @@ template<typename T> const std::string& modb::Serializer<T>::Serialize(T data) {
     return serialized;
 }
 
-template<typename T> const T& modb::Serializer<T>::Deserialize(std::string& serializedData) {
-    std::istringstream iss{newObject};
+template<typename T> T& modb::Serializer<T>::Deserialize(std::string& serializedData) {
+    std::istringstream iss{serializedData};
     boost::archive::binary_iarchive ia{iss};
 
     T readRecord;
@@ -26,7 +29,7 @@ template<typename T> const T& modb::Serializer<T>::Deserialize(std::string& seri
     return readRecord;
 }
 
-template<typename T> modb::Serializer<T>&  modb::DatabaseResource<T>::Serializer(){
+template<typename T> modb::Serializer<T>&  modb::DatabaseResource<T>::Serializer_(){
     return m_serializer;
 }
 
@@ -49,7 +52,7 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(const std::stri
     }
     catch(const std::exception& e)
     {
-        modb::DatabaseResource::m_ExceptionForOpening();
+        modb::DatabaseResource<T>::m_ExceptionForOpening();
     }
     m_status = modb::DB_OPENED;
     
@@ -64,36 +67,45 @@ template<typename T> void modb::DatabaseResource<T>::m_ExceptionForOpening() {
 
         std::stringstream ss;
         ss << "Error opening database: " <<  m_databaseName << std::endl;
-        modb::DatabaseResource::m_SafeModLog(ss.str());
+        modb::DatabaseResource<T>::m_SafeModLog(ss.str());
     }
     catch (std::exception& e)
     {
         std::stringstream ss;
         ss << "Error while opening database without due to berkelydb library File:" << m_databaseName << std::endl;
-        modb::DatabaseResource::m_SafeModLog(ss.str());
+        modb::DatabaseResource<T>::m_SafeModLog(ss.str());
     }
 }
 
 
 
 template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std::string& key, const std::string& value) {
-    m_database->put(NULL, &key, &value, 0);
+    Dbt keyDb = m_ConvertDbt(key);
+    Dbt valueDb = m_ConvertDbt(value);
+    m_database->put(NULL, &keyDb, &valueDb, 0);
 }
 
-template<typename T> T modb::DatabaseResource<T>::FindById(const std::string& key) {
+template <typename T> Dbt& modb::DatabaseResource<T>::m_ConvertDbt(const std::string& value) {
+    Dbt valueDb(const_cast<char*>(value.c_str()), static_cast<uint32_t>(value.length() + 1));
+    return valueDb;
+}
+
+template<typename T> T& modb::DatabaseResource<T>::FindById(const std::string& key) {
     Dbc* cursorp;
+    T readRecord;
     m_database->cursor(NULL, &cursorp, 0);
-    modb::Plane readRecord;
+
+    Dbt keyDb = m_ConvertDbt(key);
 
     Dbt retVal;
-    int ret = cursorp->get(&key, &retVal, DB_SET);
+    int ret = cursorp->get(&keyDb, &retVal, DB_SET);
 
     if (ret) {
         
         readRecord.status = false;
         std::stringstream ss;
         ss << "No records found for '" << key << "'" << std::endl;
-        modb::DatabaseResource::m_SafeModLog(ss);
+        modb::DatabaseResource<T>::m_SafeModLog(ss.str());
         return readRecord;
     }
 
@@ -160,7 +172,7 @@ template<typename T> void modb::DatabaseResource<T>::m_SafeModLog(const std::str
 template<typename T> void modb::DatabaseResource<T>::Open(DBTYPE type) {
     if(m_databaseName.empty()) {
         m_status = modb::DB_ERROR;
-        modb::DatabaseResource::m_SafeModLog("database is empty");
+        modb::DatabaseResource<T>::m_SafeModLog("database is empty");
     }
     else {
 
@@ -177,3 +189,4 @@ template<typename T> void modb::DatabaseResource<T>::Open(DBTYPE type) {
     
 }
 
+#endif

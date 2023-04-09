@@ -1,7 +1,12 @@
 #ifndef DATABASERESOURCE_H
-#define DATABASERESOURC_H
+#define DATABASERESOURCE_H
 
 #include <db_cxx.h>
+
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/serialization.hpp>
 
 #include <iostream>
 
@@ -18,11 +23,11 @@ namespace modb {
 
     
    
+    // Purpose of handle exception
     class DataObject
     {
-        // DataObject() = default;
-
-        bool status = true;
+        public:
+        bool status = true; // faulted data model means false
     };
 
     template<typename T>
@@ -30,15 +35,15 @@ namespace modb {
     {
         public:
         Serializer() = default;
-        const std::string& Serialize(T);
-        const T& Deserialize(std::string&);
+        std::string& Serialize(T);
+        T& Deserialize(std::string&);
     };
 
     template<typename T>
     class DatabaseResource
     {
         public:
-        DatabaseResource() = default;
+        DatabaseResource();
 
         DatabaseResource(DatabaseResource& other) = default;
         DatabaseResource(const std::string& dbName, DBTYPE type);
@@ -46,7 +51,7 @@ namespace modb {
         DatabaseResource& operator=(std::nullptr_t);
 
         Db* CopyDB(Db* database);
-        Serializer<T>& Serializer();
+        Serializer<T>& Serializer_();
 
 
         void SetErrorStream(__DB_STD(ostream) *error_stream);
@@ -55,16 +60,19 @@ namespace modb {
         void WriteKeyValuePair(const std::string&, const std::string&);
         // BulkLoad();
         // BulkWrite();
-        T FindById(const std::string&);
+        T& FindById(const std::string&);
         // UpdateByOid();
         // DeleteByOid();
 
-         ~DatabaseResource() ;
+         ~DatabaseResource() = default;
 
         private:
             void m_ExceptionForOpening();
             void m_SafeModLog(const std::string&);
-            void m_InstantiateSerializer();      
+            void m_InstantiateSerializer();
+            Dbt& m_ConvertDbt(const std::string&);
+
+
             Db* m_database; // bdb source, there will be generic class for all DB later
             std::string m_databaseName;
             RESOURCE_STATUS m_status = modb::DB_NONE;
