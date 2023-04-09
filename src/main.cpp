@@ -1,5 +1,6 @@
 #include <db_cxx.h>
 #include <modb/Plane.h>
+#include <modb/DatabaseResource.h>
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -14,7 +15,38 @@
 #include <memory>
 #include <sstream>
 
-const std::string dbFileName{ "plane.db" };
+const std::string dbFileName{ "plane.db" }; 
+
+int exampleLoad2() {
+    try
+    {
+        modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
+        
+        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
+
+        const std::string planeOid = plane.getOid();
+        std::string serialized = dbResource.Serializer().Serialize(plane);
+
+        dbResource.WriteKeyValuePair(planeOid, serialized);
+
+        modb::Plane readRecord = dbResource.FindById(planeOid);
+
+        std::cout << "key is " << readRecord.getOid() << std::endl;
+    }
+    catch (DbException& e)
+    {
+        std::cerr << "Error opening database: " << dbFileName << "\n";
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Error opening database: " << dbFileName << "\n";
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+
+}
 
 int exampleLoad() {
     try
@@ -78,5 +110,5 @@ int exampleLoad() {
 }
 
 int main(int argc, char** argv) {
-    exampleLoad();
+    exampleLoad2();
 }

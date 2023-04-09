@@ -16,7 +16,15 @@ namespace modb {
         DB_UNKNOWN=6 // others 
     } RESOURCE_STATUS;
 
+    
    
+    class DataObject
+    {
+        // DataObject() = default;
+
+        bool status = true;
+    };
+
     template<typename T>
     struct Serializer
     {
@@ -38,15 +46,16 @@ namespace modb {
         DatabaseResource& operator=(std::nullptr_t);
 
         Db* CopyDB(Db* database);
+        Serializer<T>& Serializer();
+
 
         void SetErrorStream(__DB_STD(ostream) *error_stream);
-
     
         void Open(DBTYPE);
-        // void Write();
+        void WriteKeyValuePair(const std::string&, const std::string&);
         // BulkLoad();
         // BulkWrite();
-        // FindByOid();
+        T FindById(const std::string&);
         // UpdateByOid();
         // DeleteByOid();
 

@@ -2,11 +2,11 @@
 #define PLANE_H
 
 #include <modb/Point.h>
-
+#include <modb/DatabaseResource.h>
 #include <string>
 
 namespace modb {
-    class Plane {
+    class Plane : public modb::DataObject {
     public:
         Plane();
         

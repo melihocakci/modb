@@ -23,7 +23,11 @@ template<typename T> const T& modb::Serializer<T>::Deserialize(std::string& seri
 
     ia >> readRecord;
     
-    return readREcord;
+    return readRecord;
+}
+
+template<typename T> modb::Serializer<T>&  modb::DatabaseResource<T>::Serializer(){
+    return m_serializer;
 }
 
 template<typename T> void modb::DatabaseResource<T>::m_InstantiateSerializer() 
@@ -70,6 +74,40 @@ template<typename T> void modb::DatabaseResource<T>::m_ExceptionForOpening() {
     }
 }
 
+
+
+template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std::string& key, const std::string& value) {
+    m_database->put(NULL, &key, &value, 0);
+}
+
+template<typename T> T modb::DatabaseResource<T>::FindById(const std::string& key) {
+    Dbc* cursorp;
+    m_database->cursor(NULL, &cursorp, 0);
+    modb::Plane readRecord;
+
+    Dbt retVal;
+    int ret = cursorp->get(&key, &retVal, DB_SET);
+
+    if (ret) {
+        
+        readRecord.status = false;
+        std::stringstream ss;
+        ss << "No records found for '" << key << "'" << std::endl;
+        modb::DatabaseResource::m_SafeModLog(ss);
+        return readRecord;
+    }
+
+    std::string newObject{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
+    
+    std::istringstream iss{newObject};
+    boost::archive::binary_iarchive ia{iss};
+
+
+    ia >> readRecord;
+
+
+    return m_serializer.Deserialize(newObject);
+}
 
 template<typename T> modb::DatabaseResource<T>::DatabaseResource(Db* database) : m_database(database) {
     m_InstantiateSerializer();
@@ -139,17 +177,3 @@ template<typename T> void modb::DatabaseResource<T>::Open(DBTYPE type) {
     
 }
 
-// void Write() {
-
-// }
-
-
-
-// modb::DatabaseResource::OpenDataSource(std::string database, DBTYPE type) {
-//     try {
-//         Db myDb {NULL, 0};
-//         myDb.set_error_stream(&std::cerr);
-//         MyDb.open(NULL, dbFilename.c_str(), NULL, type, DB_CREATE, 0);
-
-//     }
-// }
