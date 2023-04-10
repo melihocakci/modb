@@ -24,14 +24,15 @@ int exampleLoad2() {
         
         modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
 
-        const std::string planeOid = plane.getOid();
+        const std::string planeOid = plane.Oid();
         std::string serialized = dbResource.Serializer_().Serialize(plane);
 
         dbResource.WriteKeyValuePair(planeOid, serialized);
 
         modb::Plane readRecord = dbResource.FindById(planeOid);
 
-        std::cout << "key is " << readRecord.getOid() << std::endl;
+        std::cout << "key is " << readRecord.Oid() << " \t" << "value is " << readRecord.MbrWidth() << std::endl;
+
     }
     catch (DbException& e)
     {
@@ -56,7 +57,7 @@ int exampleLoad() {
         myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
         modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
-        std::string planeOid = plane.getOid();
+        std::string planeOid = plane.Oid();
 
         std::ostringstream oss{};
         boost::archive::binary_oarchive oa(oss);
@@ -91,7 +92,7 @@ int exampleLoad() {
 
         ia >> readRecord;
 
-        std::cout << "key is " << readRecord.getOid() << std::endl;
+        std::cout << "key is " << readRecord.Oid() << std::endl;
     }
     catch (DbException& e)
     {

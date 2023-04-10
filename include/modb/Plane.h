@@ -21,13 +21,13 @@ namespace modb {
             ar& m_mbrWidth;
         }
 
-        std::string getOid();
+        std::string Oid();
 
-        modb::Point getBaseLocation();
+        modb::Point BaseLocation();
 
-        modb::Point getMbrLocation();
+        modb::Point MbrLocation();
 
-        float getMbrWidth();
+        float MbrWidth();
 
     private:
         std::string m_oid;
