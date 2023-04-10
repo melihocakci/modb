@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <cstring>
 
+#include <sys/wait.h>
 
 const std::string dbFileName{ "test.db" };
 
@@ -104,7 +105,7 @@ int exampleLoad() {
 
 
 
-void apiCallStarter() {
+pid_t apiCallStarter() {
     std::string filename = "api_call/opensky_test.py";
     std::string command = "python3 ";
     command += filename;
@@ -117,11 +118,25 @@ void apiCallStarter() {
 
     }
     else if (c_pid > 0) {
+        // waitpid(c_pid, NULL, WUNTRACED);
         std::cout << "printed from parent process" << getpid() << std::endl;
+        // raise(SIGSTOP);
     }
     else {
         system(command.c_str());
         std::cout << "printed from child process" << getpid() << std::endl;
+
+        raise(SIGSTOP);
+    }
+
+    return c_pid;
+}
+
+void BusyWaiting() {
+    int i = 0;
+
+    while(i<1000000000) {
+        i++;
     }
 
 }
@@ -146,7 +161,10 @@ int main(int argc, char** argv) {
     std::cout << "key is " << readRecord.Oid() << " \t" << "value is " << readRecord.MbrRectangle().m_width << "-" << readRecord.MbrRectangle().m_height<< std::endl;
 
 
-    apiCallStarter();
+    pid_t pid = apiCallStarter();
+
+
+
     std::string line;
 
     int i = 0;
@@ -156,8 +174,15 @@ int main(int argc, char** argv) {
 
     std::cout << "if it is called twice" << std::endl;
     std::ifstream file{appSetting["pipePath"]};
+   
+   try{
     while(i < 1000) {
         std::getline(file, line);
+        if(line.empty()) {
+            // BusyWaiting();
+            std::cout << "pipe şuan boştur" << std::endl;
+            continue;
+        }
 
         // there will be two database in this system 
         // First : data that be in r-tree is primary db.
@@ -166,8 +191,10 @@ int main(int argc, char** argv) {
         // convert line to json
         json data = json::parse(line);
 
+        
+            std::string value = data["oid"].get<std::string>();
 
-        std::string value = data["oid"].get<std::string>();
+       
         // std::stringstream ss;
         // ss << data["oid"] ;
         // std::string deneme = ss.str();
@@ -185,8 +212,13 @@ int main(int argc, char** argv) {
 
 
         std::cout << line << '\n';
+
         i++;
     }
+
+     } catch(std::exception& e) {
+            std::cout << "hey " << std::endl;
+        }
 
     return 0;
 }
