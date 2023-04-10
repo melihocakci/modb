@@ -59,9 +59,10 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(const std::stri
     m_InstantiateSerializer();
     try
     {
-        Db myDb{ NULL, 0 };
-        myDb.set_error_stream(&std::cerr);
-        myDb.open(NULL, dbName.c_str(), NULL, type, DB_CREATE, 0);
+        Db* myDb = new Db{ NULL, 0 };
+        myDb->set_error_stream(&std::cerr);
+        myDb->open(NULL, dbName.c_str(), NULL, type, DB_CREATE, 0); 
+        m_SetDBPoint(myDb);
     }
     catch(const std::exception& e)
     {
@@ -69,6 +70,11 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(const std::stri
     }
     m_status = modb::DB_OPENED;
     
+}
+
+template<typename T> void modb::DatabaseResource<T>::m_SetDBPoint(Db* db) {
+
+    m_database = db;
 }
 
 template<typename T> void modb::DatabaseResource<T>::m_ExceptionForOpening() {
@@ -93,9 +99,10 @@ template<typename T> void modb::DatabaseResource<T>::m_ExceptionForOpening() {
 
 
 template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std::string& key, const std::string& value) {
-    Dbt* keyDb = m_ConvertDbt(key);
-    Dbt* valueDb = m_ConvertDbt(value);
-    m_database->put(NULL, &(*keyDb), &(*valueDb), 0);
+    Dbt keyDb(const_cast<char*>(key.c_str()), static_cast<uint32_t>(key.length() + 1));
+    Dbt valueDb(const_cast<char*>(value.c_str()), static_cast<uint32_t>(value.length() + 1));
+    // Dbt* valueDb = m_ConvertDbt(value);
+    m_database->put(NULL, &(keyDb), &(valueDb), 0);
 }
 
 template <typename T> Dbt* modb::DatabaseResource<T>::m_ConvertDbt(const std::string& value) {

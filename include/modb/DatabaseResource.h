@@ -71,15 +71,16 @@ namespace modb {
         T& FindById(const std::string&);
         // UpdateByOid();
         // DeleteByOid();
-
          ~DatabaseResource() = default;
+
+        DB* Database();
 
         private:
             void m_ExceptionForOpening();
             void m_SafeModLog(const std::string&);
             void m_InstantiateSerializer();
             Dbt* m_ConvertDbt(const std::string&);
-
+            void m_SetDBPoint(Db*);
 
             Db* m_database; // bdb source, there will be generic class for all DB later
             std::string m_databaseName;
