@@ -49,7 +49,8 @@ template<typename T> modb::Serializer<T>&  modb::DatabaseResource<T>::Serializer
 
 template<typename T> void modb::DatabaseResource<T>::m_InstantiateSerializer() 
 {
-    m_serializer = Serializer<T> {};
+    Serializer<T> data{};
+    m_serializer = data;
 }
 
 template<typename T> modb::DatabaseResource<T>::DatabaseResource() {

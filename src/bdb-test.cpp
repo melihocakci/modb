@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
  
     modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
     
-    modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, { 1.1, 2.2 }} ;
+    modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
 
     const std::string planeOid = plane.oid();
     std::string serialized = dbResource.Serializer_().Serialize(plane);
@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
 
     modb::Plane readRecord = dbResource.FindById(planeOid);
 
-    std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.mbrRectangle().m_width << "-" << readRecord.mbrRectangle().m_height<< std::endl;
+    std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.mbrRectangle().pointLow().latitude() << "-" << readRecord.mbrRectangle().pointLow().latitude()<< std::endl;
 
 
     pid_t pid = apiCallStarter();

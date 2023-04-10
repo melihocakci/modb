@@ -31,8 +31,7 @@ target_sources(${TARGET_NAME}
     PRIVATE main.cpp
     PRIVATE Plane.cpp
     PRIVATE Point.cpp
-    # PRIVATE Rectangle.cpp
-    # PRIVATE DatabaseResource.cpp
+    PRIVATE Rectangle.cpp
     PRIVATE DatabaseResource.Plane.cpp
 )
 

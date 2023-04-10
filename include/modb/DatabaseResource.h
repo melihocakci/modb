@@ -42,6 +42,7 @@ namespace modb {
     {
         public:
         Serializer() = default;
+        Serializer(Serializer<T>&) = default;
         std::string& Serialize(T);
         T& Deserialize(std::string&);
         ~Serializer();
