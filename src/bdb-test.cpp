@@ -1,6 +1,7 @@
 #include <db_cxx.h>
 
 #include <modb/DatabaseResource.h>
+#include <modb/Plane.h>
 
 #include <iostream>
 #include <string>
@@ -126,11 +127,25 @@ void apiCallStarter() {
 }
 
 
+
 int main(int argc, char** argv) {
     // modb::DatabaseResource resource;
 
-
  
+    modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
+    
+    modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, { 1.1, 2.2 }} ;
+
+    const std::string planeOid = plane.Oid();
+    std::string serialized = dbResource.Serializer_().Serialize(plane);
+
+    dbResource.WriteKeyValuePair(planeOid, serialized);
+
+    modb::Plane readRecord = dbResource.FindById(planeOid);
+
+    std::cout << "key is " << readRecord.Oid() << " \t" << "value is " << readRecord.MbrRectangle().m_width << "-" << readRecord.MbrRectangle().m_height<< std::endl;
+
+
     apiCallStarter();
     std::string line;
 
@@ -150,6 +165,14 @@ int main(int argc, char** argv) {
 
         // convert line to json
         json data = json::parse(line);
+
+
+        std::string value = data["oid"].get<std::string>();
+        // std::stringstream ss;
+        // ss << data["oid"] ;
+        // std::string deneme = ss.str();
+
+        modb::Plane record{data};
 
         // convert json to Plane format 
 

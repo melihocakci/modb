@@ -2,10 +2,6 @@
 #include <modb/Plane.h>
 #include <modb/DatabaseResource.h>
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/serialization.hpp>
 
 #include <iostream>
 #include <string>
@@ -17,36 +13,20 @@
 
 const std::string dbFileName{ "plane.db" }; 
 
-int exampleLoad2() {
-    try
-    {
-        modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
-        
-        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
+int exampleDataLoad() {
+    modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
+    
+    modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, {0.3, 0.3} };
 
-        const std::string planeOid = plane.Oid();
-        std::string serialized = dbResource.Serializer_().Serialize(plane);
+    const std::string planeOid = plane.Oid();
+    std::string serialized = dbResource.Serializer_().Serialize(plane);
 
-        dbResource.WriteKeyValuePair(planeOid, serialized);
+    dbResource.WriteKeyValuePair(planeOid, serialized);
 
-        modb::Plane readRecord = dbResource.FindById(planeOid);
+    modb::Plane readRecord = dbResource.FindById(planeOid);
 
-        std::cout << "key is " << readRecord.Oid() << " \t" << "value is " << readRecord.MbrWidth() << std::endl;
-
-    }
-    catch (DbException& e)
-    {
-        std::cerr << "Error opening database: " << dbFileName << "\n";
-        std::cerr << e.what() << std::endl;
-        return 1;
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Error opening database: " << dbFileName << "\n";
-        std::cerr << e.what() << std::endl;
-        return 1;
-    }
-    return 0;
+    std::cout << "key is " << readRecord.Oid() << " \t" << "value is " << readRecord.MbrRectangle().m_height <<  readRecord.MbrRectangle().m_width << std::endl;
+   return 0;
 }
 
 int exampleLoad() {
@@ -56,7 +36,7 @@ int exampleLoad() {
         myDb.set_error_stream(&std::cerr);
         myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
-        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
+        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, {1.1,1.1} };
         std::string planeOid = plane.Oid();
 
         std::ostringstream oss{};
@@ -111,5 +91,7 @@ int exampleLoad() {
 }
 
 int main(int argc, char** argv) {
-    exampleLoad2();
+    exampleDataLoad();
+
+
 }

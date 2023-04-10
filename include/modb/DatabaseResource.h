@@ -9,6 +9,11 @@
 #include <boost/serialization/serialization.hpp>
 
 #include <iostream>
+#include <nlohmann/json.hpp>
+
+
+
+using json = nlohmann::json;
 
 
 namespace modb {
@@ -27,6 +32,8 @@ namespace modb {
     class DataObject
     {
         public:
+        virtual bool SetJson(json); // there is generic solution to this 
+                                // first solution i think give as well as schema data as parameter.
         bool status = true; // faulted data model means false
     };
 

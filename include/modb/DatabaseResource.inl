@@ -4,6 +4,7 @@
 #include <modb/DatabaseResource.h>
 #include <sstream>
 
+using Json=nlohmann::json;
 
 template<typename T>  std::string& modb::Serializer<T>::Serialize(T data) {
     T plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
@@ -96,7 +97,18 @@ template<typename T> void modb::DatabaseResource<T>::m_ExceptionForOpening() {
     }
 }
 
+bool modb::DataObject::SetJson(Json json) {
+    std::string data = json["status"];
+    if(data.empty()) {
+        return false;
+    }
 
+    std::string compared = "True";
+    status = !data.compare(compared);
+
+    return true;
+
+}
 
 template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std::string& key, const std::string& value) {
     Dbt keyDb(const_cast<char*>(key.c_str()), static_cast<uint32_t>(key.length() + 1));

@@ -6,10 +6,12 @@
 #include <modb/DatabaseResource.inl>
 #include <modb/DatabaseResource.h>
 #include <modb/Plane.h>
+#include <modb/Rectangle.h>
 using namespace modb;
 
 // only change here for implement new datatype for DataResource template 
 #define DATATYPE Plane
+
 
 template std::string& Serializer<DATATYPE>::Serialize(DATATYPE data);
 template Plane& Serializer<DATATYPE>::Deserialize(std::string& serializedData);

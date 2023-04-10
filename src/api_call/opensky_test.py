@@ -68,6 +68,7 @@ while True:
             width = abs(lastKnownRegion.longitude-region.center.longitude)
             region.area.width = width * samplingCoefficient ## samplingCoeffient is 
             region.area.height = height * samplingCoefficient
+            sender.sendDataWithFlushBuffer(recordJsonData)
 
         record = Record(oid, location, region)
 
@@ -75,7 +76,6 @@ while True:
         recordJsonData = lastKnownState[oid].toJsonRecord()
         
 
-        sender.sendDataWithFlushBuffer(recordJsonData)
     
     time.sleep(1)
 
