@@ -151,14 +151,14 @@ int main(int argc, char** argv) {
     
     modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, { 1.1, 2.2 }} ;
 
-    const std::string planeOid = plane.Oid();
+    const std::string planeOid = plane.oid();
     std::string serialized = dbResource.Serializer_().Serialize(plane);
 
     dbResource.WriteKeyValuePair(planeOid, serialized);
 
     modb::Plane readRecord = dbResource.FindById(planeOid);
 
-    std::cout << "key is " << readRecord.Oid() << " \t" << "value is " << readRecord.MbrRectangle().m_width << "-" << readRecord.MbrRectangle().m_height<< std::endl;
+    std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.mbrRectangle().m_width << "-" << readRecord.mbrRectangle().m_height<< std::endl;
 
 
     pid_t pid = apiCallStarter();

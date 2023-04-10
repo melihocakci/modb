@@ -1,27 +1,41 @@
 #ifndef RECTANGLE_H
 #define RECTANGLE_H
 
+#include <modb/Point.h>
+
+#include <nlohmann/json.hpp>
+
 namespace modb {
+
     class Rectangle {
-        public:
+    public:
+        Rectangle();
 
-            float m_width;
-            float m_height;
-        
-            Rectangle() = default;
-            Rectangle(Rectangle &other) = default;
+        Rectangle(Rectangle& other);
 
+        Rectangle(Point pointLow, Point pointHigh);
 
-            ~Rectangle() = default;
+        Rectangle(nlohmann::json mbrRectangle);
 
-            template <class Archieve>
-            inline void serialize(Archieve& ar, unsigned int) {
-                ar& m_width;
-                ar& m_height;
-            }
+        ~Rectangle() = default;
+
+        Rectangle& operator=(Rectangle& other);
+
+        template <class Archieve>
+        inline void serialize(Archieve& ar, unsigned int) {
+            ar& m_pointLow;
+            ar& m_pointHigh;
+        }
+
+        Point pointLow();
+
+        Point pointHigh();
+
+    private:
+        Point m_pointLow;
+        Point m_pointHigh;
     };
 
 }
-
 
 #endif

@@ -1,49 +1,46 @@
 #include <modb/Plane.h>
 
 using Json = nlohmann::json;
+using modb::Rectangle;
+using modb::Point;
 
 namespace modb {
-    Plane::Plane():  
-            m_oid(""),
-            m_baseLocation (),
-            m_mbrLocation (),
-            m_mbrRectangle()
-    {}
-    Plane::Plane(std::string oid, Point baseLocation, Point mbrLocation, Rectangle mbrRectangle) :
-        m_oid{ oid },  m_baseLocation{ baseLocation }, m_mbrLocation{ mbrLocation }, m_mbrRectangle{ mbrRectangle }{}
+    Plane::Plane():
+        m_oid{},
+        m_baseLocation{},
+        m_mbrRectangle{} {}
 
-    std::string Plane::Oid() { return m_oid; }
+    Plane::Plane(Plane& other):
+        m_oid{ other.m_oid },
+        m_baseLocation{ other.m_baseLocation },
+        m_mbrRectangle{ other.m_mbrRectangle } {}
 
-    Plane::Plane(Json json) {
-        std::cout << "json to data conversion" << std::endl;
-        m_oid = json["oid"].get<std::string>();
-        
-        Json baseLocation  = json["baseLocation"];
-        m_baseLocation.latitude = baseLocation["latitude"];
-        m_baseLocation.longitude = baseLocation["longitude"];
+    Plane::Plane(std::string oid, Point baseLocation, Rectangle mbrRectangle):
+        m_oid{ oid },
+        m_baseLocation{ baseLocation },
+        m_mbrRectangle{ mbrRectangle } {}
 
-        Json mbrLocation = json["probabilityRegion"];
+    Plane& Plane::operator=(Plane& other) {
+        m_oid = other.m_oid;
+        m_baseLocation = other.m_baseLocation;
+        m_mbrRectangle = other.m_mbrRectangle;
 
-
-        // m_mbrLocation.latitude = mbrLocation["latitude"].get<float>();
-        // m_mbrLocation.longitude = mbrLocation["longitude"].get<float>();
-        
-
-        // std::stringstream & deneme;
-        std::cout << json << std::endl;
-        
-  
+        return *this;
     }
+
+    Plane::Plane(Json json):
+        m_oid{ json["oid"] },
+        m_baseLocation{ json["baseLocation"] },
+        m_mbrRectangle{ json["mbrRectangle"] } {}
 
     bool Plane::Plane::SetJson(Json json) { // tehre will be second parameter about schema in the future
         std::cout << "json logic can be here" << std::endl;
         return true;
     }
 
-    Point Plane::BaseLocation() { return m_baseLocation; }
+    std::string Plane::oid() { return m_oid; }
 
-    Point Plane::MbrLocation() { return m_mbrLocation; }
+    Point Plane::baseLocation() { return m_baseLocation; }
 
-
-    Rectangle Plane::MbrRectangle() { return m_mbrRectangle; }
+    Rectangle Plane::mbrRectangle() { return m_mbrRectangle; }
 }

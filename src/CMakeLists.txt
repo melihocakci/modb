@@ -46,7 +46,7 @@ add_executable(${TARGET_NAME})
 target_sources(${TARGET_NAME} 
     PRIVATE bdb-test.cpp
     PRIVATE Plane.cpp
-    # PRIVATE Rectangle.cpp
+    PRIVATE Rectangle.cpp
     PRIVATE Point.cpp
     PRIVATE DatabaseResource.Plane.cpp
 )

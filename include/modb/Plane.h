@@ -5,45 +5,47 @@
 #include <modb/DatabaseResource.h>
 #include <modb/Rectangle.h>
 
+#include <nlohmann/json.hpp>
+
 #include <string>
 
 using Json = nlohmann::json;
 
 namespace modb {
 
-    class Plane : public modb::DataObject {
+    class Plane: public DataObject {
     public:
         Plane();
+
         Plane(Json);
 
-        virtual bool SetJson(Json json);
+        Plane(Plane& other);
 
-        Plane(std::string oid, modb::Point baseLocation, modb::Point mbrLocation, modb::Rectangle mbrRectangle);
+        Plane(std::string oid, Point baseLocation, Rectangle mbrRectangle);
+
+        Plane& operator=(Plane& other);
+
+        virtual ~Plane() = default;
+
+        virtual bool SetJson(Json json);
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {
             ar& m_oid;
             ar& m_baseLocation;
-            ar& m_mbrLocation;
             ar& m_mbrRectangle;
         }
 
-        std::string Oid();
+        std::string oid();
 
-        modb::Point BaseLocation();
+        Point baseLocation();
 
-        modb::Point MbrLocation();
-
-        modb::Rectangle MbrRectangle();
+        Rectangle mbrRectangle();
 
     private:
         std::string m_oid;
-
-        modb::Point m_baseLocation;
-
-        modb::Point m_mbrLocation;
-
-        modb::Rectangle m_mbrRectangle;
+        Point m_baseLocation;
+        Rectangle m_mbrRectangle;
     };
 }
 
