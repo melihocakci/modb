@@ -7,7 +7,7 @@
 using Json=nlohmann::json;
 
 template<typename T>  std::string& modb::Serializer<T>::Serialize(T data) {
-    T plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
+    T plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, {1.1,1.2} };
 
     std::ostringstream oss{};
     boost::archive::binary_oarchive oa(oss);

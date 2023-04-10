@@ -10,25 +10,6 @@
 using Json = nlohmann::json;
 
 namespace modb {
-    // class Rectangle {
-    //     public:
-
-    //         float m_width;
-    //         float m_height;
-        
-    //         Rectangle() = default;
-    //         Rectangle(Rectangle &other);
-
-
-
-    //         ~Rectangle() = default;
-
-    //         template <class Archieve>
-    //         inline void serialize(Archieve& ar, unsigned int) {
-    //             ar& m_width;
-    //             ar& m_height;
-    //         }
-    // };
 
     class Plane : public modb::DataObject {
     public:
@@ -44,7 +25,7 @@ namespace modb {
             ar& m_oid;
             ar& m_baseLocation;
             ar& m_mbrLocation;
-            ar& m_mbrWidth;
+            ar& m_mbrRectangle;
         }
 
         std::string Oid();
@@ -53,7 +34,7 @@ namespace modb {
 
         modb::Point MbrLocation();
 
-        modb::Rectangle Plane::MbrRectangle();
+        modb::Rectangle MbrRectangle();
 
     private:
         std::string m_oid;
