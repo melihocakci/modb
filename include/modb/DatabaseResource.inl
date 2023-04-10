@@ -15,7 +15,18 @@ template<typename T>  std::string& modb::Serializer<T>::Serialize(T data) {
     oa << plane;
     std::string serialized{oss.str()};
 
-    return serialized;
+
+    m_serializedData = serialized;
+    return m_serializedData;
+}
+
+template<typename T> modb::Serializer<T>::~Serializer() {
+    m_serializedData.clear();
+
+    // NOTE :: there is a function to delete Generic data implementation in memory
+
+    // delete &m_serializedData;
+    // delete &m_deserializedData;
 }
 
 template<typename T> T& modb::Serializer<T>::Deserialize(std::string& serializedData) {
@@ -26,7 +37,9 @@ template<typename T> T& modb::Serializer<T>::Deserialize(std::string& serialized
 
     ia >> readRecord;
     
-    return readRecord;
+    m_data = readRecord;
+
+    return m_data;
 }
 
 template<typename T> modb::Serializer<T>&  modb::DatabaseResource<T>::Serializer_(){
@@ -90,6 +103,14 @@ template <typename T> Dbt& modb::DatabaseResource<T>::m_ConvertDbt(const std::st
     return valueDb;
 }
 
+template <typename T> T modb::Serializer<T>::GetData() {
+    return m_data;
+}
+
+template <typename T> std::string& modb::Serializer<T>::GetSerializedData() {
+    return m_serializedData;
+}
+
 template<typename T> T& modb::DatabaseResource<T>::FindById(const std::string& key) {
     Dbc* cursorp;
     T readRecord;
@@ -106,6 +127,8 @@ template<typename T> T& modb::DatabaseResource<T>::FindById(const std::string& k
         std::stringstream ss;
         ss << "No records found for '" << key << "'" << std::endl;
         modb::DatabaseResource<T>::m_SafeModLog(ss.str());
+        
+        readRecord = m_serializer.GetData();
         return readRecord;
     }
 

@@ -14,6 +14,10 @@ using namespace modb;
 template std::string& Serializer<DATATYPE>::Serialize(DATATYPE data);
 template Plane& Serializer<DATATYPE>::Deserialize(std::string& serializedData);
 template Serializer<DATATYPE>&  DatabaseResource<DATATYPE>::Serializer_();
+template Serializer<DATATYPE>::~Serializer();
+template std::string& Serializer<DATATYPE>::GetSerializedData();
+template DATATYPE Serializer<DATATYPE>::GetData();
+
 template void DatabaseResource<DATATYPE>::m_InstantiateSerializer();
 template DatabaseResource<DATATYPE>::DatabaseResource(); 
 template DatabaseResource<DATATYPE>::DatabaseResource(const std::string& dbName, DBTYPE type);

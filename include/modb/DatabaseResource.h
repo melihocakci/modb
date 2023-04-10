@@ -31,12 +31,20 @@ namespace modb {
     };
 
     template<typename T>
-    struct Serializer
+    class Serializer
     {
         public:
         Serializer() = default;
         std::string& Serialize(T);
         T& Deserialize(std::string&);
+        ~Serializer();
+
+        T GetData();
+        std::string& GetSerializedData();
+
+        private:
+        std::string m_serializedData;
+        T m_data;
     };
 
     template<typename T>
