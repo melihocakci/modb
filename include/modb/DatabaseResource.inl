@@ -93,17 +93,17 @@ template<typename T> void modb::DatabaseResource<T>::m_ExceptionForOpening() {
 
 
 template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std::string& key, const std::string& value) {
-    Dbt keyDb = m_ConvertDbt(key);
-    Dbt valueDb = m_ConvertDbt(value);
-    m_database->put(NULL, &keyDb, &valueDb, 0);
+    Dbt* keyDb = m_ConvertDbt(key);
+    Dbt* valueDb = m_ConvertDbt(value);
+    m_database->put(NULL, &(*keyDb), &(*valueDb), 0);
 }
 
-template <typename T> Dbt& modb::DatabaseResource<T>::m_ConvertDbt(const std::string& value) {
-    Dbt valueDb(const_cast<char*>(value.c_str()), static_cast<uint32_t>(value.length() + 1));
+template <typename T> Dbt* modb::DatabaseResource<T>::m_ConvertDbt(const std::string& value) {
+    Dbt * valueDb =  new Dbt(const_cast<char*>(value.c_str()), static_cast<uint32_t>(value.length() + 1));
     return valueDb;
 }
 
-template <typename T> T modb::Serializer<T>::GetData() {
+template <typename T> T& modb::Serializer<T>::GetData() {
     return m_data;
 }
 
@@ -116,10 +116,10 @@ template<typename T> T& modb::DatabaseResource<T>::FindById(const std::string& k
     T readRecord;
     m_database->cursor(NULL, &cursorp, 0);
 
-    Dbt keyDb = m_ConvertDbt(key);
+    Dbt *keyDb = m_ConvertDbt(key);
 
     Dbt retVal;
-    int ret = cursorp->get(&keyDb, &retVal, DB_SET);
+    int ret = cursorp->get(&(*keyDb), &retVal, DB_SET);
 
     if (ret) {
         
@@ -129,7 +129,7 @@ template<typename T> T& modb::DatabaseResource<T>::FindById(const std::string& k
         modb::DatabaseResource<T>::m_SafeModLog(ss.str());
         
         readRecord = m_serializer.GetData();
-        return readRecord;
+        return m_serializer.GetData();
     }
 
     std::string newObject{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};

@@ -39,7 +39,7 @@ namespace modb {
         T& Deserialize(std::string&);
         ~Serializer();
 
-        T GetData();
+        T& GetData();
         std::string& GetSerializedData();
 
         private:
@@ -78,7 +78,7 @@ namespace modb {
             void m_ExceptionForOpening();
             void m_SafeModLog(const std::string&);
             void m_InstantiateSerializer();
-            Dbt& m_ConvertDbt(const std::string&);
+            Dbt* m_ConvertDbt(const std::string&);
 
 
             Db* m_database; // bdb source, there will be generic class for all DB later
