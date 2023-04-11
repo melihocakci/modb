@@ -4,7 +4,7 @@ project(modb)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_compile_options(-Wall -Werror)
+add_compile_options(-Wall -Werror )
 
 set(Boost_DEBUG ON)
 

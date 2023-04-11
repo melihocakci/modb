@@ -88,7 +88,6 @@ int main(int argc, char** argv) {
             std::getline(file, line);
             if (line.empty()) {
                 // BusyWaiting();
-                std::cout << "pipe şuan boştur" << std::endl;
                 continue;
             }
 
@@ -99,34 +98,27 @@ int main(int argc, char** argv) {
             // convert line to json
             json data = json::parse(line);
 
+            modb::Plane parsedPlane{data};
 
-            std::string value = data["oid"].get<std::string>();
-            
+            std::cout << parsedPlane.oid() << '\n'
+                << parsedPlane.baseLocation().longitude() << '\n'
+                << parsedPlane.mbrRegion().pointLow().longitude() << "\n\n";
 
-            // std::stringstream ss;
-            // ss << data["oid"] ;
-            // std::string deneme = ss.str();
 
-            modb::Plane record{data};
+            // // convert json to Plane format 
+            // const std::string planeOid = plane.oid();
+            // std::string serialized = dbResource.Serializer_().Serialize(plane);
 
-            // convert json to Plane format 
-            const std::string planeOid = plane.oid();
-            std::string serialized = dbResource.Serializer_().Serialize(plane);
+            // dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_NODUPDATA);
 
-            dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_NODUPDATA);
+            // modb::Plane readRecord = dbResource.FindById(planeOid);
 
-            modb::Plane readRecord = dbResource.FindById(planeOid);
-
-            std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.baseLocation().longitude() << readRecord.baseLocation().latitude() << std::endl;
 
             // serialize object
 
 
             // write berkeleydb
 
-
-
-            std::cout << line << '\n';
 
             i++;
         }
