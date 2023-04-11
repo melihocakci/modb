@@ -76,6 +76,8 @@ while True:
 
 
     for state in s.states:
+        if(state.longitude == None or state.latitude == None or state.icao24 == None ):
+            continue
         longitude = state.longitude
         latitute = state.latitude
 
