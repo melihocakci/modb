@@ -71,7 +71,6 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(const std::stri
         modb::DatabaseResource<T>::m_ExceptionForOpening();
     }
     m_status = modb::DB_OPENED;
-
 }
 
 template<typename T> void modb::DatabaseResource<T>::m_SetDBPoint(Db* db) {
@@ -117,7 +116,7 @@ template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std
     // Dbt* valueDb = m_ConvertDbt(value);
     
 
-    m_database->put(NULL, &(keyDb), &(valueDb), DB_NODUPDATA);
+    m_database->put(NULL, &(keyDb), &(valueDb), 0);
 }
 
 template <typename T> Dbt* modb::DatabaseResource<T>::m_ConvertDbt(const std::string& value) {

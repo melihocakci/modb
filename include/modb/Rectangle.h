@@ -15,7 +15,7 @@ namespace modb {
 
         Rectangle(Point pointLow, Point pointHigh);
 
-        Rectangle(nlohmann::json mbrRectangle);
+        Rectangle(nlohmann::json mbrRegion);
 
         ~Rectangle() = default;
 

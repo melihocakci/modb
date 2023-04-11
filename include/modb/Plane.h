@@ -40,7 +40,7 @@ namespace modb {
 
         Point baseLocation();
 
-        Rectangle mbrRectangle();
+        Rectangle mbrRegion();
 
     private:
         std::string m_oid;

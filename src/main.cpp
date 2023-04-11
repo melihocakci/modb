@@ -38,7 +38,7 @@ int exampleLoad() {
 
         using json = nlohmann::json;
 
-        std::string file(R"({"oid": "a3a5d9", "baseLocation": {"longitude": -78.2338, "latitude": 42.2997}})");
+        std::string file(R"({"oid": "a3a5d9", "baseLocation": {"longitude": -78.2338, "latitude": 42.2997}, "mbrRegion": {"pointLow": {"longitude": -78.2338, "latitude": 42.2997}, "pointHigh": {"longitude": -78.2338, "latitude": 42.2997}}})");
 
         // declare your json object and stream from the file
         json js = json::parse(file);
@@ -78,8 +78,6 @@ int exampleLoad() {
             std::cerr << "No records found for '" << planeOid << "'" << std::endl;
             return 1;
         }
-
-        uint32_t tmp = retVal.get_size();
 
         std::string newObject{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
 

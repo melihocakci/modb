@@ -34,5 +34,4 @@ namespace modb {
     float Point::longitude() { return m_longitude; }
 
     float Point::latitude() { return m_latitude; }
-
 }

@@ -14,9 +14,9 @@ namespace modb {
         m_pointLow{ pointLow },
         m_pointHigh{ poingHigh } {}
 
-    Rectangle::Rectangle(nlohmann::json mbrRectangle):
-        m_pointLow{ mbrRectangle["pointLow"] },
-        m_pointHigh{ mbrRectangle["pointHigh"] } {}
+    Rectangle::Rectangle(nlohmann::json mbrRegion):
+        m_pointLow{ mbrRegion["pointLow"] },
+        m_pointHigh{ mbrRegion["pointHigh"] } {}
 
     Rectangle& Rectangle::operator=(Rectangle& other) {
         m_pointLow = other.m_pointLow;
