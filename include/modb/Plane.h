@@ -33,7 +33,7 @@ namespace modb {
         inline void serialize(Archive& ar, unsigned int) {
             ar& m_oid;
             ar& m_baseLocation;
-            ar& m_mbrRectangle;
+            ar& m_mbrRegion;
         }
 
         std::string oid();
@@ -45,7 +45,7 @@ namespace modb {
     private:
         std::string m_oid;
         Point m_baseLocation;
-        Rectangle m_mbrRectangle;
+        Rectangle m_mbrRegion;
     };
 }
 

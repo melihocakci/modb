@@ -74,10 +74,10 @@ while True:
         lastKnownState[oid] = RecordStateDto(record=record, velocity=state.velocity)
         recordJsonData = lastKnownState[oid].toJsonRecord()
         sender.sendDataWithFlushBuffer(recordJsonData)
+        time.sleep(1)
         
 
     
-    time.sleep(1)
 
 
 

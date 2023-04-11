@@ -36,7 +36,25 @@ int exampleLoad() {
         myDb.set_error_stream(&std::cerr);
         myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
-        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };
+        using json = nlohmann::json;
+
+        std::string file(R"({"oid": "a3a5d9", "baseLocation": {"longitude": -78.2338, "latitude": 42.2997}})");
+
+        // declare your json object and stream from the file
+        json js = json::parse(file);
+
+        // the file is now fully parsed
+
+        // access fields
+        std::cout << js["oid"] << '\n';
+        std::cout << js["baseLocation"]["longitude"] << '\n';
+
+
+        modb::Plane plane{ js };
+
+        std::ostringstream outputStream{};
+        boost::archive::binary_oarchive outputArchive{outputStream};
+
         std::string planeOid = plane.oid();
 
         std::ostringstream oss{};
@@ -91,7 +109,7 @@ int exampleLoad() {
 }
 
 int main(int argc, char** argv) {
-    exampleDataLoad();
+    exampleLoad();
 
 
 }

@@ -107,8 +107,7 @@ int exampleLoad() {
 
 pid_t apiCallStarter() {
     std::string filename = "api_call/opensky_test.py";
-    std::string command = "python3 ";
-    command += filename;
+    std::string command = "python3";
 
     pid_t c_pid = fork();
 
@@ -123,7 +122,7 @@ pid_t apiCallStarter() {
         // raise(SIGSTOP);
     }
     else {
-        system(command.c_str());
+        execlp(command.c_str(), command.c_str(), filename.c_str(), NULL);
         std::cout << "printed from child process" << getpid() << std::endl;
 
         raise(SIGSTOP);
@@ -135,7 +134,7 @@ pid_t apiCallStarter() {
 void BusyWaiting() {
     int i = 0;
 
-    while(i<1000000000) {
+    while (i < 1000000000) {
         i++;
     }
 
@@ -146,9 +145,9 @@ void BusyWaiting() {
 int main(int argc, char** argv) {
     // modb::DatabaseResource resource;
 
- 
+
     modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
-    
+
     modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
 
     const std::string planeOid = plane.oid();
@@ -158,67 +157,69 @@ int main(int argc, char** argv) {
 
     modb::Plane readRecord = dbResource.FindById(planeOid);
 
-    std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.mbrRectangle().pointLow().latitude() << "-" << readRecord.mbrRectangle().pointLow().latitude()<< std::endl;
+    std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.mbrRectangle().pointLow().latitude() << "-" << readRecord.mbrRectangle().pointLow().latitude() << std::endl;
 
 
     pid_t pid = apiCallStarter();
-
 
 
     std::string line;
 
     int i = 0;
 
-    std::ifstream f("/home/onur/moving-object-db-system/appsetting.json"); // this place is in /etc while building production code
+    sleep(1);
+
+    std::ifstream f("../appsetting.json"); // this place is in /etc while building production code
     json appSetting = json::parse(f);
 
     std::cout << "if it is called twice" << std::endl;
     std::ifstream file{appSetting["pipePath"]};
-   
-   try{
-    while(i < 1000) {
-        std::getline(file, line);
-        if(line.empty()) {
-            // BusyWaiting();
-            std::cout << "pipe şuan boştur" << std::endl;
-            continue;
-        }
 
-        // there will be two database in this system 
-        // First : data that be in r-tree is primary db.
-        // Second : data that be in continuosly peek api
+    try {
+        while (i < 1000) {
+            std::getline(file, line);
+            if (line.empty()) {
+                // BusyWaiting();
+                std::cout << "pipe şuan boştur" << std::endl;
+                continue;
+            }
 
-        // convert line to json
-        json data = json::parse(line);
+            // there will be two database in this system 
+            // First : data that be in r-tree is primary db.
+            // Second : data that be in continuosly peek api
 
-        
+            // convert line to json
+            json data = json::parse(line);
+
+
             std::string value = data["oid"].get<std::string>();
 
-       
-        // std::stringstream ss;
-        // ss << data["oid"] ;
-        // std::string deneme = ss.str();
 
-        modb::Plane record{data};
+            // std::stringstream ss;
+            // ss << data["oid"] ;
+            // std::string deneme = ss.str();
 
-        // convert json to Plane format 
+            modb::Plane record{data};
 
-
-        // serialize object
+            // convert json to Plane format 
 
 
-        // write berkeleydb
+            // serialize object
+
+
+            // write berkeleydb
 
 
 
-        std::cout << line << '\n';
+            std::cout << line << '\n';
 
-        i++;
-    }
-
-     } catch(std::exception& e) {
-            std::cout << "hey " << std::endl;
+            i++;
         }
+
+    }
+    catch (std::exception& e) {
+        std::cout << "hey " << std::endl;
+    }
 
     return 0;
 }
