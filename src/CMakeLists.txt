@@ -22,18 +22,18 @@
 
 # ###################################################################
 
-# set(TARGET_NAME modb)
+set(TARGET_NAME modb)
 
-# add_executable(${TARGET_NAME})
+add_executable(${TARGET_NAME})
 
 
-# target_sources(${TARGET_NAME} 
-#     PRIVATE main.cpp
-#     PRIVATE Plane.cpp
-#     PRIVATE Point.cpp
-#     PRIVATE Rectangle.cpp
-#     PRIVATE DatabaseResource.Plane.cpp
-# )
+target_sources(${TARGET_NAME} 
+    PRIVATE main.cpp
+    PRIVATE Plane.cpp
+    PRIVATE Point.cpp
+    PRIVATE Rectangle.cpp
+    PRIVATE DatabaseResource.Plane.cpp
+)
 
 ###################################################################
 ###################### MAIN PROJECT ###############################

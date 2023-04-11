@@ -12,6 +12,7 @@
 #include <sstream>
 
 const std::string dbFileName{ "plane.db" };
+const std::string exampleJson(R"({"oid": "a3a5d9", "baseLocation": {"longitude": -78.2338, "latitude": 42.2997}, "mbrRegion": {"pointLow": {"longitude": -78.2338, "latitude": 42.2997}, "pointHigh": {"longitude": -78.2338, "latitude": 42.2997}}})");
 
 int exampleDataLoad() {
     modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
@@ -36,21 +37,7 @@ int exampleLoad() {
         myDb.set_error_stream(&std::cerr);
         myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
-        using json = nlohmann::json;
-
-        std::string file(R"({"oid": "a3a5d9", "baseLocation": {"longitude": -78.2338, "latitude": 42.2997}, "mbrRegion": {"pointLow": {"longitude": -78.2338, "latitude": 42.2997}, "pointHigh": {"longitude": -78.2338, "latitude": 42.2997}}})");
-
-        // declare your json object and stream from the file
-        json js = json::parse(file);
-
-        // the file is now fully parsed
-
-        // // access fields
-        // std::cout << js["oid"] << '\n';
-        // std::cout << js["baseLocation"]["longitude"] << '\n';
-
-
-        modb::Plane plane{ js };
+        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, { 0.3, 0.3 } } };
 
         std::ostringstream outputStream{};
         boost::archive::binary_oarchive outputArchive{outputStream};
@@ -63,8 +50,8 @@ int exampleLoad() {
         oa << plane;
         std::string serialized{oss.str()};
 
-        Dbt key(const_cast<char*>(planeOid.c_str()), static_cast<uint32_t>(planeOid.length() + 1));
-        Dbt value(const_cast<char*>(serialized.c_str()), static_cast<uint32_t>(serialized.length() + 1));
+        Dbt key(const_cast<char*>(planeOid.data()), static_cast<uint32_t>(planeOid.length()));
+        Dbt value(const_cast<char*>(serialized.data()), static_cast<uint32_t>(serialized.length()));
 
         myDb.put(NULL, &key, &value, 0);
 
@@ -106,8 +93,29 @@ int exampleLoad() {
     return 0;
 }
 
+void examplePipe() {
+    std::string line;
+    while (true) {
+        std::getline(std::cin, line);
+
+        if (line.empty()) {
+            // BusyWaiting();
+            continue;
+        }
+
+        json data = json::parse(line);
+
+        modb::Plane parsedPlane{data};
+
+        std::cout << parsedPlane.oid() << '\n'
+            << parsedPlane.baseLocation().longitude() << '\n'
+            << parsedPlane.mbrRegion().pointLow().longitude() << "\n\n";
+    }
+
+}
+
 int main(int argc, char** argv) {
-    exampleLoad();
+    examplePipe();
 
-
+    std::cout << "quitting";
 }
