@@ -174,7 +174,7 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(Db* database) :
         try {
             m_database->close(0);
         }
-        catch (DbException e) 
+        catch (DbException& e) 
         {
             throw std::runtime_error("While closing database error occured.");
         }
@@ -184,8 +184,7 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(Db* database) :
     }
     const char ** fname = (const char **) malloc(1);
     (*fname) = (const char*) malloc(100);
-    const char ** _;
-    int status = database->get_dbname(fname, _);
+    int status = database->get_dbname(fname, nullptr);
     if(status!=0) {
         m_status = modb::DB_ERROR;
         std::cerr << "Error is occured in while reaching database. status:" << status <<std::endl; 

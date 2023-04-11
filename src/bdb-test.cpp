@@ -69,9 +69,7 @@ int main(int argc, char** argv) {
 
     std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
 
-
-    pid_t pid = apiCallStarter();
-
+    [[maybe_unused]] pid_t pid = apiCallStarter();
 
     std::string line;
 
