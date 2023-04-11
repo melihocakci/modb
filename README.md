@@ -19,3 +19,14 @@
     g++ pipe.cpp -o pipe
     python3 opensky_test.py
 
+# for using redis in python side 
+ * (this is purpose of holding data in pc)
+ * (bdb same logic also does in python side = performance comparison of bdb and redis)
+
+# Redis wsl2 installation guide
+    pip install redis
+    sudo apt install redis
+    <p> change supervised to systemd </p>
+    sudo nano /etc/redis/redis.conf
+    <p> check your services </p>
+    sudo /etc/init.d/redis-server start
