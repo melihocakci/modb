@@ -2,6 +2,15 @@ import json
 from dataclasses import dataclass
 import collections
 
+
+@dataclass
+class Jsonifier(object):
+    
+    def toJsonRecord(self):
+        return json.dumps(self.record.dict())
+
+
+
 @dataclass
 class Location(collections.abc.Iterable):
 
@@ -18,6 +27,26 @@ class Location(collections.abc.Iterable):
 
     def __repr__(self):
         return f"({self.latitude}, {self.longitude})"
+
+@dataclass
+class LocationArea:
+
+    def __init__(self, startPoint, endPoint) -> None:
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+
+    startPoint : Location 
+    endPoint : Location 
+
+    def __iter__(self):
+        yield self.width
+        yield self.height
+    
+    def __repr__(self):
+        return f"({self.startPoint.__dict__}, {self.endPoint.__dict__})"
+
+    def dict(self):
+        return {'startPoint': self.startPoint.__dict__, 'endPoint': self.endPoint.__dict__}
 
 
 @dataclass
@@ -106,6 +135,17 @@ class Record:
 
     # def dict2obj(self):
     #     return 
+
+@dataclass
+class MovingObjectRecord:    
+
+    def dict(self):
+        return {'oid': self.oid, 'baseLocation': self.baseLocation.__dict__, 'mbrRegion': self.mbrRegion.dict() }
+
+    oid : int
+    baseLocation : Location
+    mbrRegion : LocationArea 
+
 
 
 if __name__ == "test":
