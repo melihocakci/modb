@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
     const std::string planeOid = plane.oid();
     std::string serialized = dbResource.Serializer_().Serialize(plane);
 
-    dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_NODUPDATA);
+    dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_DEFAULT);
 
     modb::Plane readRecord = dbResource.FindById(planeOid);
 

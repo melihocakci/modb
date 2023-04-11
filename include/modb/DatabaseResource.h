@@ -26,7 +26,8 @@ namespace modb {
         DB_UNKNOWN=6 // others 
     } RESOURCE_STATUS;
 
-    typedef enum {  
+    typedef enum {
+        WRITE_DEFAULT=0,
         WRITE_APPEND=2,
         WRITE_NODUPDATA=19,
         WRITE_NOOVERWRITE=20,
