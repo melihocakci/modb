@@ -13,7 +13,7 @@ namespace modb {
         m_baseLocation{ other.m_baseLocation },
         m_mbrRegion{ other.m_mbrRegion } {}
 
-    Object::Object(std::string id, Point baseLocation, Rectangle mbrRegion):
+    Object::Object(std::string id, Point baseLocation, Region mbrRegion):
         m_oid{ id },
         m_baseLocation{ baseLocation },
         m_mbrRegion{ mbrRegion } {}
@@ -40,5 +40,5 @@ namespace modb {
 
     Point Object::baseLocation() { return m_baseLocation; }
 
-    Rectangle Object::mbrRegion() { return m_mbrRegion; }
+    Region Object::mbrRegion() { return m_mbrRegion; }
 }

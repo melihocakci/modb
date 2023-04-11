@@ -1,32 +1,32 @@
-#include <modb/Rectangle.h>
+#include <modb/Region.h>
 
 namespace modb {
 
-    Rectangle::Rectangle():
+    Region::Region():
         m_pointLow{},
         m_pointHigh{} {}
 
-    Rectangle::Rectangle(Rectangle& other):
+    Region::Region(Region& other):
         m_pointLow{ other.pointLow() },
         m_pointHigh{ other.pointHigh() } {}
 
-    Rectangle::Rectangle(Point pointLow, Point poingHigh):
+    Region::Region(Point pointLow, Point poingHigh):
         m_pointLow{ pointLow },
         m_pointHigh{ poingHigh } {}
 
-    Rectangle::Rectangle(nlohmann::json mbrRegion):
+    Region::Region(nlohmann::json mbrRegion):
         m_pointLow{ mbrRegion["pointLow"] },
         m_pointHigh{ mbrRegion["pointHigh"] } {}
 
-    Rectangle& Rectangle::operator=(Rectangle& other) {
+    Region& Region::operator=(Region& other) {
         m_pointLow = other.m_pointLow;
         m_pointHigh = other.m_pointHigh;
 
         return *this;
     }
 
-    Point Rectangle::pointLow() { return m_pointLow; }
+    Point Region::pointLow() { return m_pointLow; }
 
-    Point Rectangle::pointHigh() { return m_pointHigh; }
+    Point Region::pointHigh() { return m_pointHigh; }
 
 }

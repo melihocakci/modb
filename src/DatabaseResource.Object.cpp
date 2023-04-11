@@ -6,7 +6,7 @@
 #include <modb/DatabaseResource.inl>
 #include <modb/DatabaseResource.h>
 #include <modb/Object.h>
-#include <modb/Rectangle.h>
+#include <modb/Region.h>
 using namespace modb;
 
 // only change here for implement new datatype for DataResource template 

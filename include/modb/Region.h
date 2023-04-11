@@ -1,5 +1,5 @@
-#ifndef RECTANGLE_H
-#define RECTANGLE_H
+#ifndef REGION_H
+#define REGION_H
 
 #include <modb/Point.h>
 
@@ -7,19 +7,19 @@
 
 namespace modb {
 
-    class Rectangle {
+    class Region {
     public:
-        Rectangle();
+        Region();
 
-        Rectangle(Rectangle& other);
+        Region(Region& other);
 
-        Rectangle(Point pointLow, Point pointHigh);
+        Region(Point pointLow, Point pointHigh);
 
-        Rectangle(nlohmann::json mbrRegion);
+        Region(nlohmann::json mbrRegion);
 
-        ~Rectangle() = default;
+        ~Region() = default;
 
-        Rectangle& operator=(Rectangle& other);
+        Region& operator=(Region& other);
 
         template <class Archieve>
         inline void serialize(Archieve& ar, unsigned int) {

@@ -3,7 +3,7 @@
 
 #include <modb/Point.h>
 #include <modb/DatabaseResource.h>
-#include <modb/Rectangle.h>
+#include <modb/Region.h>
 
 #include <nlohmann/json.hpp>
 
@@ -21,7 +21,7 @@ namespace modb {
 
         Object(Object& other);
 
-        Object(std::string id, Point baseLocation, Rectangle mbrRectangle);
+        Object(std::string id, Point baseLocation, Region mbrRegion);
 
         Object& operator=(Object& other);
 
@@ -40,12 +40,12 @@ namespace modb {
 
         Point baseLocation();
 
-        Rectangle mbrRegion();
+        Region mbrRegion();
 
     private:
         std::string m_oid;
         Point m_baseLocation;
-        Rectangle m_mbrRegion;
+        Region m_mbrRegion;
     };
 }
 
