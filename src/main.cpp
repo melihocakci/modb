@@ -45,9 +45,9 @@ int exampleLoad() {
 
         // the file is now fully parsed
 
-        // access fields
-        std::cout << js["oid"] << '\n';
-        std::cout << js["baseLocation"]["longitude"] << '\n';
+        // // access fields
+        // std::cout << js["oid"] << '\n';
+        // std::cout << js["baseLocation"]["longitude"] << '\n';
 
 
         modb::Plane plane{ js };

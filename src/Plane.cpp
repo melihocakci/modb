@@ -30,8 +30,17 @@ namespace modb {
 
     Plane::Plane(Json json):
         m_oid{ json["oid"] },
-        m_baseLocation{ json["baseLocation"] },
-        m_mbrRegion{ } {}
+        m_baseLocation{  json["baseLocation"]["longitude"].get<float>(), json["baseLocation"]["latitude"].get<float>() },
+        m_mbrRegion{ {json["mbrRegion"]["startPoint"]["longitude"].get<float>(),
+                      json["mbrRegion"]["startPoint"]["latitude"].get<float>() 
+                     },
+                     {json["mbrRegion"]["endPoint"]["longitude"].get<float>(),
+                      json["mbrRegion"]["endPoint"]["latitude"].get<float>()
+                     }
+                    } {
+
+                        std::cout << "plane json construction completed" << std::endl;
+                    }
 
     bool Plane::Plane::SetJson(Json json) { // tehre will be second parameter about schema in the future
         std::cout << "json logic can be here" << std::endl;

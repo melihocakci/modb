@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
     std::ifstream f("../appsetting.json"); // this place is in /etc while building production code
     json appSetting = json::parse(f);
 
-    std::cout << "if it is called twice" << std::endl;
+    std::cout << "Hey main Program Working" << std::endl;
     std::ifstream file{appSetting["pipePath"]};
 
     try {
@@ -193,7 +193,7 @@ int main(int argc, char** argv) {
 
 
             std::string value = data["oid"].get<std::string>();
-
+            
 
             // std::stringstream ss;
             // ss << data["oid"] ;
