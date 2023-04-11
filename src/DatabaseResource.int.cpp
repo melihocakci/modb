@@ -3,14 +3,16 @@
     #error "Don't include this file"
 #endif
 
-#include <modb/DatabaseResource.inl>
 #include <modb/DatabaseResource.h>
 #include <modb/Plane.h>
-#include <modb/Rectangle.h>
+#include <modb/AtomicDataTypes.h>
+#include <modb/DatabaseResource.inl>
+
 using namespace modb;
+using namespace modb::atomic;
 
 // only change here for implement new datatype for DataResource template 
-#define DATATYPE Plane
+#define DATATYPE safe_int
 
 
 template std::string& Serializer<DATATYPE>::Serialize(DATATYPE data);

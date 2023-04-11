@@ -47,6 +47,12 @@ target_sources(${TARGET_NAME}
     PRIVATE Plane.cpp
     PRIVATE Rectangle.cpp
     PRIVATE Point.cpp
+
+    PRIVATE DatabaseResource.int.cpp
+    # PRIVATE DatabaseResource.float.cpp
+    # PRIVATE DatabaseResource.double.cpp
+    # PRIVATE DatabaseResource.string.cpp
+
     PRIVATE DatabaseResource.Plane.cpp
 )
 

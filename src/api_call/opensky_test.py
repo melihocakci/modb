@@ -103,7 +103,8 @@ while True:
         lastKnownState[oid] = Record2MovingObjectDto(record=record)
         recordJsonData = lastKnownState[oid].toJsonRecord()
         sender.sendDataWithFlushBuffer(recordJsonData)
-        time.sleep(1)
+    
+    time.sleep(1)
         
 
     

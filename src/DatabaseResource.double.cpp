@@ -5,12 +5,13 @@
 
 #include <modb/DatabaseResource.inl>
 #include <modb/DatabaseResource.h>
-#include <modb/Plane.h>
-#include <modb/Rectangle.h>
+#include <modb/AtomicDataTypes.h>
+
 using namespace modb;
+using namespace modb::atomic;
 
 // only change here for implement new datatype for DataResource template 
-#define DATATYPE Plane
+#define DATATYPE safe_double
 
 
 template std::string& Serializer<DATATYPE>::Serialize(DATATYPE data);

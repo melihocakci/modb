@@ -31,10 +31,6 @@ namespace modb {
         m_baseLocation{ json["baseLocation"] },
         m_mbrRegion{ /*json["mbrRegion"]*/ } {}
 
-    bool Plane::Plane::SetJson(Json json) { // tehre will be second parameter about schema in the future
-        std::cout << "json logic can be here" << std::endl;
-        return true;
-    }
 
     std::string Plane::oid() { return m_oid; }
 

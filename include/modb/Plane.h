@@ -27,7 +27,23 @@ namespace modb {
 
         virtual ~Plane() = default;
 
-        virtual bool SetJson(Json json);
+        virtual bool SetJson(Json json){
+            std::string oid = json["oid"];
+            std::string baseLocation = json["baseLocation"];
+            std::string mbrRegion = json["mbrRegion"];
+
+            if(oid.empty() || baseLocation.empty() || mbrRegion.empty()) {
+                return false;
+            }
+
+            m_oid = oid;
+            Point copyBaseLocation{json["baseLocation"]};
+            m_baseLocation = copyBaseLocation;
+
+            Rectangle copyMbrRegion{json["mbrRegion"]};
+            m_mbrRegion = copyMbrRegion;
+            return true;
+        };
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {

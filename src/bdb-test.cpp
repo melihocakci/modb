@@ -12,6 +12,8 @@
 
 #include <sys/wait.h>
 
+#include "modb/AtomicDataTypes.h"
+
 const std::string dbFileName{ "test.db" };
 
 #include <nlohmann/json.hpp>
@@ -52,8 +54,8 @@ void BusyWaiting() {
 
 }
 
-int main(int argc, char** argv) {
-    // modb::DatabaseResource resource;
+void Test1 () {
+     // modb::DatabaseResource resource;
 
 
     modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
@@ -135,6 +137,23 @@ int main(int argc, char** argv) {
     catch (std::exception& e) {
         std::cout << "hey " << std::endl;
     }
+
+}
+
+void Test2() 
+{
+    modb::DatabaseResource<modb::atomic::safe_int> denemeDR{"deneme2.db", DB_BTREE};
+    denemeDR.WriteKeyValuePair("oid", "1", modb::WRITE_APPEND);
+    denemeDR.WriteKeyValuePair("oid", "2", modb::WRITE_APPEND); 
+    modb::atomic::safe_int a = denemeDR.FindById("oid");
+    std::cout << a.data << std::endl;
+}
+
+
+
+int main(int argc, char** argv) {
+ 
+    Test2();
 
     return 0;
 }

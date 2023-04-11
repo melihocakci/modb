@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <nlohmann/json.hpp>
-
+#include <string>
 
 
 using json = nlohmann::json;
@@ -43,8 +43,20 @@ namespace modb {
     class DataObject
     {
         public:
-        virtual bool SetJson(json); // there is generic solution to this 
-                                // first solution i think give as well as schema data as parameter.
+        // there is generic solution to this 
+        // first solution i think give as well as schema data as parameter.   
+        virtual bool SetJson(json json){
+            std::string data = json["status"];
+            if(data.empty()) {
+                return false;
+            }
+
+            std::string compared = "True";
+            status = !data.compare(compared);
+
+            return true;
+        }; 
+
         bool status = true; // faulted data model means false
     };
 
