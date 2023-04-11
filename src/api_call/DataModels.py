@@ -60,6 +60,31 @@ class Region(collections.abc.Iterable):
     center : Location
     area : Rectangle
 
+
+# Generic dictionat to object conversion
+def dict2obj(d):
+     
+    # checking whether object d is a
+    # instance of class list
+    if isinstance(d, list):
+           d = [dict2obj(x) for x in d]
+ 
+    # if d is not a instance of dict then
+    # directly object is returned
+    if not isinstance(d, dict):
+           return d
+  
+    # declaring a class
+    class C:
+        pass
+  
+    # constructor of the class passed to obj
+    obj = C()
+  
+    for k in d:
+        obj.__dict__[k] = dict2obj(d[k])
+  
+    return obj
     
 @dataclass
 class Record:
@@ -73,8 +98,14 @@ class Record:
     probabilityRegion : Region
     oid : int
 
+    def json2obj(self, json :json ):
+        self.oid = json["oid"]
+
     def dict(self):
         return {'oid': self.oid, 'baseLocation': self.baseLocation.__dict__, 'probabilityRegion': self.probabilityRegion.dict() }
+
+    # def dict2obj(self):
+    #     return 
 
 
 if __name__ == "test":

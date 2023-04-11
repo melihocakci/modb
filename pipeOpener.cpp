@@ -2,9 +2,9 @@
 
 #include <fstream>
 
-int main(int arc, char ** argv) {
-    std::ifstream file {argv[1]};
-
-    std::cout << argv[1] << "opened" << std::endl;
-    return 0;
+int main(int, char** argv) {
+    std::ifstream file{argv[1]};
+    std::string line;
+    std::getline(file, line);
+    std::cout << line << '\n';
 }

@@ -1,7 +1,7 @@
 from opensky_api import OpenSkyApi
 from collections import defaultdict
 from Sender import Sender
-from DataModels import Record, Rectangle, Location, Region
+from DataModels import Record, Rectangle, Location, Region, dict2obj
 import json
 import time
 from dataclasses import dataclass
@@ -32,10 +32,12 @@ class StrictRedis(StrictRedis):
     def getDataJson(self, oid : str):
         if(self.exists(oid)):
             data = self.get(oid)
-            return data
+            data = json.loads(data)
+            recordObj=dict2obj(data)
+            return recordObj
         return None
         return json.load(data)
-    def writeDataJson(self,oid : str, data: json ):
+    def writeDataJson(self, oid : str, data: json ):
         self.set(oid, data)
 
 
@@ -77,8 +79,9 @@ while True:
         region = Region(location=location, area=Rectangle(unit=unit))
         lastKnownRegion = None
 
-        if(lastKnownState.getDataJson(oid) != None):
-            lastKnownRegion = lastKnownState[oid].record.baseLocation
+        data = lastKnownState.getDataJson(oid) 
+        if(data != None):
+            lastKnownRegion = data.baseLocation
 
 
         if(lastKnownRegion != None):
@@ -89,13 +92,9 @@ while True:
             region.area.height = height * samplingCoefficient
 
         record = Record(oid, location, region)
-
         recordDto = RecordStateDto(record=record, velocity=state.velocity)
-        
         recordJsonData = recordDto.toJsonRecord()
-        
-        lastKnownState.writeDataJson(recordJsonData)
-
+        lastKnownState.writeDataJson(oid=oid,data=recordJsonData)
         sender.sendDataWithFlushBuffer(recordJsonData)
         
 
