@@ -71,7 +71,7 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(const std::stri
         modb::DatabaseResource<T>::m_ExceptionForOpening();
     }
     m_status = modb::DB_OPENED;
-    
+    DB_OVERWRITE_DUP
 }
 
 template<typename T> void modb::DatabaseResource<T>::m_SetDBPoint(Db* db) {
@@ -111,11 +111,11 @@ bool modb::DataObject::SetJson(Json json) {
 
 }
 
-template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std::string& key, const std::string& value) {
+template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std::string& key, const std::string& value, modb::RECORD_WRITE_OPTION status) {
     Dbt keyDb(const_cast<char*>(key.c_str()), static_cast<uint32_t>(key.length() + 1));
     Dbt valueDb(const_cast<char*>(value.c_str()), static_cast<uint32_t>(value.length() + 1));
     // Dbt* valueDb = m_ConvertDbt(value);
-    m_database->put(NULL, &(keyDb), &(valueDb), 0);
+    m_database->put(NULL, &(keyDb), &(valueDb), status);
 }
 
 template <typename T> Dbt* modb::DatabaseResource<T>::m_ConvertDbt(const std::string& value) {

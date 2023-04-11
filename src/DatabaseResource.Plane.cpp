@@ -26,7 +26,7 @@ template void DatabaseResource<DATATYPE>::m_InstantiateSerializer();
 template DatabaseResource<DATATYPE>::DatabaseResource(); 
 template DatabaseResource<DATATYPE>::DatabaseResource(const std::string& dbName, DBTYPE type);
 template void DatabaseResource<DATATYPE>::m_ExceptionForOpening(); 
-template void DatabaseResource<DATATYPE>::WriteKeyValuePair(const std::string& key, const std::string& value);
+template void DatabaseResource<DATATYPE>::WriteKeyValuePair(const std::string& key, const std::string& value, modb::RECORD_WRITE_OPTION status);
 template Dbt* DatabaseResource<DATATYPE>::m_ConvertDbt(const std::string& value) ;
 template DATATYPE& DatabaseResource<DATATYPE>::FindById(const std::string& key);
 template DatabaseResource<DATATYPE>::DatabaseResource(Db* database) ;

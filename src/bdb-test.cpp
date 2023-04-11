@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
     const std::string planeOid = plane.oid();
     std::string serialized = dbResource.Serializer_().Serialize(plane);
 
-    dbResource.WriteKeyValuePair(planeOid, serialized);
+    dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_NODUPDATA);
 
     modb::Plane readRecord = dbResource.FindById(planeOid);
 
@@ -202,7 +202,14 @@ int main(int argc, char** argv) {
             modb::Plane record{data};
 
             // convert json to Plane format 
+            const std::string planeOid = plane.oid();
+            std::string serialized = dbResource.Serializer_().Serialize(plane);
 
+            dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_NODUPDATA);
+
+            modb::Plane readRecord = dbResource.FindById(planeOid);
+
+            std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.baseLocation().longitude() << readRecord.baseLocation().latitude() << std::endl;
 
             // serialize object
 

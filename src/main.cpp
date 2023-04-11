@@ -21,7 +21,7 @@ int exampleDataLoad() {
     const std::string planeOid = plane.oid();
     std::string serialized = dbResource.Serializer_().Serialize(plane);
 
-    dbResource.WriteKeyValuePair(planeOid, serialized);
+    dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_APPEND);
 
     modb::Plane readRecord = dbResource.FindById(planeOid);
 

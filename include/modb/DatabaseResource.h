@@ -26,8 +26,18 @@ namespace modb {
         DB_UNKNOWN=6 // others 
     } RESOURCE_STATUS;
 
-    
+    typedef enum {  
+        WRITE_APPEND=2,
+        WRITE_NODUPDATA=19,
+        WRITE_NOOVERWRITE=20,
+        WRITE_WRITEMULTIPLE=2048,
+        WRITE_MULTIPLE_KEY=16384,
+        WRITE_OVERWRITE_DUP=21,
+
+    } RECORD_WRITE_OPTION;
    
+    
+
     // Purpose of handle exception
     class DataObject
     {
@@ -73,7 +83,7 @@ namespace modb {
         void SetErrorStream(__DB_STD(ostream) *error_stream);
     
         void Open(DBTYPE);
-        void WriteKeyValuePair(const std::string&, const std::string&);
+        void WriteKeyValuePair(const std::string&, const std::string&, RECORD_WRITE_OPTION);
         // BulkLoad();
         // BulkWrite();
         T& FindById(const std::string&);
