@@ -3,7 +3,6 @@
 #include <utility>
 
 namespace modb {
-
     Point::Point():
         m_longitude{},
         m_latitude{} {}

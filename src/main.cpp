@@ -33,22 +33,20 @@ int exampleDataLoad() {
 int exampleLoad() {
     try
     {
-        Db myDb{ NULL, 0 };
-        myDb.set_error_stream(&std::cerr);
-        myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
+        Db planeDB{ NULL, 0 };
+        planeDB.set_error_stream(&std::cerr);
+        planeDB.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
-        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, { 0.3, 0.3 } } };
+        const modb::Plane plane{ "a3a5d9", { 12.2354, 17.3522 }, { 65.4543, 95.1235 }, 36.9276 };
 
         std::ostringstream outputStream{};
-        boost::archive::binary_oarchive outputArchive{outputStream};
+        boost::archive::binary_oarchive outputArchive(outputStream);
 
-        std::string planeOid = plane.oid();
+        outputArchive << plane;
+        std::string outputBuffer{outputStream.str()};
 
-        std::ostringstream oss{};
-        boost::archive::binary_oarchive oa(oss);
-
-        oa << plane;
-        std::string serialized{oss.str()};
+        Dbt key(const_cast<char*>(plane.oid.c_str()), static_cast<uint32_t>(plane.oid.length() + 1));
+        Dbt value(const_cast<char*>(outputBuffer.c_str()), static_cast<uint32_t>(outputBuffer.length() + 1));
 
         Dbt key(const_cast<char*>(planeOid.data()), static_cast<uint32_t>(planeOid.length()));
         Dbt value(const_cast<char*>(serialized.data()), static_cast<uint32_t>(serialized.length()));
@@ -56,13 +54,13 @@ int exampleLoad() {
         myDb.put(NULL, &key, &value, 0);
 
         Dbc* cursorp;
-        myDb.cursor(NULL, &cursorp, 0);
+        planeDB.cursor(NULL, &cursorp, 0);
 
         Dbt retVal;
         int ret = cursorp->get(&key, &retVal, DB_SET);
 
         if (ret) {
-            std::cerr << "No records found for '" << planeOid << "'" << std::endl;
+            std::cerr << "No records found for '" << plane.oid << "'" << std::endl;
             return 1;
         }
 
@@ -71,9 +69,10 @@ int exampleLoad() {
         std::istringstream iss{newObject};
         boost::archive::binary_iarchive ia{iss};
 
-        modb::Plane readRecord;
+        modb::Plane tmpPlane;
+        inputArchive >> tmpPlane;
 
-        ia >> readRecord;
+        const modb::Plane retPLane{std::move(tmpPlane)};
 
         std::cout << "key is " << readRecord.oid() << std::endl;
     }

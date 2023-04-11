@@ -15,6 +15,11 @@ namespace modb {
 
     class Plane: public DataObject {
     public:
+        std::string oid;
+        Point baseLocation;
+        Point mbrLocation;
+        float mbrWidth;
+
         Plane();
 
         Plane(Json);
