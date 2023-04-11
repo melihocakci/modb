@@ -19,9 +19,9 @@
     g++ pipe.cpp -o pipe
     python3 opensky_test.py
 
-# for using redis in python side 
- * (this is purpose of holding data in pc)
- * (bdb same logic also does in python side = performance comparison of bdb and redis)
+# why redis in python side 
+ * holding data in pc
+ * performance comparison of bdb and redis
 
 # Redis wsl2 installation guide
     pip install redis
