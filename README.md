@@ -26,7 +26,9 @@
 # Redis wsl2 installation guide
     pip install redis
     sudo apt install redis
-    <p> change supervised to systemd </p>
-    sudo nano /etc/redis/redis.conf
-    <p> check your services </p>
-    sudo /etc/init.d/redis-server start
+    sudo apt isntall redis-server:
+    sudo nano /etc/redis/redis.conf //change supervised to systemd 
+    sudo service --status-all // check your services for redis -
+    sudo /etc/init.d/redis-server start 
+    sudo service --status-all // check your services for redis +
+
