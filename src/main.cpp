@@ -1,5 +1,5 @@
 #include <db_cxx.h>
-#include <modb/Plane.h>
+#include <modb/Object.h>
 #include <modb/DatabaseResource.h>
 
 
@@ -11,22 +11,22 @@
 #include <memory>
 #include <sstream>
 
-const std::string dbFileName{ "plane.db" };
-const std::string exampleJson(R"({"oid": "a3a5d9", "baseLocation": {"longitude": -78.2338, "latitude": 42.2997}, "mbrRegion": {"pointLow": {"longitude": -78.2338, "latitude": 42.2997}, "pointHigh": {"longitude": -78.2338, "latitude": 42.2997}}})");
+const std::string dbFileName{ "Object.db" };
+const std::string exampleJson(R"({"id": "a3a5d9", "baseLocation": {"longitude": -78.2338, "latitude": 42.2997}, "mbrRegion": {"pointLow": {"longitude": -78.2338, "latitude": 42.2997}, "pointHigh": {"longitude": -78.2338, "latitude": 42.2997}}})");
 
 int exampleDataLoad() {
-    modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
+    modb::DatabaseResource<modb::Object> dbResource{dbFileName, DB_BTREE};
 
-    modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };
+    modb::Object Object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };
 
-    const std::string planeOid = plane.oid();
-    std::string serialized = dbResource.Serializer_().Serialize(plane);
+    const std::string ObjectOid = Object.id();
+    std::string serialized = dbResource.Serializer_().Serialize(Object);
 
-    dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_APPEND);
+    dbResource.WriteKeyValuePair(ObjectOid, serialized, modb::WRITE_APPEND);
 
-    modb::Plane readRecord = dbResource.FindById(planeOid);
+    modb::Object readRecord = dbResource.FindById(ObjectOid);
 
-    std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.baseLocation().longitude() << readRecord.baseLocation().latitude() << std::endl;
+    std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.baseLocation().longitude() << readRecord.baseLocation().latitude() << std::endl;
     return 0;
 }
 
@@ -37,20 +37,20 @@ int exampleLoad() {
         myDb.set_error_stream(&std::cerr);
         myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
 
-        modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, { 0.3, 0.3 } } };
+        modb::Object Object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, { 0.3, 0.3 } } };
 
         std::ostringstream outputStream{};
         boost::archive::binary_oarchive outputArchive{outputStream};
 
-        std::string planeOid = plane.oid();
+        std::string ObjectOid = Object.id();
 
         std::ostringstream oss{};
         boost::archive::binary_oarchive oa(oss);
 
-        oa << plane;
+        oa << Object;
         std::string serialized{oss.str()};
 
-        Dbt key(const_cast<char*>(planeOid.data()), static_cast<uint32_t>(planeOid.length()));
+        Dbt key(const_cast<char*>(ObjectOid.data()), static_cast<uint32_t>(ObjectOid.length()));
         Dbt value(const_cast<char*>(serialized.data()), static_cast<uint32_t>(serialized.length()));
 
         myDb.put(NULL, &key, &value, 0);
@@ -62,7 +62,7 @@ int exampleLoad() {
         int ret = cursorp->get(&key, &retVal, DB_SET);
 
         if (ret) {
-            std::cerr << "No records found for '" << planeOid << "'" << std::endl;
+            std::cerr << "No records found for '" << ObjectOid << "'" << std::endl;
             return 1;
         }
 
@@ -71,11 +71,11 @@ int exampleLoad() {
         std::istringstream iss{newObject};
         boost::archive::binary_iarchive ia{iss};
 
-        modb::Plane readRecord;
+        modb::Object readRecord;
 
         ia >> readRecord;
 
-        std::cout << "key is " << readRecord.oid() << std::endl;
+        std::cout << "key is " << readRecord.id() << std::endl;
     }
     catch (DbException& e)
     {
@@ -105,11 +105,11 @@ void examplePipe() {
 
         json data = json::parse(line);
 
-        modb::Plane parsedPlane{data};
+        modb::Object parsedObject{data};
 
-        std::cout << parsedPlane.oid() << '\n'
-            << parsedPlane.baseLocation().longitude() << '\n'
-            << parsedPlane.mbrRegion().pointLow().longitude() << "\n\n";
+        std::cout << parsedObject.id() << '\n'
+            << parsedObject.baseLocation().longitude() << '\n'
+            << parsedObject.mbrRegion().pointLow().longitude() << "\n\n";
     }
 
 }

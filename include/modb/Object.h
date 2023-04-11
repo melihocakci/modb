@@ -1,5 +1,5 @@
-#ifndef PLANE_H
-#define PLANE_H
+#ifndef OBJECT_H
+#define OBJECT_H
 
 #include <modb/Point.h>
 #include <modb/DatabaseResource.h>
@@ -9,25 +9,25 @@
 
 #include <string>
 
-using Json = nlohmann::json;
+using nlohmann::json;
 
 namespace modb {
 
-    class Plane: public DataObject {
+    class Object: public DataObject {
     public:
-        Plane();
+        Object();
 
-        Plane(Json);
+        Object(json json);
 
-        Plane(Plane& other);
+        Object(Object& other);
 
-        Plane(std::string oid, Point baseLocation, Rectangle mbrRectangle);
+        Object(std::string id, Point baseLocation, Rectangle mbrRectangle);
 
-        Plane& operator=(Plane& other);
+        Object& operator=(Object& other);
 
-        virtual ~Plane() = default;
+        virtual ~Object() = default;
 
-        virtual bool SetJson(Json json);
+        virtual bool SetJson(json json);
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {
@@ -36,7 +36,7 @@ namespace modb {
             ar& m_mbrRegion;
         }
 
-        std::string oid();
+        std::string id();
 
         Point baseLocation();
 

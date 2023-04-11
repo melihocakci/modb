@@ -11,7 +11,7 @@ namespace modb
 
             ~Example() = default;
 
-            Example(std::string oid, modb::Point baseLocation, modb::Point mbrLocation, float mbrWidth);
+            Example(std::string id, modb::Point baseLocation, modb::Point mbrLocation, float mbrWidth);
             template <class Archive>
             inline void serialize(Archive& ar, unsigned int) {
                 ar& m_oid;
@@ -75,13 +75,13 @@ namespace modb {
         public:
         Serializer() = default;
         const inline std::string& Serialize(T data) {
-            T plane{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
+            T object{ "a3a5d9", { 1.2, 1.3 }, { 2.2, 1.2 }, 1.1 };
 
             std::ostringstream oss{};
             boost::archive::binary_oarchive oa(oss);
 
 
-            oa << plane;
+            oa << object;
             std::string serialized{oss.str()};
 
             return serialized;

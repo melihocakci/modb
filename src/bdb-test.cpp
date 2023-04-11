@@ -1,7 +1,7 @@
 #include <db_cxx.h>
 
 #include <modb/DatabaseResource.h>
-#include <modb/Plane.h>
+#include <modb/Object.h>
 
 #include <iostream>
 #include <string>
@@ -56,18 +56,18 @@ int main(int argc, char** argv) {
     // modb::DatabaseResource resource;
 
 
-    modb::DatabaseResource<modb::Plane> dbResource{dbFileName, DB_BTREE};
+    modb::DatabaseResource<modb::Object> dbResource{dbFileName, DB_BTREE};
 
-    modb::Plane plane{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
+    modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
 
-    const std::string planeOid = plane.oid();
-    std::string serialized = dbResource.Serializer_().Serialize(plane);
+    const std::string objectOid = object.id();
+    std::string serialized = dbResource.Serializer_().Serialize(object);
 
-    dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_DEFAULT);
+    dbResource.WriteKeyValuePair(objectOid, serialized, modb::WRITE_DEFAULT);
 
-    modb::Plane readRecord = dbResource.FindById(planeOid);
+    modb::Object readRecord = dbResource.FindById(objectOid);
 
-    std::cout << "key is " << readRecord.oid() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
+    std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
 
     [[maybe_unused]] pid_t pid = apiCallStarter();
 
@@ -98,20 +98,20 @@ int main(int argc, char** argv) {
             // convert line to json
             json data = json::parse(line);
 
-            modb::Plane parsedPlane{data};
+            modb::Object parsedObject{data};
 
-            std::cout << parsedPlane.oid() << '\n'
-                << parsedPlane.baseLocation().longitude() << '\n'
-                << parsedPlane.mbrRegion().pointLow().longitude() << "\n\n";
+            std::cout << parsedObject.id() << '\n'
+                << parsedObject.baseLocation().longitude() << '\n'
+                << parsedObject.mbrRegion().pointLow().longitude() << "\n\n";
 
 
-            // // convert json to Plane format 
-            // const std::string planeOid = plane.oid();
-            // std::string serialized = dbResource.Serializer_().Serialize(plane);
+            // // convert json to Object format 
+            // const std::string ObjectOid = Object.id();
+            // std::string serialized = dbResource.Serializer_().Serialize(Object);
 
-            // dbResource.WriteKeyValuePair(planeOid, serialized, modb::WRITE_NODUPDATA);
+            // dbResource.WriteKeyValuePair(ObjectOid, serialized, modb::WRITE_NODUPDATA);
 
-            // modb::Plane readRecord = dbResource.FindById(planeOid);
+            // modb::Object readRecord = dbResource.FindById(ObjectOid);
 
 
             // serialize object

@@ -29,10 +29,10 @@ add_executable(${TARGET_NAME})
 
 target_sources(${TARGET_NAME} 
     PRIVATE main.cpp
-    PRIVATE Plane.cpp
+    PRIVATE Object.cpp
     PRIVATE Point.cpp
     PRIVATE Rectangle.cpp
-    PRIVATE DatabaseResource.Plane.cpp
+    PRIVATE DatabaseResource.Object.cpp
 )
 
 ###################################################################
@@ -44,9 +44,9 @@ add_executable(${TARGET_NAME})
 
 target_sources(${TARGET_NAME} 
     PRIVATE bdb-test.cpp
-    PRIVATE Plane.cpp
+    PRIVATE Object.cpp
     PRIVATE Rectangle.cpp
     PRIVATE Point.cpp
-    PRIVATE DatabaseResource.Plane.cpp
+    PRIVATE DatabaseResource.Object.cpp
 )
 

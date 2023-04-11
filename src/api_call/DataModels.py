@@ -46,7 +46,7 @@ class LocationArea:
         return f"({self.startPoint.__dict__}, {self.endPoint.__dict__})"
 
     def dict(self):
-        return {'startPoint': self.startPoint.__dict__, 'endPoint': self.endPoint.__dict__}
+        return {'pointLow': self.startPoint.__dict__, 'pointHigh': self.endPoint.__dict__}
 
 
 @dataclass
@@ -140,7 +140,7 @@ class Record:
 class MovingObjectRecord:    
 
     def dict(self):
-        return {'oid': self.oid, 'baseLocation': self.baseLocation.__dict__, 'mbrRegion': self.mbrRegion.dict() }
+        return {'id': self.oid, 'baseLocation': self.baseLocation.__dict__, 'mbrRegion': self.mbrRegion.dict() }
 
     oid : int
     baseLocation : Location

@@ -5,16 +5,16 @@
 
 #include <modb/DatabaseResource.inl>
 #include <modb/DatabaseResource.h>
-#include <modb/Plane.h>
+#include <modb/Object.h>
 #include <modb/Rectangle.h>
 using namespace modb;
 
 // only change here for implement new datatype for DataResource template 
-#define DATATYPE Plane
+#define DATATYPE Object
 
 
 template std::string& Serializer<DATATYPE>::Serialize(DATATYPE data);
-template Plane& Serializer<DATATYPE>::Deserialize(std::string& serializedData);
+template DATATYPE& Serializer<DATATYPE>::Deserialize(std::string& serializedData);
 template Serializer<DATATYPE>&  DatabaseResource<DATATYPE>::Serializer_();
 
 template Serializer<DATATYPE>::~Serializer();
@@ -34,4 +34,4 @@ template DatabaseResource<DATATYPE>& DatabaseResource<DATATYPE>::operator=(std::
 template void DatabaseResource<DATATYPE>::SetErrorStream(__DB_STD(ostream) *error_stream);
 template void DatabaseResource<DATATYPE>::m_SafeModLog(const std::string& logMessage);
 template void DatabaseResource<DATATYPE>::Open(DBTYPE type) ;
-// template DatabaseResource<Plane>::~DatabaseResource();
+// template DatabaseResource<Object>::~DatabaseResource();

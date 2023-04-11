@@ -5,6 +5,7 @@ from DataModels import Record, Rectangle, Location, Region, Jsonifier, LocationA
 import json
 import time
 from dataclasses import dataclass
+import sys
 
 api = OpenSkyApi(username='onrdmr2', password='425262026Asd')
 
