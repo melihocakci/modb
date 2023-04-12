@@ -31,7 +31,7 @@ target_sources(${TARGET_NAME}
     PRIVATE main.cpp
     PRIVATE Object.cpp
     PRIVATE Point.cpp
-    PRIVATE Rectangle.cpp
+    PRIVATE Region.cpp
     PRIVATE DatabaseResource.Object.cpp
 )
 
@@ -45,7 +45,7 @@ add_executable(${TARGET_NAME})
 target_sources(${TARGET_NAME} 
     PRIVATE bdb-test.cpp
     PRIVATE Object.cpp
-    PRIVATE Rectangle.cpp
+    PRIVATE Region.cpp
     PRIVATE Point.cpp
     PRIVATE DatabaseResource.Object.cpp
 )

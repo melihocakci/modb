@@ -29,7 +29,7 @@ namespace modb {
     Object::Object(json json):
         m_oid{ json["id"] },
         m_baseLocation{ json["baseLocation"] },
-        m_mbrRegion{ json["mbrRegion"] } {}
+        m_mbrRegion{ /*json["mbrRegion"]*/ } {}
 
     bool Object::Object::SetJson(json json) { // tehre will be second parameter about schema in the future
         std::cout << "json logic can be here" << std::endl;
