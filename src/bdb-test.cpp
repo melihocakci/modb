@@ -100,10 +100,16 @@ int main(int argc, char** argv) {
 
             modb::Object parsedObject{data};
 
-            std::cout << parsedObject.id() << '\n'
-                << parsedObject.baseLocation().longitude() << '\n'
-                << parsedObject.mbrRegion().pointLow().longitude() << "\n\n";
+            std::cout << "oid " <<  parsedObject.id() << '\n'
+                << "center " << parsedObject.baseLocation().longitude() << '\t'
+                << parsedObject.baseLocation().latitude() << "\n"
+                << "startPoint " << parsedObject.mbrRegion().pointLow().longitude() << "\t"
+                << parsedObject.mbrRegion().pointLow().latitude() << "\n"
+                << "endPoint" << parsedObject.mbrRegion().pointHigh().longitude() << "\t"
+                << parsedObject.mbrRegion().pointHigh().latitude() << "\n";
 
+
+            
 
             // // convert json to Object format 
             // const std::string ObjectOid = Object.id();

@@ -95,7 +95,8 @@ while True:
         recordDto = RecordStateDto(record=record, velocity=state.velocity)
         recordJsonData = recordDto.toJsonRecord()
         lastKnownState.writeDataJson(oid=oid,data=recordJsonData)
-        sender.sendDataWithFlushBuffer(recordJsonData)
+        if(lastKnownRegion != None):
+            sender.sendDataWithFlushBuffer(recordJsonData)
         
 
     
