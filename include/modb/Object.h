@@ -4,6 +4,7 @@
 #include <modb/Point.h>
 #include <modb/DatabaseResource.h>
 #include <modb/Region.h>
+#include <modb/DatabaseResource.h>
 
 #include <nlohmann/json.hpp>
 
@@ -20,6 +21,8 @@ namespace modb {
         Object(json json);
 
         Object(Object& other);
+
+        Object(Object&& other);
 
         Object(std::string id, Point baseLocation, Region mbrRegion);
 

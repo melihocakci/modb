@@ -32,7 +32,6 @@ target_sources(${TARGET_NAME}
     PRIVATE Object.cpp
     PRIVATE Point.cpp
     PRIVATE Region.cpp
-    PRIVATE DatabaseResource.Object.cpp
 )
 
 ###################################################################
@@ -47,6 +46,4 @@ target_sources(${TARGET_NAME}
     PRIVATE Object.cpp
     PRIVATE Region.cpp
     PRIVATE Point.cpp
-    PRIVATE DatabaseResource.Object.cpp
 )
-

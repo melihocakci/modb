@@ -11,57 +11,54 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-
-
 using json = nlohmann::json;
-
 
 namespace modb {
     typedef enum {
-        DB_NONE=1,
-        DB_OPENED=2, // first state
-        DB_OVERWRITTEN=3, // if db there and overwritten it
-        DB_FORKED=4, // if database is copied it is state is forked 
-        DB_ERROR=5, // if any opening error occurs
-        DB_UNKNOWN=6 // others 
+        DB_NONE = 1,
+        DB_OPENED = 2, // first state
+        DB_OVERWRITTEN = 3, // if db there and overwritten it
+        DB_FORKED = 4, // if database is copied it is state is forked 
+        DB_ERROR = 5, // if any opening error occurs
+        DB_UNKNOWN = 6 // others 
     } RESOURCE_STATUS;
 
     typedef enum {
-        WRITE_DEFAULT=0,
-        WRITE_APPEND=2,
-        WRITE_NODUPDATA=19,
-        WRITE_NOOVERWRITE=20,
-        WRITE_WRITEMULTIPLE=2048,
-        WRITE_MULTIPLE_KEY=16384,
-        WRITE_OVERWRITE_DUP=21,
+        WRITE_DEFAULT = 0,
+        WRITE_APPEND = 2,
+        WRITE_NODUPDATA = 19,
+        WRITE_NOOVERWRITE = 20,
+        WRITE_WRITEMULTIPLE = 2048,
+        WRITE_MULTIPLE_KEY = 16384,
+        WRITE_OVERWRITE_DUP = 21,
 
     } RECORD_WRITE_OPTION;
-   
-    
+
+
 
     // Purpose of handle exception
     class DataObject
     {
-        public:
+    public:
         virtual bool SetJson(json); // there is generic solution to this 
-                                // first solution i think give as well as schema data as parameter.
+        // first solution i think give as well as schema data as parameter.
         bool status = true; // faulted data model means false
     };
 
     template<typename T>
     class Serializer
     {
-        public:
+    public:
         Serializer() = default;
         Serializer(Serializer<T>&) = default;
-        std::string& Serialize(T);
-        T& Deserialize(std::string&);
+        std::string Serialize(T);
+        T Deserialize(const std::string&);
         ~Serializer();
 
-        T& GetData();
+        T GetData();
         std::string& GetSerializedData();
 
-        private:
+    private:
         std::string m_serializedData;
         T m_data;
     };
@@ -69,7 +66,7 @@ namespace modb {
     template<typename T>
     class DatabaseResource
     {
-        public:
+    public:
         DatabaseResource();
 
         DatabaseResource(DatabaseResource& other) = default;
@@ -81,37 +78,38 @@ namespace modb {
         Serializer<T>& Serializer_();
 
 
-        void SetErrorStream(__DB_STD(ostream) *error_stream);
-    
+        void SetErrorStream(__DB_STD(ostream)* error_stream);
+
         void Open(DBTYPE);
         void WriteKeyValuePair(const std::string&, const std::string&, RECORD_WRITE_OPTION);
         // BulkLoad();
         // BulkWrite();
-        T& FindById(const std::string&);
+        void FindById(const std::string& key, T* retObject);
         // UpdateByOid();
         // DeleteByOid();
-         ~DatabaseResource() = default;
+        ~DatabaseResource() = default;
 
         DB* Database();
 
-        private:
-            void m_ExceptionForOpening();
-            void m_SafeModLog(const std::string&);
-            void m_InstantiateSerializer();
-            Dbt* m_ConvertDbt(const std::string&);
-            void m_SetDBPoint(Db*);
+    private:
+        void m_ExceptionForOpening();
+        void m_SafeModLog(const std::string&);
+        void m_InstantiateSerializer();
+        Dbt* m_ConvertDbt(const std::string&);
+        void m_SetDBPoint(Db*);
 
-            Db* m_database; // bdb source, there will be generic class for all DB later
-            std::string m_databaseName;
-            RESOURCE_STATUS m_status = modb::DB_NONE;
-            modb::Serializer<T> m_serializer;
-            // there will be used in tracking object state and 
-            // Manager use to this as garbage collector
-            bool m_isSafe;
-            
+        Db* m_database; // bdb source, there will be generic class for all DB later
+        std::string m_databaseName;
+        RESOURCE_STATUS m_status = modb::DB_NONE;
+        modb::Serializer<T> m_serializer;
+        // there will be used in tracking object state and 
+        // Manager use to this as garbage collector
+        bool m_isSafe;
+
     };
 
 }
 
+#include <modb/DatabaseResource.inl>
 
 #endif

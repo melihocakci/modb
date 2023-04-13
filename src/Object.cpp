@@ -13,6 +13,11 @@ namespace modb {
         m_baseLocation{ other.m_baseLocation },
         m_mbrRegion{ other.m_mbrRegion } {}
 
+    Object::Object(Object&& other):
+        m_oid{ std::move(other.m_oid) },
+        m_baseLocation{ std::move(other.m_baseLocation) },
+        m_mbrRegion{ std::move(other.m_mbrRegion) } {}
+
     Object::Object(std::string id, Point baseLocation, Region mbrRegion):
         m_oid{ id },
         m_baseLocation{ baseLocation },

@@ -4,21 +4,15 @@
 #include <modb/DatabaseResource.h>
 #include <sstream>
 
-using Json=nlohmann::json;
+using Json = nlohmann::json;
 
-template<typename T>  std::string& modb::Serializer<T>::Serialize(T data) {
-    T object{ "a3a5d9", { 1.2, 1.3 }, {{ 2.2, 1.2 }, {1.1,1.2}} };
-
+template<typename T> std::string modb::Serializer<T>::Serialize(T data) {
     std::ostringstream oss{};
     boost::archive::binary_oarchive oa(oss);
 
+    oa << data;
 
-    oa << object;
-    std::string serialized{oss.str()};
-
-
-    m_serializedData = serialized;
-    return m_serializedData;
+    return oss.str();
 }
 
 template<typename T> modb::Serializer<T>::~Serializer() {
@@ -30,24 +24,22 @@ template<typename T> modb::Serializer<T>::~Serializer() {
     // delete &m_deserializedData;
 }
 
-template<typename T> T& modb::Serializer<T>::Deserialize(std::string& serializedData) {
+template<typename T> T modb::Serializer<T>::Deserialize(const std::string& serializedData) {
     std::istringstream iss{serializedData};
     boost::archive::binary_iarchive ia{iss};
 
     T readRecord;
 
     ia >> readRecord;
-    
-    m_data = readRecord;
 
-    return m_data;
+    return std::move(readRecord);
 }
 
-template<typename T> modb::Serializer<T>&  modb::DatabaseResource<T>::Serializer_(){
+template<typename T> modb::Serializer<T>& modb::DatabaseResource<T>::Serializer_() {
     return m_serializer;
 }
 
-template<typename T> void modb::DatabaseResource<T>::m_InstantiateSerializer() 
+template<typename T> void modb::DatabaseResource<T>::m_InstantiateSerializer()
 {
     Serializer<T> data{};
     m_serializer = data;
@@ -63,10 +55,10 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(const std::stri
     {
         Db* myDb = new Db{ NULL, 0 };
         myDb->set_error_stream(&std::cerr);
-        myDb->open(NULL, dbName.c_str(), NULL, type, DB_CREATE, 0); 
+        myDb->open(NULL, dbName.c_str(), NULL, type, DB_CREATE, 0);
         m_SetDBPoint(myDb);
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
         modb::DatabaseResource<T>::m_ExceptionForOpening();
     }
@@ -79,14 +71,14 @@ template<typename T> void modb::DatabaseResource<T>::m_SetDBPoint(Db* db) {
 }
 
 template<typename T> void modb::DatabaseResource<T>::m_ExceptionForOpening() {
-    try{
+    try {
         throw;
     }
     catch (DbException& e)
     {
 
         std::stringstream ss;
-        ss << "Error opening database: " <<  m_databaseName << std::endl;
+        ss << "Error opening database: " << m_databaseName << std::endl;
         modb::DatabaseResource<T>::m_SafeModLog(ss.str());
     }
     catch (std::exception& e)
@@ -97,9 +89,9 @@ template<typename T> void modb::DatabaseResource<T>::m_ExceptionForOpening() {
     }
 }
 
-bool modb::DataObject::SetJson(Json json) {
+inline bool modb::DataObject::SetJson(Json json) {
     std::string data = json["status"];
-    if(data.empty()) {
+    if (data.empty()) {
         return false;
     }
 
@@ -111,46 +103,42 @@ bool modb::DataObject::SetJson(Json json) {
 }
 
 template<typename T> void modb::DatabaseResource<T>::WriteKeyValuePair(const std::string& key, const std::string& value, modb::RECORD_WRITE_OPTION status) {
-    Dbt keyDb(const_cast<char*>(key.c_str()), static_cast<uint32_t>(key.length() + 1));
-    Dbt valueDb(const_cast<char*>(value.c_str()), static_cast<uint32_t>(value.length() + 1));
-    // Dbt* valueDb = m_ConvertDbt(value);
+    Dbt keyDb(const_cast<char*>(key.data()), static_cast<uint32_t>(key.length()));
+    Dbt valueDb(const_cast<char*>(value.data()), static_cast<uint32_t>(value.length()));
     
-
     m_database->put(NULL, &(keyDb), &(valueDb), 0);
 }
 
 template <typename T> Dbt* modb::DatabaseResource<T>::m_ConvertDbt(const std::string& value) {
-    Dbt * valueDb =  new Dbt(const_cast<char*>(value.c_str()), static_cast<uint32_t>(value.length() + 1));
+    Dbt* valueDb = new Dbt(const_cast<char*>(value.data()), static_cast<uint32_t>(value.length()));
     return valueDb;
 }
 
-template <typename T> T& modb::Serializer<T>::GetData() {
-    return m_data;
+template <typename T> T modb::Serializer<T>::GetData() {
+    return std::move(m_data);
 }
 
 template <typename T> std::string& modb::Serializer<T>::GetSerializedData() {
     return m_serializedData;
 }
 
-template<typename T> T& modb::DatabaseResource<T>::FindById(const std::string& key) {
+template<typename T> void modb::DatabaseResource<T>::FindById(const std::string& key, T* retObject) {
     Dbc* cursorp;
     T readRecord;
     m_database->cursor(NULL, &cursorp, 0);
 
-    Dbt *keyDb = m_ConvertDbt(key);
+    Dbt* keyDb = m_ConvertDbt(key);
 
     Dbt retVal;
     int ret = cursorp->get(&(*keyDb), &retVal, DB_SET);
 
     if (ret) {
-        
         readRecord.status = false;
         std::stringstream ss;
         ss << "No records found for '" << key << "'" << std::endl;
         modb::DatabaseResource<T>::m_SafeModLog(ss.str());
-        
-        readRecord = m_serializer.GetData();
-        return m_serializer.GetData();
+
+        retObject = nullptr;
     }
 
     std::string newObject{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
@@ -158,23 +146,19 @@ template<typename T> T& modb::DatabaseResource<T>::FindById(const std::string& k
     std::istringstream iss{newObject};
     boost::archive::binary_iarchive ia{iss};
 
-
-    ia >> readRecord;
-
-
-    return m_serializer.Deserialize(newObject);
+    ia >> *retObject;
 }
 
-template<typename T> modb::DatabaseResource<T>::DatabaseResource(Db* database) : m_database(database) {
+template<typename T> modb::DatabaseResource<T>::DatabaseResource(Db* database): m_database(database) {
     m_InstantiateSerializer();
-    if(m_status == modb::DB_OPENED) {
+    if (m_status == modb::DB_OPENED) {
         m_SafeModLog("Overwriting existing data resource");
         m_status = modb::DB_OVERWRITTEN;
-        
+
         try {
             m_database->close(0);
         }
-        catch (DbException& e) 
+        catch (DbException& e)
         {
             throw std::runtime_error("While closing database error occured.");
         }
@@ -182,54 +166,54 @@ template<typename T> modb::DatabaseResource<T>::DatabaseResource(Db* database) :
         delete m_database;
 
     }
-    const char ** fname = (const char **) malloc(1);
-    (*fname) = (const char*) malloc(100);
+    const char** fname = (const char**)malloc(1);
+    (*fname) = (const char*)malloc(100);
     int status = database->get_dbname(fname, nullptr);
-    if(status!=0) {
+    if (status != 0) {
         m_status = modb::DB_ERROR;
-        std::cerr << "Error is occured in while reaching database. status:" << status <<std::endl; 
+        std::cerr << "Error is occured in while reaching database. status:" << status << std::endl;
     }
     m_databaseName = std::string(*fname);
 }
 
 // sinking error flag from outside
 template<typename T> modb::DatabaseResource<T>& modb::DatabaseResource<T>::operator=(std::nullptr_t) {
-    m_status = modb::DB_ERROR; 
+    m_status = modb::DB_ERROR;
     return *this;
 }
 
 
-template<typename T> void modb::DatabaseResource<T>::SetErrorStream(__DB_STD(ostream) *error_stream) {
+template<typename T> void modb::DatabaseResource<T>::SetErrorStream(__DB_STD(ostream)* error_stream) {
     m_database->set_error_stream(&std::cerr);
 }
 
 template<typename T> void modb::DatabaseResource<T>::m_SafeModLog(const std::string& logMessage) {
     if (m_isSafe == false) {
-        std::cerr << logMessage << std::endl;  
+        std::cerr << logMessage << std::endl;
     }
     else {
         throw std::runtime_error(logMessage);
-    } 
+    }
 }
 
 template<typename T> void modb::DatabaseResource<T>::Open(DBTYPE type) {
-    if(m_databaseName.empty()) {
+    if (m_databaseName.empty()) {
         m_status = modb::DB_ERROR;
         modb::DatabaseResource<T>::m_SafeModLog("database is empty");
     }
     else {
 
-        try{
+        try {
             m_database->open(NULL, m_databaseName.c_str(), NULL, type, DB_CREATE, 0);
         }
-        
+
         catch (std::exception& e)
         {
             return m_ExceptionForOpening();
         }
     }
 
-    
+
 }
 
 #endif

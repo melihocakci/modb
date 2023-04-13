@@ -2,6 +2,7 @@
 
 #include <modb/DatabaseResource.h>
 #include <modb/Object.h>
+#include <modb/DatabaseResource.inl>
 
 #include <iostream>
 #include <string>
@@ -60,12 +61,14 @@ int main(int argc, char** argv) {
 
     modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
 
-    const std::string objectOid = object.id();
+    std::string objectOid = object.id();
     std::string serialized = dbResource.Serializer_().Serialize(object);
 
     dbResource.WriteKeyValuePair(objectOid, serialized, modb::WRITE_DEFAULT);
 
-    modb::Object readRecord = dbResource.FindById(objectOid);
+    modb::Object readRecord;
+    
+    dbResource.FindById(objectOid, &readRecord);
 
     std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
 

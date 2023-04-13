@@ -7,8 +7,12 @@ namespace modb {
         m_pointHigh{} {}
 
     Region::Region(Region& other):
-        m_pointLow{ other.pointLow() },
-        m_pointHigh{ other.pointHigh() } {}
+        m_pointLow{ other.m_pointLow },
+        m_pointHigh{ other.m_pointHigh } {}
+
+    Region::Region(Region&& other):
+        m_pointLow{ std::move(other.m_pointLow) },
+        m_pointHigh{ std::move(other.m_pointHigh) } {}
 
     Region::Region(Point pointLow, Point poingHigh):
         m_pointLow{ pointLow },
