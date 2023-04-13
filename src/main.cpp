@@ -42,7 +42,7 @@ void readObjects() {
             throw std::exception{};
         }
 
-        modb::Object newObject; 
+        modb::Object newObject;
         ret = db.getObject(parsedObject.id(), newObject);
 
         if (ret) {
@@ -50,7 +50,9 @@ void readObjects() {
             throw std::exception{};
         }
 
-        std::cout << "read key: " << newObject.id() << "\n\n";
+        std::cout << "read key: " << newObject.id() << '\n'
+            << "read baseLocation: " << newObject.baseLocation().longitude()
+            << " - " << newObject.baseLocation().latitude() << "\n\n";
     }
 }
 

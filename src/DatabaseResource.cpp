@@ -64,10 +64,7 @@ int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) 
 
     std::string objectData{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
 
-    std::istringstream inputStream{objectData};
-    boost::archive::binary_iarchive inputArchive{inputStream};
-
-    inputArchive >> retObject;
+    deserialize(objectData, retObject);
 
     return ret;
 }
