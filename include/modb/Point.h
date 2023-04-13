@@ -14,7 +14,7 @@ namespace modb {
 
         Point(float longitude, float latitude);
 
-        Point(nlohmann::json baseLocation);
+        Point(const nlohmann::json& baseLocation);
 
         ~Point() = default;
 

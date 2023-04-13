@@ -2,7 +2,7 @@
 
 #include <modb/DatabaseResource.h>
 #include <modb/Object.h>
-#include <modb/DatabaseResource.inl>
+#include <nlohmann/json.hpp>
 
 #include <iostream>
 #include <string>
@@ -15,7 +15,6 @@
 
 const std::string dbFileName{ "test.db" };
 
-#include <nlohmann/json.hpp>
 using nlohmann::json;
 
 pid_t apiCallStarter() {
@@ -54,21 +53,15 @@ void BusyWaiting() {
 }
 
 int main(int argc, char** argv) {
-    // modb::DatabaseResource resource;
 
-
-    modb::DatabaseResource<modb::Object> dbResource{dbFileName, DB_BTREE};
+    modb::DatabaseResource dbResource{dbFileName, DB_BTREE};
 
     modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
 
-    std::string objectOid = object.id();
-    std::string serialized = dbResource.Serializer_().Serialize(object);
-
-    dbResource.WriteKeyValuePair(objectOid, serialized, modb::WRITE_DEFAULT);
+    dbResource.putObject(object);
 
     modb::Object readRecord;
-    
-    dbResource.FindById(objectOid, &readRecord);
+    dbResource.getObject(object.id(), readRecord);
 
     std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
 
@@ -110,7 +103,7 @@ int main(int argc, char** argv) {
 
             // // convert json to Object format 
             // const std::string ObjectOid = Object.id();
-            // std::string serialized = dbResource.Serializer_().Serialize(Object);
+            // std::string serialized = dbResource.Serializer_().serialize(Object);
 
             // dbResource.WriteKeyValuePair(ObjectOid, serialized, modb::WRITE_NODUPDATA);
 

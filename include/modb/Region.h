@@ -6,7 +6,6 @@
 #include <nlohmann/json.hpp>
 
 namespace modb {
-
     class Region {
     public:
         Region();
@@ -17,7 +16,7 @@ namespace modb {
 
         Region(Point pointLow, Point pointHigh);
 
-        Region(nlohmann::json mbrRegion);
+        Region(const nlohmann::json& mbrRegion);
 
         ~Region() = default;
 
