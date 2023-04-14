@@ -1,5 +1,6 @@
 from opensky_api import OpenSkyApi
 # from collections import defaultdict
+from Dto import Record2MovingObjectDto
 from Sender import Sender
 from DataModels import Record, Rectangle, Location, Region, dict2obj
 import json
@@ -12,19 +13,6 @@ api = OpenSkyApi(username='onrdmr2', password='425262026Asd')
 
 
 global unitArea # now it is global
-
-@dataclass
-class RecordStateDto:
-
-    def __init__(self, record: Record, velocity: float) -> None:
-        self.record = record
-        self.velocity = velocity
-
-    def toJsonRecord(self):
-        return json.dumps(record.dict())
-
-    record : Record
-    velocity : float
 
 
 # extension method
@@ -92,7 +80,7 @@ while True:
             region.area.height = height * samplingCoefficient
 
         record = Record(oid, location, region)
-        recordDto = RecordStateDto(record=record, velocity=state.velocity)
+        recordDto = Record2MovingObjectDto(record=record)
         recordJsonData = recordDto.toJsonRecord()
         lastKnownState.writeDataJson(oid=oid,data=recordJsonData)
         if(lastKnownRegion != None):
