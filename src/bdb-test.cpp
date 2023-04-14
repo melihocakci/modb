@@ -17,8 +17,19 @@ const std::string dbFileName{ "test.db" };
 
 using nlohmann::json;
 
+bool isRedisSet = false;
+
 pid_t apiCallStarter() {
+
     std::string filename = "api_call/opensky_test.py";
+    if(isRedisSet == true) 
+    {
+        std::stringstream ss;
+        ss << "api_call/opensky_test_" << "redis" << ".py";
+        std::string filename = ss.str();
+
+    } 
+
     std::string command = "python3";
 
     pid_t c_pid = fork();
@@ -50,6 +61,11 @@ void BusyWaiting() {
         i++;
     }
 
+}
+
+
+void clearRedisCacheInSystem() {
+    system("redis-cli flushall");
 }
 
 int main(int argc, char** argv) {
@@ -97,8 +113,14 @@ int main(int argc, char** argv) {
             modb::Object parsedObject{data};
 
             std::cout << parsedObject.id() << '\n'
-                << parsedObject.baseLocation().longitude() << '\n'
-                << parsedObject.mbrRegion().pointLow().longitude() << "\n\n";
+                << "location : "  
+                << parsedObject.baseLocation().longitude() << '\t'
+                << parsedObject.baseLocation().latitude() << '\n'
+                << "mbrRegion:"
+                << parsedObject.mbrRegion().pointLow().longitude() << "\t" 
+                << parsedObject.mbrRegion().pointLow().latitude() << "\n\t"
+                << parsedObject.mbrRegion().pointHigh().longitude() << "\t" 
+                << parsedObject.mbrRegion().pointHigh().latitude() << "\n";
 
 
             // // convert json to Object format 
@@ -119,6 +141,9 @@ int main(int argc, char** argv) {
             i++;
         }
 
+        // clear this if there is no redis cli
+        if(isRedisSet) 
+            clearRedisCacheInSystem();
     }
     catch (std::exception& e) {
         std::cout << "hey " << std::endl;

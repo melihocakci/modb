@@ -1,5 +1,5 @@
 from opensky_api import OpenSkyApi
-from collections import defaultdict
+# from collections import defaultdict
 from Sender import Sender
 from DataModels import Record, Rectangle, Location, Region, dict2obj
 import json
@@ -95,11 +95,12 @@ while True:
         recordDto = RecordStateDto(record=record, velocity=state.velocity)
         recordJsonData = recordDto.toJsonRecord()
         lastKnownState.writeDataJson(oid=oid,data=recordJsonData)
-        sender.sendDataWithFlushBuffer(recordJsonData)
+        if(lastKnownRegion != None):
+            sender.sendDataWithFlushBuffer(recordJsonData)
         
 
-    
-    time.sleep(1)
+        
+        time.sleep(5)
 
 
 

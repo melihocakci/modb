@@ -74,38 +74,40 @@ while True:
 
     unit = 0.3 # maximum length a plane can take in that moment
     s = api.get_states() 
+    if(s == None) :
+        time.sleep(10)
+    
+    else:
+        for state in s.states:
+            if(state.longitude == None or state.latitude == None or state.icao24 == None ):
+                continue
+            longitude = state.longitude
+            latitute = state.latitude
+
+            location = Location(longitude=longitude, latitude=latitute)
+
+            oid = state.icao24
+            region = Region(location=location, area=Rectangle(unit=unit))
+            lastKnownRegion = None
+
+            if(lastKnownState.get(oid) != None):
+                lastKnownRegion = lastKnownState[oid].record.baseLocation
 
 
-    for state in s.states:
-        if(state.longitude == None or state.latitude == None or state.icao24 == None ):
-            continue
-        longitude = state.longitude
-        latitute = state.latitude
+            if(lastKnownRegion != None):
+                ## region value will be created
+                height = abs(lastKnownRegion.latitude-region.center.latitude)
+                width = abs(lastKnownRegion.longitude-region.center.longitude)
+                region.area.width = width * samplingCoefficient ## samplingCoeffient is 
+                region.area.height = height * samplingCoefficient
 
-        location = Location(longitude=longitude, latitude=latitute)
+            record = Record(oid, location, region)
 
-        oid = state.icao24
-        region = Region(location=location, area=Rectangle(unit=unit))
-        lastKnownRegion = None
-
-        if(lastKnownState.get(oid) != None):
-            lastKnownRegion = lastKnownState[oid].record.baseLocation
-
-
-        if(lastKnownRegion != None):
-            ## region value will be created
-            height = abs(lastKnownRegion.latitude-region.center.latitude)
-            width = abs(lastKnownRegion.longitude-region.center.longitude)
-            region.area.width = width * samplingCoefficient ## samplingCoeffient is 
-            region.area.height = height * samplingCoefficient
-
-        record = Record(oid, location, region)
-
-        lastKnownState[oid] = Record2MovingObjectDto(record=record)
-        recordJsonData = lastKnownState[oid].toJsonRecord()
-        sender.sendDataWithFlushBuffer(recordJsonData)
-        time.sleep(1)
-        
+            lastKnownState[oid] = Record2MovingObjectDto(record=record)
+            recordJsonData = lastKnownState[oid].toJsonRecord()
+            sender.sendDataWithFlushBuffer(recordJsonData)
+        time.sleep(5)
+            
 
     
 
