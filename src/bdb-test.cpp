@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
                 << "mbrRegion:"
                 << parsedObject.mbrRegion().pointLow().longitude() << "\t" 
                 << parsedObject.mbrRegion().pointLow().latitude() << "\n\t"
-                << parsedObject.mbrRegion().pointHigh().longitude() << "\t" 
+                << parsedObject.mbrRegion().pointHigh().longitude() << "\t"; 
 
 
 
