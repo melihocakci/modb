@@ -120,8 +120,10 @@ int main(int argc, char** argv) {
                 << parsedObject.mbrRegion().pointLow().longitude() << "\t" 
                 << parsedObject.mbrRegion().pointLow().latitude() << "\n\t"
                 << parsedObject.mbrRegion().pointHigh().longitude() << "\t" 
-                << parsedObject.mbrRegion().pointHigh().latitude() << "\n";
 
+
+
+            
 
             // // convert json to Object format 
             // const std::string ObjectOid = Object.id();
