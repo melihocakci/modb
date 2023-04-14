@@ -2,32 +2,31 @@
 #define OBJECT_H
 
 #include <modb/Point.h>
-#include <modb/DatabaseResource.h>
 #include <modb/Region.h>
 
 #include <nlohmann/json.hpp>
 
 #include <string>
 
-using nlohmann::json;
-
 namespace modb {
 
-    class Object: public DataObject {
+    class Object {
     public:
         Object();
 
-        Object(json json);
-
         Object(Object& other);
 
+        Object(Object&& other);
+
         Object(std::string id, Point baseLocation, Region mbrRegion);
+
+        Object(const nlohmann::json& json);
 
         Object& operator=(Object& other);
 
         virtual ~Object() = default;
 
-        virtual bool SetJson(json json);
+        virtual void setJson(nlohmann::json& json);
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {
@@ -37,6 +36,8 @@ namespace modb {
         }
 
         std::string id();
+
+        std::string id() const;
 
         Point baseLocation();
 

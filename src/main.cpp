@@ -2,7 +2,6 @@
 #include <modb/Object.h>
 #include <modb/DatabaseResource.h>
 
-
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -34,44 +33,30 @@ void readObjects() {
         modb::Object parsedObject{data};
         std::cout << "parsed key: " << parsedObject.id() << '\n';
 
-        std::ostringstream outputStream{};
-        boost::archive::binary_oarchive outputArchive{outputStream};
+        modb::DatabaseResource db{"plane.db", DB_BTREE};
 
-        std::string ObjectOid = parsedObject.id();
-
-        outputArchive << parsedObject;
-        std::string serialized{outputStream.str()};
-
-        Dbt key(const_cast<char*>(ObjectOid.data()), static_cast<uint32_t>(ObjectOid.length()));
-        Dbt value(const_cast<char*>(serialized.data()), static_cast<uint32_t>(serialized.length()));
-
-        myDb.put(NULL, &key, &value, 0);
-
-        Dbc* cursorp;
-        myDb.cursor(NULL, &cursorp, 0);
-
-        Dbt retVal;
-        int ret = cursorp->get(&key, &retVal, DB_SET);
+        int ret = db.putObject(parsedObject);
 
         if (ret) {
-            std::cerr << "No records found for '" << ObjectOid << "'" << std::endl;
+            std::cerr << "modb: Record insertion failed" << std::endl;
+            throw std::exception{};
         }
 
-        std::string newObject{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
+        modb::Object newObject;
+        ret = db.getObject(parsedObject.id(), newObject);
 
-        std::istringstream inputStream{newObject};
-        boost::archive::binary_iarchive inputArchive{inputStream};
+        if (ret) {
+            std::cerr << "modb: Record retreaval failed" << std::endl;
+            throw std::exception{};
+        }
 
-        modb::Object readRecord;
-
-        inputArchive >> readRecord;
-
-        std::cout << "read key: " << readRecord.id() << "\n\n";
+        std::cout << "read key: " << newObject.id() << '\n'
+            << "read baseLocation: " << newObject.baseLocation().longitude()
+            << " - " << newObject.baseLocation().latitude() << "\n\n";
     }
 }
 
 int main(int argc, char** argv) {
-
     try {
         readObjects();
     }

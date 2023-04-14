@@ -205,8 +205,8 @@ int main(int argc, char** argv)
 		// applies a main memory random buffer on top of the persistent storage manager
 		// (LRU buffer, etc can be created the same way).
 
-	// If we need to open an existing tree stored in the storage manager, we only
-	// have to specify the index identifier as follows
+		// If we need to open an existing tree stored in the storage manager, we only
+		// have to specify the index identifier as follows
 		ISpatialIndex* tree = RTree::loadRTree(*file, 1);
 
 		size_t count = 0;

@@ -2,6 +2,7 @@
 
 #include <modb/DatabaseResource.h>
 #include <modb/Object.h>
+#include <nlohmann/json.hpp>
 
 #include <iostream>
 #include <string>
@@ -14,11 +15,21 @@
 
 const std::string dbFileName{ "test.db" };
 
-#include <nlohmann/json.hpp>
 using nlohmann::json;
 
+bool isRedisSet = false;
+
 pid_t apiCallStarter() {
+
     std::string filename = "api_call/opensky_test.py";
+    if(isRedisSet == true) 
+    {
+        std::stringstream ss;
+        ss << "api_call/opensky_test_" << "redis" << ".py";
+        std::string filename = ss.str();
+
+    } 
+
     std::string command = "python3";
 
     pid_t c_pid = fork();
@@ -52,20 +63,21 @@ void BusyWaiting() {
 
 }
 
+
+void clearRedisCacheInSystem() {
+    system("redis-cli flushall");
+}
+
 int main(int argc, char** argv) {
-    // modb::DatabaseResource resource;
 
-
-    modb::DatabaseResource<modb::Object> dbResource{dbFileName, DB_BTREE};
+    modb::DatabaseResource dbResource{dbFileName, DB_BTREE};
 
     modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
 
-    const std::string objectOid = object.id();
-    std::string serialized = dbResource.Serializer_().Serialize(object);
+    dbResource.putObject(object);
 
-    dbResource.WriteKeyValuePair(objectOid, serialized, modb::WRITE_DEFAULT);
-
-    modb::Object readRecord = dbResource.FindById(objectOid);
+    modb::Object readRecord;
+    dbResource.getObject(object.id(), readRecord);
 
     std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
 
@@ -100,20 +112,22 @@ int main(int argc, char** argv) {
 
             modb::Object parsedObject{data};
 
-            std::cout << "oid " <<  parsedObject.id() << '\n'
-                << "center " << parsedObject.baseLocation().longitude() << '\t'
-                << parsedObject.baseLocation().latitude() << "\n"
-                << "startPoint " << parsedObject.mbrRegion().pointLow().longitude() << "\t"
-                << parsedObject.mbrRegion().pointLow().latitude() << "\n"
-                << "endPoint" << parsedObject.mbrRegion().pointHigh().longitude() << "\t"
-                << parsedObject.mbrRegion().pointHigh().latitude() << "\n";
+            std::cout << parsedObject.id() << '\n'
+                << "location : "  
+                << parsedObject.baseLocation().longitude() << '\t'
+                << parsedObject.baseLocation().latitude() << '\n'
+                << "mbrRegion:"
+                << parsedObject.mbrRegion().pointLow().longitude() << "\t" 
+                << parsedObject.mbrRegion().pointLow().latitude() << "\n\t"
+                << parsedObject.mbrRegion().pointHigh().longitude() << "\t" 
+
 
 
             
 
             // // convert json to Object format 
             // const std::string ObjectOid = Object.id();
-            // std::string serialized = dbResource.Serializer_().Serialize(Object);
+            // std::string serialized = dbResource.Serializer_().serialize(Object);
 
             // dbResource.WriteKeyValuePair(ObjectOid, serialized, modb::WRITE_NODUPDATA);
 
@@ -129,6 +143,9 @@ int main(int argc, char** argv) {
             i++;
         }
 
+        // clear this if there is no redis cli
+        if(isRedisSet) 
+            clearRedisCacheInSystem();
     }
     catch (std::exception& e) {
         std::cout << "hey " << std::endl;
