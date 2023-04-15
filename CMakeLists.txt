@@ -12,7 +12,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-find_package(Boost COMPONENTS filesystem system iostreams serialization REQUIRED)
+find_package(Boost COMPONENTS serialization)
 
 set_property(GLOBAL PROPERTY CXX_STANDARD 17)
 
