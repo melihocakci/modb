@@ -41,9 +41,6 @@ Object::Object(const json& json):
     m_mbrRegion{ json["mbrRegion"] } {}
 
 
-void Object::setJson(json& json) { // there will be second parameter about schema in the future
-    std::cout << "json logic can be here" << std::endl;
-}
 
 
 std::string Object::id() { return m_oid; }
