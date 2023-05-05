@@ -32,6 +32,13 @@ Point::Point(const json& baseLocation):
     m_longitude{ baseLocation["longitude"] },
     m_latitude{ baseLocation["latitude"] } {}
 
+double* Point::toDoubleArray() { 
+    double * arr = new double[2];
+    arr[0] = m_longitude; 
+    arr[1] = m_latitude;
+    return arr;
+}
+
 float Point::longitude() { return m_longitude; }
 
 float Point::latitude() { return m_latitude; }

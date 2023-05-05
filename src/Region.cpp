@@ -33,4 +33,5 @@ Region& Region::operator=(Region& other) {
 
 Point Region::pointLow() { return m_pointLow; }
 
+
 Point Region::pointHigh() { return m_pointHigh; }

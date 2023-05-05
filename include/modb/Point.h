@@ -27,9 +27,9 @@ namespace modb {
         }
 
         float longitude();
-
         float latitude();
 
+        double * toDoubleArray();
     private:
         float m_longitude;
         float m_latitude;

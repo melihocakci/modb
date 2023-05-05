@@ -39,8 +39,8 @@ namespace modb {
         DatabaseResource(const std::string& dbName, DBTYPE type);
         DatabaseResource(DatabaseResource& other) = default;
 
-        int putObject(const Object& object);
-        int getObject(const std::string& id, Object& retObject);
+        int putObject(const Object& object) ;
+        int getObject(const std::string& id, Object& retObject) ;
 
         ~DatabaseResource() = default;
 

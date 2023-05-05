@@ -26,7 +26,7 @@ namespace modb {
 
         virtual ~Object() = default;
 
-        virtual void setJson(nlohmann::json& json);
+
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {

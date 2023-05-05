@@ -48,4 +48,6 @@ target_sources(${TARGET_NAME}
     PRIVATE Region.cpp
     PRIVATE Point.cpp
     PRIVATE DatabaseResource.cpp
+    PRIVATE IndexService.cpp
+    PRIVATE MyVisitor.cpp
 )

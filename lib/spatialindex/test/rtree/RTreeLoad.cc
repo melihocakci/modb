@@ -133,6 +133,8 @@ int main(int argc, char** argv)
 					// an example of how to do that).
 
 				tree->insertData((uint32_t)(data.size() + 1), reinterpret_cast<const uint8_t*>(data.c_str()), r, id);
+				
+
 
 				//tree->insertData(0, 0, r, id);
 					// example of passing zero size and a null pointer as the associated data.

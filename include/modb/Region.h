@@ -27,9 +27,9 @@ namespace modb {
             ar& m_pointLow;
             ar& m_pointHigh;
         }
-
         Point pointLow();
         Point pointHigh();
+        
 
     private:
         Point m_pointLow;

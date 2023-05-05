@@ -1,5 +1,6 @@
 #include <db_cxx.h>
 
+#include <modb/IndexService.h>
 #include <modb/DatabaseResource.h>
 #include <modb/Object.h>
 #include <nlohmann/json.hpp>
@@ -71,6 +72,8 @@ void clearRedisCacheInSystem() {
 int main(int argc, char** argv) {
 
     modb::DatabaseResource dbResource{dbFileName, DB_BTREE};
+    modb::IndexService indexService{dbFileName, dbResource};
+
 
     modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
 
@@ -122,8 +125,9 @@ int main(int argc, char** argv) {
                 << parsedObject.mbrRegion().pointHigh().longitude() << "\t"; 
 
 
+            bool isAreaInMbr = indexService.evaluateObject(parsedObject); // if it is indexed, evaluated object is written.
 
-            
+            std::cout << isAreaInMbr << std::endl;
 
             // // convert json to Object format 
             // const std::string ObjectOid = Object.id();
