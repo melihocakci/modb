@@ -11,6 +11,7 @@
 
 using namespace SpatialIndex;
 
+
 modb::IndexService::IndexService(const std::string& name, modb::DatabaseResource& databaseResource) :
      m_name(name), m_databaseResource{ databaseResource } {
     // burada index oluşturma olacak.
