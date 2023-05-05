@@ -38,11 +38,11 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
     SpatialIndex::Region region = SpatialIndex::Region(plow, phigh, 2);
 
     modb::MyVisitor vis;
-    // m_tree->intersectsWithQuery(region, vis);
+    m_tree->intersectsWithQuery(region, vis);
     auto mbr = vis.m_indexes.collection.find(vis.encodeOid2Id(object.id()));
     if(mbr != vis.m_indexes.collection.end())
     {
-        return false;
+        return true;
     }
      
     SpatialIndex::Region m_previousRegion;
@@ -50,59 +50,18 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
     m_previousRegion = region;
 
     std::ostringstream os;
-    
-    std::string data = os.str();
-    SpatialIndex::id_type id;
-
-
-    id = vis.encodeOid2Id(object.id());
+    SpatialIndex::id_type id = vis.encodeOid2Id(object.id());
+    m_tree->deleteData(region, id);
+    std::cout << "data is deleted " << id << std::endl;
     std::cout << "converted id " << id << std::endl;
     
     std::unique_ptr<std::string> point = vis.decodeId2Oid(id);
 
     std::cout << "my value is "<< *point << std::endl; 
 
+
+
     m_tree->insertData(0, 0, region, id);
-
-
-     
-
-    // m_tree->intersectsWithQuery(m_previousRegion, vis);
-
-
-    // // burada index oluştuktan sonra 
-    // std::lock_guard<std::mutex> lock(m_mutex);
-    // object.baseLocation();
-    // // double plow[2], phigh[2];
-    // Point center = object.baseLocation();
-
-    // modb::Object prevObj;
-
-    // MyVisitor vis;
-    // double plow[2] = {object.baseLocation().latitude()-0.01, object.baseLocation().longitude()-0.01};
-    // double phigh[2] = {object.baseLocation().latitude()+0.01, object.baseLocation().longitude()+0.01};
-
-    // SpatialIndex::Region region = SpatialIndex::Region(plow, phigh, 2);
-    // m_tree->intersectsWithQuery(region, vis);
-
-    
-
-    // int isEmpty = m_databaseResource.getObject(object.id(), prevObj);
-    // if(isEmpty) {
-    //     // 0.01 lik mbr oluştur sonraki iterasyonda büyüyecek.
-
-    // } else {
-
-    // }
-
-
-    // SpatialIndex::Region dataRegion = SpatialIndex::Region();
-    // std::ostringstream os;
-    // os << dataRegion;
-    // std::string data = os.str();
-
-
-    // // m_tree->insertData((uint32_t)(data.size() + 1), reinterpret_cast<const uint8_t*>(data.c_str()), r, object.id());
 
 
     return false;
@@ -111,13 +70,19 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
 modb::List<modb::Point> modb::IndexService::intervalQuery(const modb::Point& start, const modb::Point& end)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
-    throw std::runtime_error("Not implemented yet");
+    
+    // false dismissal extraction needed.
+    throw std::runtime_error("Not implemented Yet");
 
 }
 
+// it can be extended.i think it is hard to try. We can consult our prof. 
 modb::List<modb::Point> modb::IndexService::knnQuery(const modb::Point& point) 
 {
     std::lock_guard<std::mutex> lock(m_mutex);
+
+    // here there also false dismissals when you take closest mbr point and further point .
+
     throw std::runtime_error("Not implemented Yet");
 }
 

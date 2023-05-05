@@ -14,6 +14,12 @@
 
 #include <sys/wait.h>
 
+// // Library effective with Windows
+// #include <windows.h>
+ 
+// Library effective with Linux
+#include <unistd.h>
+
 const std::string dbFileName{ "test.db" };
 
 using nlohmann::json;
@@ -99,7 +105,7 @@ int main(int argc, char** argv) {
     std::ifstream file{appSetting["pipePath"]};
 
     try {
-        while (i < 1000) {
+        while (true) {
             std::getline(file, line);
             if (line.empty()) {
                 // BusyWaiting();
@@ -125,25 +131,17 @@ int main(int argc, char** argv) {
                 << parsedObject.mbrRegion().pointHigh().longitude() << "\t"; 
 
 
-            bool isAreaInMbr = indexService.evaluateObject(parsedObject); // if it is indexed, evaluated object is written.
+            bool isQuickReturn = indexService.evaluateObject(parsedObject); // if it is indexed, evaluated object is written.
 
-            std::cout << isAreaInMbr << std::endl;
+            std::cout << isQuickReturn << std::endl;
 
-            // // convert json to Object format 
-            // const std::string ObjectOid = Object.id();
-            // std::string serialized = dbResource.Serializer_().serialize(Object);
+            if(isQuickReturn) {
+                std::cout << "mbr already there." << std::endl;
+            }
 
-            // dbResource.WriteKeyValuePair(ObjectOid, serialized, modb::WRITE_NODUPDATA);
+            dbResource.putObject(parsedObject);
 
-            // modb::Object readRecord = dbResource.FindById(ObjectOid);
-
-
-            // serialize object
-
-
-            // write berkeleydb
-
-
+            sleep(0.1);
             i++;
         }
 
