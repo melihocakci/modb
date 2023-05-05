@@ -26,6 +26,9 @@ namespace modb
         modb::List<Point> intervalQuery(const Point& start, const Point& end); // query points in interval of two point
 
 
+        // debug purpose add after
+        // void setQueryStrategy(SpatialIndex::IQueryStrategy queryStrategy);
+
 
     private:
         const std::string& m_name;

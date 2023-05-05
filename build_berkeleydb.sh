@@ -9,6 +9,9 @@ processors=$(cat /proc/cpuinfo | grep -c ^processor)
 
 # builds Berkeley DB
 pushd lib/berkeleydb/build_unix > /dev/null
+mkdir ../lib/berkeleydb/docs/bdb-sql
+mkdir ../lib/berkeleydb/docs/gsg_db_server
+
 ../dist/configure --enable-cxx
 make -j$processors
 

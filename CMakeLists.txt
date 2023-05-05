@@ -17,6 +17,7 @@ find_package(Boost COMPONENTS serialization)
 set_property(GLOBAL PROPERTY CXX_STANDARD 17)
 
 include_directories(
+    PRIVATE 
     PRIVATE include
     PRIVATE ${Boost_INCLUDE_DIRS}
 )

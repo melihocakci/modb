@@ -1,5 +1,6 @@
 #include <db_cxx.h>
 
+#include <modb/MyQueryStrategy.h>
 #include <modb/IndexService.h>
 #include <modb/DatabaseResource.h>
 #include <modb/Object.h>
@@ -80,15 +81,16 @@ int main(int argc, char** argv) {
     modb::DatabaseResource dbResource{dbFileName, DB_BTREE};
     modb::IndexService indexService{dbFileName, dbResource};
 
+    // MyQueryStrategy queryStrategy;
 
-    modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
+    // indexService.setQueryStrategy(queryStrategy);
 
-    dbResource.putObject(object);
 
-    modb::Object readRecord;
-    dbResource.getObject(object.id(), readRecord);
-
-    std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
+    // modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
+    // dbResource.putObject(object);
+    // modb::Object readRecord;
+    // dbResource.getObject(object.id(), readRecord);
+    // std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
 
     [[maybe_unused]] pid_t pid = apiCallStarter();
 
