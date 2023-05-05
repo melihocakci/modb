@@ -22,7 +22,12 @@ namespace modb
 
 		void visitData(std::vector<const SpatialIndex::IData*>& v) override;
 		
-		SpatialIndex::id_type convertOid2Id(std::string & oid);
+		SpatialIndex::id_type convertOid2Id(std::string & oid) const;
+		// SpatialIndex::id_type convertOid2Id(std::string oid) const;
+
+		SpatialIndex::id_type modb::MyVisitor::convertOid2Id(std::string&& oid) const {
+    
+}
 		std::string& convertId2Oid(SpatialIndex::id_type);
 
 	};

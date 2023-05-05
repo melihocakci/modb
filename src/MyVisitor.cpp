@@ -33,9 +33,19 @@ void modb::MyVisitor::visitData(const SpatialIndex::IData& d)
     // // the ID of this data entry is an answer to the query. I will just print it to stdout.
 }
 
-SpatialIndex::id_type modb::MyVisitor::convertOid2Id(std::string & oid){
+// SpatialIndex::id_type modb::MyVisitor::convertOid2Id(std::string& oid) const{
     
+// }
+
+
+
+SpatialIndex::id_type modb::MyVisitor::convertOid2Id(std::string&& ) const {
+
 }
+
+// SpatialIndex::id_type modb::MyVisitor::convertOid2Id(std::string oid) const {
+    
+// }
 
 std::string& modb::MyVisitor::convertId2Oid(SpatialIndex::id_type){
 

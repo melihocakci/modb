@@ -50,14 +50,9 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
     std::string data = os.str();
     SpatialIndex::id_type id;
 
-    int id=0;
-    for(char c : object.id()) {
-        id +=c;
-    }
 
-    id = c;
-
-    m_tree->insertData(nullptr, region, id);
+    id = vis.convertOid2Id(object.id());
+    m_tree->insertData(0, 0, region, id);
 
 
 
