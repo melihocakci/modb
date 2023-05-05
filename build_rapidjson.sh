@@ -10,10 +10,11 @@ pushd $scriptdir > /dev/null
 processors=$(cat /proc/cpuinfo | grep -c ^processor)
 
 # builds rapidjson
-pushd lib/pistache > /dev/null
+pushd lib/rapidjson > /dev/null
 mkdir -p build
+pushd build > /dev/null
 cmake ..
-make
+make -j$processors
 
 # checks if compilation finished successfully
 ret=$?
