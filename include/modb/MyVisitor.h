@@ -2,7 +2,7 @@
 #define MYVISITOR_H
 
 #include <spatialindex/SpatialIndex.h>
-#include <modb/List.h>
+#include <modb/Collections.h>
 
 namespace modb
 {
@@ -10,7 +10,7 @@ namespace modb
 	class MyVisitor: public SpatialIndex::IVisitor
 	{
 	public:
-		modb::List<std::string> m_indexes { };
+		modb::Set<SpatialIndex::id_type> m_indexes { }; // this indexes can be sorted for binary search purpose
 		size_t m_indexIO{ 0 };
 		size_t m_leafIO{ 0 };
 

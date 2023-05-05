@@ -133,11 +133,9 @@ int main(int argc, char** argv)
 					// an example of how to do that).
 
 				tree->insertData((uint32_t)(data.size() + 1), reinterpret_cast<const uint8_t*>(data.c_str()), r, id);
-				
-
 
 				//tree->insertData(0, 0, r, id);
-					// example of passing zero size and a null pointer as the associated data.
+				// example of passing zero size and a null pointer as the associated data.
 			}
 			else if (op == DELETE)
 			{
@@ -197,7 +195,7 @@ int main(int argc, char** argv)
 
 		bool ret = tree->isIndexValid();
 		if (ret == false) std::cerr << "ERROR: Structure is invalid!" << std::endl;
-		else std::cerr << "The stucture seems O.K." << std::endl;
+		else std::cerr << "The structure seems O.K." << std::endl;
 
 		delete tree;
 		delete file;

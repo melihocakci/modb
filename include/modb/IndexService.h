@@ -2,7 +2,7 @@
 #define INDEXSERVICE_H
 
 #include <modb/Object.h>
-#include <modb/List.h>
+#include <modb/Collections.h>
 
 #include <modb/DatabaseResource.h>
 #include <modb/Point.h>

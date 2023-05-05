@@ -5,32 +5,16 @@
 
 void modb::MyVisitor::visitNode(const SpatialIndex::INode& n)
 {
-    if (n.isLeaf()) m_leafIO++;
-    else m_indexIO++;
+    if (n.isLeaf()) {
+
+        m_leafIO++; // for debug purpose
+    }
+    else m_indexIO++; // for debug prupose
 }
 void modb::MyVisitor::visitData(const SpatialIndex::IData& d)
 {
-    SpatialIndex::IShape* pS;
-    d.getShape(&pS);
-    // do something.
-    delete pS;
-
-    // data should be an array of characters representing a Region as a string.
-    uint8_t* pData = nullptr;
-    uint32_t cLen = 0;
-    d.getData(cLen, &pData);
-    // do something.
-    //string s = reinterpret_cast<char*>(pData);
-    //cout << s << endl;
-    delete[] pData;
-
-    std::cout << d.getIdentifier() << std::endl;
-    // the ID of this data entry is an answer to the query. I will just print it to stdout.
-
-
-    // m_indexes.array.push_back(d.getIdentifier());
-    // // std::cout <<  << std::endl;
-    // // the ID of this data entry is an answer to the query. I will just print it to stdout.
+    std::cout << *decodeId2Oid(d.getIdentifier()) << std::endl;
+    m_indexes.collection.insert(d.getIdentifier());    // the ID of this data entry is an answer to the query. I will just print it to stdout.
 }
 
 // base conversion encode decode

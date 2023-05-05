@@ -38,12 +38,16 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
     SpatialIndex::Region region = SpatialIndex::Region(plow, phigh, 2);
 
     modb::MyVisitor vis;
-    m_tree->intersectsWithQuery(region, vis);
-    if(!vis.m_indexes.array.empty() && !vis.m_indexes.array[0].compare(object.id()))
+    // m_tree->intersectsWithQuery(region, vis);
+    auto mbr = vis.m_indexes.collection.find(vis.encodeOid2Id(object.id()));
+    if(mbr != vis.m_indexes.collection.end())
     {
         return false;
     }
+     
+    SpatialIndex::Region m_previousRegion;
 
+    m_previousRegion = region;
 
     std::ostringstream os;
     
@@ -52,15 +56,18 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
 
 
     id = vis.encodeOid2Id(object.id());
-    std::cout << "converted id " << id;
+    std::cout << "converted id " << id << std::endl;
     
     std::unique_ptr<std::string> point = vis.decodeId2Oid(id);
 
-    std::cout << "my value is * "<< *point ; 
+    std::cout << "my value is "<< *point << std::endl; 
 
     m_tree->insertData(0, 0, region, id);
 
 
+     
+
+    // m_tree->intersectsWithQuery(m_previousRegion, vis);
 
 
     // // burada index oluştuktan sonra 
