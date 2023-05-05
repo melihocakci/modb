@@ -39,7 +39,7 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
 
     modb::MyVisitor vis;
     m_tree->intersectsWithQuery(region, vis);
-    if(!vis.m_indexes.array[0].compare(object.id()))
+    if(!vis.m_indexes.array.empty() && !vis.m_indexes.array[0].compare(object.id()))
     {
         return false;
     }
@@ -51,7 +51,13 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
     SpatialIndex::id_type id;
 
 
-    id = vis.convertOid2Id(object.id());
+    id = vis.encodeOid2Id(object.id());
+    std::cout << "converted id " << id;
+    
+    std::unique_ptr<std::string> point = vis.decodeId2Oid(id);
+
+    std::cout << "my value is * "<< *point ; 
+
     m_tree->insertData(0, 0, region, id);
 
 
