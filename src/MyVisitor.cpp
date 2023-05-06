@@ -37,7 +37,7 @@ SpatialIndex::id_type modb::MyVisitor::encodeOid2Id(std::string& oid) const {
 }
 
 std::unique_ptr<std::string> modb::MyVisitor::decodeId2Oid(SpatialIndex::id_type n){
-    std::unique_ptr<std::string> result= std::make_unique<std::string>();
+    std::unique_ptr<std::string> result = std::make_unique<std::string>();
     while (n > 0) {
         *result += static_cast<char>(n % m_charBase);
         n /= m_charBase;

@@ -13,6 +13,6 @@ class GnuPlotter {
     private:
     Shape * m_shapeList;
     gnuplotio::Gnuplot m_gp;
-}
+};
 
 #endif

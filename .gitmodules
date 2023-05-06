@@ -7,6 +7,3 @@
 [submodule "lib/pistache"]
 	path = lib/pistache
 	url = https://github.com/pistacheio/pistache.git
-[submodule "lib/rapidjson"]
-	path = lib/rapidjson
-	url = https://github.com/Tencent/rapidjson.git

@@ -11,17 +11,16 @@
 
 using namespace SpatialIndex;
 
-
 modb::IndexService::IndexService(const std::string& name, modb::DatabaseResource& databaseResource) :
-     m_name(name), m_databaseResource{ databaseResource } {
+    m_name(name), m_databaseResource{ databaseResource } {
     // burada index oluşturma olacak.
-    
-    std::string storageName = name; 
+
+    std::string storageName = name;
     IStorageManager* diskfile = StorageManager::createNewDiskStorageManager(storageName, 4096);
 
     StorageManager::IBuffer* file = StorageManager::createNewRandomEvictionsBuffer(*diskfile, 10, false);
-        // applies a main memory random buffer on top of the persistent storage manager
-        // (LRU buffer, etc can be created the same way).
+    // applies a main memory random buffer on top of the persistent storage manager
+    // (LRU buffer, etc can be created the same way).
 
     // Create a new, empty, RTree with dimensionality 2, minimum load 70%, using "file" as
     // the StorageManager and the RSTAR splitting policy.
@@ -32,7 +31,6 @@ modb::IndexService::IndexService(const std::string& name, modb::DatabaseResource
     m_tree = tree;
 }
 
-
 bool modb::IndexService::evaluateObject(modb::Object& object) {
     double* plow = object.mbrRegion().pointLow().toDoubleArray();
     double* phigh = object.mbrRegion().pointLow().toDoubleArray();
@@ -41,11 +39,11 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
     modb::MyVisitor vis;
     m_tree->intersectsWithQuery(region, vis);
     auto mbr = vis.m_indexes.collection.find(vis.encodeOid2Id(object.id()));
-    if(mbr != vis.m_indexes.collection.end())
+    if (mbr != vis.m_indexes.collection.end())
     {
         return true;
     }
-     
+
     SpatialIndex::Region m_previousRegion;
 
     m_previousRegion = region;
@@ -55,15 +53,12 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
     m_tree->deleteData(region, id);
     std::cout << "data is deleted " << id << std::endl;
     std::cout << "converted id " << id << std::endl;
-    
+
     std::unique_ptr<std::string> point = vis.decodeId2Oid(id);
 
-    std::cout << "my value is "<< *point << std::endl; 
-
-
+    std::cout << "my value is " << *point << std::endl;
 
     m_tree->insertData(0, 0, region, id);
-
 
     return false;
 }
@@ -71,14 +66,13 @@ bool modb::IndexService::evaluateObject(modb::Object& object) {
 modb::List<modb::Point> modb::IndexService::intervalQuery(const modb::Point& start, const modb::Point& end)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
-    
+
     // false dismissal extraction needed.
     throw std::runtime_error("Not implemented Yet");
-
 }
 
 // it can be extended.i think it is hard to try. We can consult our prof. 
-modb::List<modb::Point> modb::IndexService::knnQuery(const modb::Point& point) 
+modb::List<modb::Point> modb::IndexService::knnQuery(const modb::Point& point)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
