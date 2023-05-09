@@ -18,7 +18,7 @@ namespace modb
     {
     public:
         IndexService(const std::string& name, modb::DatabaseResource& databaseResource);
-        
+
         // when service evaluating object and writting to tree. Someone from api can query
         bool evaluateObject(modb::Object& object); // insertion logic in r-tree occurs here
 
@@ -38,6 +38,5 @@ namespace modb
     };
 
 }
-
 
 #endif

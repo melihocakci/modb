@@ -26,8 +26,6 @@ namespace modb {
 
         virtual ~Object() = default;
 
-
-
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {
             ar& m_oid;

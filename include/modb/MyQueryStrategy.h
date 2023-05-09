@@ -2,9 +2,6 @@
 #include <spatialindex/SpatialIndex.h>
 #include "gnuplot-iostream.h"
 
-
-
-
 class MyQueryStrategy: public SpatialIndex::IQueryStrategy
 {
 private:

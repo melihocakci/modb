@@ -1,5 +1,5 @@
 #include <memory>
-#include <modb/MyVisitor.h>
+#include <modb/IndexVisitor.h>
 #include <spatialindex/SpatialIndex.h>
 
 
@@ -18,25 +18,25 @@ void modb::MyVisitor::visitData(const SpatialIndex::IData& d)
 }
 
 // base conversion encode decode
-SpatialIndex::id_type modb::MyVisitor::encodeOid2Id(std::string&& oid ) const {
-    SpatialIndex::id_type id = 0; 
-    for ( char c : oid ) 
-    {
-        id = id * m_charBase + (c);
-    }
-    return id; 
-}
-
-SpatialIndex::id_type modb::MyVisitor::encodeOid2Id(std::string& oid) const {
-    SpatialIndex::id_type id = 0; 
-    for ( char c : oid ) 
+SpatialIndex::id_type modb::MyVisitor::encodeOid2Id(std::string&& oid) const {
+    SpatialIndex::id_type id = 0;
+    for (char c : oid)
     {
         id = id * m_charBase + (c);
     }
     return id;
 }
 
-std::unique_ptr<std::string> modb::MyVisitor::decodeId2Oid(SpatialIndex::id_type n){
+SpatialIndex::id_type modb::MyVisitor::encodeOid2Id(std::string& oid) const {
+    SpatialIndex::id_type id = 0;
+    for (char c : oid)
+    {
+        id = id * m_charBase + (c);
+    }
+    return id;
+}
+
+std::unique_ptr<std::string> modb::MyVisitor::decodeId2Oid(SpatialIndex::id_type n) {
     std::unique_ptr<std::string> result = std::make_unique<std::string>();
     while (n > 0) {
         *result += static_cast<char>(n % m_charBase);
@@ -45,7 +45,7 @@ std::unique_ptr<std::string> modb::MyVisitor::decodeId2Oid(SpatialIndex::id_type
     return result;
 }
 
-void modb::MyVisitor::visitData(std::vector<const SpatialIndex::IData*>& v) 
+void modb::MyVisitor::visitData(std::vector<const SpatialIndex::IData*>& v)
 {
     std::cout << v[0]->getIdentifier() << " " << v[1]->getIdentifier() << std::endl;
 }

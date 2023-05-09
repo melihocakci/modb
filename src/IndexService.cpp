@@ -3,7 +3,7 @@
 #include <mutex>
 
 #include <spatialindex/SpatialIndex.h>
-#include <modb/MyVisitor.h>
+#include <modb/IndexVisitor.h>
 
 #include <string>
 
@@ -32,9 +32,9 @@ modb::IndexService::IndexService(const std::string& name, modb::DatabaseResource
 }
 
 bool modb::IndexService::evaluateObject(modb::Object& object) {
-    double* plow = object.mbrRegion().pointLow().toDoubleArray();
-    double* phigh = object.mbrRegion().pointLow().toDoubleArray();
-    SpatialIndex::Region region = SpatialIndex::Region(plow, phigh, 2);
+    std::unique_ptr<double[]> plow = object.mbrRegion().pointLow().toDoubleArray();
+    std::unique_ptr<double[]> phigh = object.mbrRegion().pointHigh().toDoubleArray();
+    SpatialIndex::Region region = SpatialIndex::Region(plow.get(), phigh.get(), 2);
 
     modb::MyVisitor vis;
     m_tree->intersectsWithQuery(region, vis);

@@ -11,7 +11,7 @@
 using nlohmann::json;
 using modb::Object;
 
-modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType):
+modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType) :
     m_database{ NULL, 0 },
     m_databaseName{ dbName }
 {

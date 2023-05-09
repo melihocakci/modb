@@ -17,7 +17,7 @@
 
 // // Library effective with Windows
 // #include <windows.h>
- 
+
 // Library effective with Linux
 #include <unistd.h>
 
@@ -30,13 +30,13 @@ bool isRedisSet = false;
 pid_t apiCallStarter() {
 
     std::string filename = "api_call/opensky_test.py";
-    if(isRedisSet == true) 
+    if (isRedisSet == true)
     {
         std::stringstream ss;
         ss << "api_call/opensky_test_" << "redis" << ".py";
         std::string filename = ss.str();
 
-    } 
+    }
 
     std::string command = "python3";
 
@@ -124,20 +124,20 @@ int main(int argc, char** argv) {
             modb::Object parsedObject{data};
 
             std::cout << parsedObject.id() << '\n'
-                << "location : "  
+                << "location : "
                 << parsedObject.baseLocation().longitude() << '\t'
                 << parsedObject.baseLocation().latitude() << '\n'
                 << "mbrRegion:"
-                << parsedObject.mbrRegion().pointLow().longitude() << "\t" 
+                << parsedObject.mbrRegion().pointLow().longitude() << "\t"
                 << parsedObject.mbrRegion().pointLow().latitude() << "\n\t"
-                << parsedObject.mbrRegion().pointHigh().longitude() << "\t"; 
+                << parsedObject.mbrRegion().pointHigh().longitude() << "\t";
 
 
             bool isQuickReturn = indexService.evaluateObject(parsedObject); // if it is indexed, evaluated object is written.
 
             std::cout << isQuickReturn << std::endl;
 
-            if(isQuickReturn) {
+            if (isQuickReturn) {
                 std::cout << "mbr already there." << std::endl;
             }
 
@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
         }
 
         // clear this if there is no redis cli
-        if(isRedisSet) 
+        if (isRedisSet)
             clearRedisCacheInSystem();
     }
     catch (std::exception& e) {

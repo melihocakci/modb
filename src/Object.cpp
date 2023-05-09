@@ -7,22 +7,22 @@ using modb::Object;
 using modb::Region;
 using modb::Point;
 
-Object::Object():
+Object::Object() :
     m_oid{},
     m_baseLocation{},
     m_mbrRegion{} {}
 
-Object::Object(Object& other):
+Object::Object(Object& other) :
     m_oid{ other.m_oid },
     m_baseLocation{ other.m_baseLocation },
     m_mbrRegion{ other.m_mbrRegion } {}
 
-Object::Object(Object&& other):
+Object::Object(Object&& other) :
     m_oid{ std::move(other.m_oid) },
     m_baseLocation{ std::move(other.m_baseLocation) },
     m_mbrRegion{ std::move(other.m_mbrRegion) } {}
 
-Object::Object(std::string id, Point baseLocation, Region mbrRegion):
+Object::Object(std::string id, Point baseLocation, Region mbrRegion) :
     m_oid{ id },
     m_baseLocation{ baseLocation },
     m_mbrRegion{ mbrRegion } {}
@@ -35,13 +35,10 @@ Object& Object::operator=(Object& other) {
     return *this;
 }
 
-Object::Object(const json& json):
+Object::Object(const json& json) :
     m_oid{ json["id"] },
     m_baseLocation{ json["baseLocation"] },
     m_mbrRegion{ json["mbrRegion"] } {}
-
-
-
 
 std::string Object::id() { return m_oid; }
 
