@@ -18,7 +18,7 @@ modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbTyp
     m_name{ dbName }
 {
     m_database.set_error_stream(&std::cerr);
-    m_database.open(NULL, m_name.c_str(), NULL, dbType, DB_CREATE, 0);
+    m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, DB_CREATE, 0);
 }
 
 std::string modb::DatabaseResource::serialize(const modb::Object& object) {
@@ -90,12 +90,12 @@ int modb::DatabaseResource::updateObject(const Object& object) {
     {
         modb::Object newObject{ object };
 
-        float longitude = object.baseLocation().longitude();
-        float latitude = object.baseLocation().latitude();
+        double longitude = object.baseLocation().longitude();
+        double latitude = object.baseLocation().latitude();
 
         newObject.mbrRegion() = {
-            {static_cast<float>(longitude - 0.3), static_cast<float>(latitude - 0.3)},
-            {static_cast<float>(longitude + 0.3), static_cast<float>(latitude + 0.3)},
+            {longitude - 0.3, latitude - 0.3},
+            {longitude + 0.3, latitude + 0.3},
         };
 
         putObject(newObject);
@@ -111,12 +111,12 @@ int modb::DatabaseResource::updateObject(const Object& object) {
             putObject(newObject);
         }
         else {
-            float longitude = object.baseLocation().longitude();
-            float latitude = object.baseLocation().latitude();
+            double longitude = object.baseLocation().longitude();
+            double latitude = object.baseLocation().latitude();
 
             newObject.mbrRegion() = {
-                {static_cast<float>(longitude - 0.3), static_cast<float>(latitude - 0.3)},
-                {static_cast<float>(longitude + 0.3), static_cast<float>(latitude + 0.3)},
+                {longitude - 0.3, latitude - 0.3},
+                {longitude + 0.3, latitude + 0.3},
             };
 
             putObject(newObject);

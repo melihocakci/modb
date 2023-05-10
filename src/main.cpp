@@ -10,11 +10,11 @@
 #include <memory>
 #include <sstream>
 
-const std::string dbFileName{ "modb.db" };
+const std::string dbFileName{ "modb" };
 
 void readObjects() {
     std::string line;
-    modb::DatabaseResource db{"plane.db", DB_BTREE};
+    modb::DatabaseResource db{dbFileName, DB_BTREE};
 
     while (true) {
         std::getline(std::cin, line);

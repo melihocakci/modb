@@ -18,7 +18,7 @@ Point::Point(Point&& other) :
     m_longitude{ std::exchange(other.m_longitude, 0) },
     m_latitude{ std::exchange(other.m_latitude, 0) } {}
 
-Point::Point(float longitude, float latitude) :
+Point::Point(double longitude, double latitude) :
     m_longitude{ longitude },
     m_latitude{ latitude } {}
 
@@ -33,8 +33,8 @@ Point::Point(const json& baseLocation) :
     m_longitude{ baseLocation["longitude"] },
     m_latitude{ baseLocation["latitude"] } {}
 
-float& Point::longitude() { return m_longitude; }
-const float& Point::longitude() const { return m_longitude; }
+double& Point::longitude() { return m_longitude; }
+const double& Point::longitude() const { return m_longitude; }
 
-float& Point::latitude() { return m_latitude; }
-const float& Point::latitude() const { return m_latitude; }
+double& Point::latitude() { return m_latitude; }
+const double& Point::latitude() const { return m_latitude; }

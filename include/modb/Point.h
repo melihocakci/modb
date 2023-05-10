@@ -12,7 +12,7 @@ namespace modb {
 
         Point(Point&& other);
 
-        Point(float longitude, float latitude);
+        Point(double longitude, double latitude);
 
         Point(const nlohmann::json& baseLocation);
 
@@ -26,15 +26,15 @@ namespace modb {
             ar& m_latitude;
         }
 
-        float& longitude();
-        const float& longitude() const;
+        double& longitude();
+        const double& longitude() const;
 
-        float& latitude();
-        const float& latitude() const;
+        double& latitude();
+        const double& latitude() const;
 
     private:
-        float m_longitude;
-        float m_latitude;
+        double m_longitude;
+        double m_latitude;
     };
 }
 
