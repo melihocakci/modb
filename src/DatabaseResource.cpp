@@ -7,19 +7,21 @@
 #include <boost/serialization/serialization.hpp>
 
 #include <sstream>
+#include <functional>
 
 using nlohmann::json;
-using modb::Object;
+const std::hash<std::string> hasher;
 
 modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType) :
     m_database{ NULL, 0 },
-    m_databaseName{ dbName }
+    m_index{ dbName },
+    m_name{ dbName }
 {
     m_database.set_error_stream(&std::cerr);
-    m_database.open(NULL, m_databaseName.c_str(), NULL, dbType, DB_CREATE, 0);
+    m_database.open(NULL, m_name.c_str(), NULL, dbType, DB_CREATE, 0);
 }
 
-std::string modb::DatabaseResource::serialize(const Object& object) {
+std::string modb::DatabaseResource::serialize(const modb::Object& object) {
     std::ostringstream outputStream{};
     boost::archive::binary_oarchive outputArchive(outputStream);
 
@@ -28,7 +30,7 @@ std::string modb::DatabaseResource::serialize(const Object& object) {
     return outputStream.str();
 }
 
-void modb::DatabaseResource::deserialize(const std::string& data, Object& object) {
+void modb::DatabaseResource::deserialize(const std::string& data, modb::Object& object) {
     std::istringstream inputStream{data};
     boost::archive::binary_iarchive inputArchive{inputStream};
 
@@ -36,11 +38,10 @@ void modb::DatabaseResource::deserialize(const std::string& data, Object& object
 }
 
 int modb::DatabaseResource::putObject(const Object& object) {
-    const std::string& objectId = object.id();
-
+    std::size_t hashedId = hasher(object.id());
     std::string objectData = serialize(object);
 
-    Dbt key{ const_cast<char*>(objectId.data()), static_cast<uint32_t>(objectId.length()) };
+    Dbt key{ &hashedId, static_cast<uint32_t>(sizeof(hashedId)) };
     Dbt value{ const_cast<char*>(objectData.data()), static_cast<uint32_t>(objectData.length()) };
 
     int ret = m_database.put(NULL, &key, &value, 0);
@@ -52,7 +53,9 @@ int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) 
     Dbc* cursorp;
     m_database.cursor(NULL, &cursorp, 0);
 
-    Dbt key{ const_cast<char*>(id.data()), static_cast<uint32_t>(id.length()) };
+    std::size_t hashedId = hasher(id);
+
+    Dbt key{ &hashedId, static_cast<uint32_t>(sizeof(hashedId)) };
 
     Dbt retVal;
     int ret = cursorp->get(&key, &retVal, DB_SET);
@@ -76,4 +79,53 @@ void modb::DatabaseResource::safeModLog(const std::string& logMessage) {
     else {
         throw std::runtime_error(logMessage);
     }
+}
+
+int modb::DatabaseResource::updateObject(const Object& object) {
+    modb::Object oldObject{};
+
+    int ret = getObject(object.id(), oldObject);
+
+    if (ret) // object not found 
+    {
+        modb::Object newObject{ object };
+
+        float longitude = object.baseLocation().longitude();
+        float latitude = object.baseLocation().latitude();
+
+        newObject.mbrRegion() = {
+            {static_cast<float>(longitude - 0.3), static_cast<float>(latitude - 0.3)},
+            {static_cast<float>(longitude + 0.3), static_cast<float>(latitude + 0.3)},
+        };
+
+        putObject(newObject);
+
+        m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
+    }
+    else // object found
+    {
+        modb::Object newObject{ object };
+        newObject.mbrRegion() = oldObject.mbrRegion();
+
+        if (newObject.regionIsValid()) {
+            putObject(newObject);
+        }
+        else {
+            float longitude = object.baseLocation().longitude();
+            float latitude = object.baseLocation().latitude();
+
+            newObject.mbrRegion() = {
+                {static_cast<float>(longitude - 0.3), static_cast<float>(latitude - 0.3)},
+                {static_cast<float>(longitude + 0.3), static_cast<float>(latitude + 0.3)},
+            };
+
+            putObject(newObject);
+
+            // update the index
+            m_index.deleteIndex(hasher(object.id()), oldObject.mbrRegion());
+            m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
+        }
+    }
+
+    return 0;
 }

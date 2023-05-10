@@ -8,7 +8,7 @@ namespace modb {
     public:
         Point();
 
-        Point(Point& other);
+        Point(const Point& other);
 
         Point(Point&& other);
 
@@ -18,7 +18,7 @@ namespace modb {
 
         ~Point() = default;
 
-        Point& operator=(Point& other);
+        Point& operator=(const Point& other);
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {
@@ -26,10 +26,12 @@ namespace modb {
             ar& m_latitude;
         }
 
-        float longitude();
-        float latitude();
+        float& longitude();
+        const float& longitude() const;
 
-        std::unique_ptr<double[]> toDoubleArray();
+        float& latitude();
+        const float& latitude() const;
+
     private:
         float m_longitude;
         float m_latitude;

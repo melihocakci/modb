@@ -14,7 +14,7 @@ namespace modb {
     public:
         Object();
 
-        Object(Object& other);
+        Object(const Object& other);
 
         Object(Object&& other);
 
@@ -22,7 +22,7 @@ namespace modb {
 
         Object(const nlohmann::json& json);
 
-        Object& operator=(Object& other);
+        Object& operator=(const Object& other);
 
         virtual ~Object() = default;
 
@@ -33,13 +33,16 @@ namespace modb {
             ar& m_mbrRegion;
         }
 
-        std::string id();
+        bool regionIsValid();
 
-        std::string id() const;
+        std::string& id();
+        const std::string& id() const;
 
-        Point baseLocation();
+        Point& baseLocation();
+        const Point& baseLocation() const;
 
-        Region mbrRegion();
+        Region& mbrRegion();
+        const Region& mbrRegion() const;
 
     private:
         std::string m_oid;

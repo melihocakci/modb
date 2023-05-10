@@ -13,12 +13,8 @@
 const std::string dbFileName{ "modb.db" };
 
 void readObjects() {
-
-    Db myDb{ NULL, 0 };
-    myDb.set_error_stream(&std::cerr);
-    myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
-
     std::string line;
+    modb::DatabaseResource db{"plane.db", DB_BTREE};
 
     while (true) {
         std::getline(std::cin, line);
@@ -33,22 +29,10 @@ void readObjects() {
         modb::Object parsedObject{data};
         std::cout << "parsed key: " << parsedObject.id() << '\n';
 
-        modb::DatabaseResource db{"plane.db", DB_BTREE};
-
-        int ret = db.putObject(parsedObject);
-
-        if (ret) {
-            std::cerr << "modb: Record insertion failed" << std::endl;
-            throw std::exception{};
-        }
+        db.updateObject(parsedObject);
 
         modb::Object newObject;
-        ret = db.getObject(parsedObject.id(), newObject);
-
-        if (ret) {
-            std::cerr << "modb: Record retreaval failed" << std::endl;
-            throw std::exception{};
-        }
+        db.getObject(parsedObject.id(), newObject);
 
         std::cout << "read key: " << newObject.id() << '\n'
             << "read baseLocation: " << newObject.baseLocation().longitude()

@@ -10,7 +10,7 @@ namespace modb {
     public:
         Region();
 
-        Region(Region& other);
+        Region(const Region& other);
 
         Region(Region&& other);
 
@@ -20,16 +20,19 @@ namespace modb {
 
         ~Region() = default;
 
-        Region& operator=(Region& other);
+        Region& operator=(const Region& other);
 
         template <class Archieve>
         inline void serialize(Archieve& ar, unsigned int) {
             ar& m_pointLow;
             ar& m_pointHigh;
         }
-        Point pointLow();
-        Point pointHigh();
 
+        Point& pointLow();
+        const Point& pointLow() const;
+
+        Point& pointHigh();
+        const Point& pointHigh() const;
 
     private:
         Point m_pointLow;

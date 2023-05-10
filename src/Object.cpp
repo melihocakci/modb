@@ -12,7 +12,7 @@ Object::Object() :
     m_baseLocation{},
     m_mbrRegion{} {}
 
-Object::Object(Object& other) :
+Object::Object(const Object& other) :
     m_oid{ other.m_oid },
     m_baseLocation{ other.m_baseLocation },
     m_mbrRegion{ other.m_mbrRegion } {}
@@ -27,7 +27,7 @@ Object::Object(std::string id, Point baseLocation, Region mbrRegion) :
     m_baseLocation{ baseLocation },
     m_mbrRegion{ mbrRegion } {}
 
-Object& Object::operator=(Object& other) {
+Object& Object::operator=(const Object& other) {
     m_oid = other.m_oid;
     m_baseLocation = other.m_baseLocation;
     m_mbrRegion = other.m_mbrRegion;
@@ -38,12 +38,27 @@ Object& Object::operator=(Object& other) {
 Object::Object(const json& json) :
     m_oid{ json["id"] },
     m_baseLocation{ json["baseLocation"] },
-    m_mbrRegion{ json["mbrRegion"] } {}
+    m_mbrRegion{ /*json["mbrRegion"]*/ } {}
 
-std::string Object::id() { return m_oid; }
+bool Object::regionIsValid() {
+    if (m_baseLocation.longitude() < m_mbrRegion.pointHigh().longitude()
+        && m_baseLocation.longitude() > m_mbrRegion.pointLow().longitude()
+        && m_baseLocation.latitude() < m_mbrRegion.pointHigh().latitude()
+        && m_baseLocation.latitude() > m_mbrRegion.pointLow().latitude())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
-std::string Object::id() const { return m_oid; }
+std::string& Object::id() { return m_oid; }
+const std::string& Object::id() const { return m_oid; }
 
-Point Object::baseLocation() { return m_baseLocation; }
+Point& Object::baseLocation() { return m_baseLocation; }
+const Point& Object::baseLocation() const { return m_baseLocation; }
 
-Region Object::mbrRegion() { return m_mbrRegion; }
+Region& Object::mbrRegion() { return m_mbrRegion; }
+const Region& Object::mbrRegion() const { return m_mbrRegion; }
