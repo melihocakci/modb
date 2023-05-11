@@ -42,3 +42,6 @@ except Exception as e:
     logMessage(str(e))
 except KeyboardInterrupt:
     logMessage("exiting")
+
+
+# {"pointLow": {"longitude": 50.00,"latitude": 50.00}, "pointHigh": {"longitude": 60.00,"latitude": 60.00}}

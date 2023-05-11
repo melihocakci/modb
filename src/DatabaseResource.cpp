@@ -12,6 +12,8 @@
 using nlohmann::json;
 const std::hash<std::string> hasher;
 
+bool pointWithinRegion(const modb::Point& point, const modb::Region& region);
+
 modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType) :
     m_database{ NULL, 0 },
     m_index{ dbName },
@@ -49,13 +51,11 @@ int modb::DatabaseResource::putObject(const Object& object) {
     return ret;
 }
 
-int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) {
+int modb::DatabaseResource::getObject(const std::size_t hashedId, Object& retObject) {
     Dbc* cursorp;
     m_database.cursor(NULL, &cursorp, 0);
 
-    std::size_t hashedId = hasher(id);
-
-    Dbt key{ &hashedId, static_cast<uint32_t>(sizeof(hashedId)) };
+    Dbt key{ const_cast<std::size_t*>(&hashedId), static_cast<uint32_t>(sizeof(hashedId)) };
 
     Dbt retVal;
     int ret = cursorp->get(&key, &retVal, DB_SET);
@@ -70,6 +70,10 @@ int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) 
     deserialize(objectData, retObject);
 
     return ret;
+}
+
+int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) {
+    return getObject(hasher(id), retObject);
 }
 
 void modb::DatabaseResource::safeModLog(const std::string& logMessage) {
@@ -105,9 +109,9 @@ int modb::DatabaseResource::updateObject(const Object& object) {
     else // object found
     {
         modb::Object newObject{ object };
-        newObject.mbrRegion() = oldObject.mbrRegion();
 
-        if (newObject.regionIsValid()) {
+        if (pointWithinRegion(newObject.baseLocation(), oldObject.mbrRegion())) {
+            newObject.mbrRegion() = oldObject.mbrRegion();
             putObject(newObject);
         }
         else {
@@ -128,4 +132,35 @@ int modb::DatabaseResource::updateObject(const Object& object) {
     }
 
     return 0;
+}
+
+std::vector<std::string> modb::DatabaseResource::intersectionQuery(const modb::Region& queryRegion) {
+    std::vector<SpatialIndex::id_type> indexResults = m_index.intersectionQuery(queryRegion);
+    std::vector<std::string> queryResults{};
+
+    modb::Object object;
+    for (SpatialIndex::id_type id : indexResults) {
+        getObject(id, object);
+
+        if (pointWithinRegion(object.baseLocation(), queryRegion)) {
+            queryResults.push_back(object.id());
+        }
+    }
+
+    return queryResults;
+}
+
+
+bool pointWithinRegion(const modb::Point& point, const modb::Region& region) {
+    if (point.longitude() < region.pointHigh().longitude()
+        && point.longitude() > region.pointLow().longitude()
+        && point.latitude() < region.pointHigh().latitude()
+        && point.latitude() > region.pointLow().latitude())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

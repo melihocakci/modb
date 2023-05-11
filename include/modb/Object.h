@@ -33,8 +33,6 @@ namespace modb {
             ar& m_mbrRegion;
         }
 
-        bool regionIsValid();
-
         std::string& id();
         const std::string& id() const;
 

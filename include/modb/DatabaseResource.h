@@ -42,7 +42,10 @@ namespace modb {
 
         int putObject(const Object& object);
         int updateObject(const Object& object);
+        int getObject(const std::size_t id, Object& retObject);
         int getObject(const std::string& id, Object& retObject);
+
+        std::vector<std::string> intersectionQuery(const Region& queryRegion);
 
         ~DatabaseResource() = default;
 

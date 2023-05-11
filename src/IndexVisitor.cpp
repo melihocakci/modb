@@ -2,47 +2,24 @@
 #include <modb/IndexVisitor.h>
 #include <spatialindex/SpatialIndex.h>
 
+modb::IndexVisitor::IndexVisitor():
+    m_leafIO{0},
+    m_indexIO{0},
+    m_queryResult{} {}
 
 void modb::IndexVisitor::visitNode(const SpatialIndex::INode& n)
 {
     if (n.isLeaf()) {
-
         m_leafIO++; // for debug purpose
     }
-    else m_indexIO++; // for debug prupose
+    else { // for debug prupose
+        m_indexIO++;
+    }
 }
+
 void modb::IndexVisitor::visitData(const SpatialIndex::IData& d)
 {
-    std::cout << *decodeId2Oid(d.getIdentifier()) << std::endl;
-    m_indexes.collection.insert(d.getIdentifier());    // the ID of this data entry is an answer to the query. I will just print it to stdout.
-}
-
-// // base conversion encode decode
-// SpatialIndex::id_type modb::IndexVisitor::encodeOid2Id(std::string&& oid) const {
-//     SpatialIndex::id_type id = 0;
-//     for (char c : oid)
-//     {
-//         id = id * m_charBase + (c);
-//     }
-//     return id;
-// }
-
-// SpatialIndex::id_type modb::IndexVisitor::encodeOid2Id(std::string& oid) const {
-//     SpatialIndex::id_type id = 0;
-//     for (char c : oid)
-//     {
-//         id = id * m_charBase + (c);
-//     }
-//     return id;
-// }
-
-std::unique_ptr<std::string> modb::IndexVisitor::decodeId2Oid(SpatialIndex::id_type n) {
-    std::unique_ptr<std::string> result = std::make_unique<std::string>();
-    while (n > 0) {
-        *result += static_cast<char>(n % m_charBase);
-        n /= m_charBase;
-    }
-    return result;
+    m_queryResult.push_back(d.getIdentifier());    // the ID of this data entry is an answer to the query. I will just print it to stdout.
 }
 
 void modb::IndexVisitor::visitData(std::vector<const SpatialIndex::IData*>& v)

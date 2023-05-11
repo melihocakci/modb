@@ -40,20 +40,6 @@ Object::Object(const json& json) :
     m_baseLocation{ json["baseLocation"] },
     m_mbrRegion{ /*json["mbrRegion"]*/ } {}
 
-bool Object::regionIsValid() {
-    if (m_baseLocation.longitude() < m_mbrRegion.pointHigh().longitude()
-        && m_baseLocation.longitude() > m_mbrRegion.pointLow().longitude()
-        && m_baseLocation.latitude() < m_mbrRegion.pointHigh().latitude()
-        && m_baseLocation.latitude() > m_mbrRegion.pointLow().latitude())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 std::string& Object::id() { return m_oid; }
 const std::string& Object::id() const { return m_oid; }
 

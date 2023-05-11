@@ -78,44 +78,17 @@ void modb::IndexService::insertIndex(const int64_t id, const modb::Region& regio
     m_mutex.unlock();
 }
 
-// bool modb::IndexService::evaluateObject(modb::Object& object) {
-//     std::unique_ptr<double[]> plow = object.mbrRegion().pointLow().toDoubleArray();
-//     std::unique_ptr<double[]> phigh = object.mbrRegion().pointHigh().toDoubleArray();
-//     SpatialIndex::Region region = SpatialIndex::Region(plow.get(), phigh.get(), 2);
-
-//     modb::IndexVisitor vis;
-//     m_rtree->intersectsWithQuery(region, vis);
-//     auto mbr = vis.m_indexes.collection.find(vis.encodeOid2Id(object.id()));
-//     if (mbr != vis.m_indexes.collection.end())
-//     {
-//         return true;
-//     }
-
-//     SpatialIndex::Region m_previousRegion;
-
-//     m_previousRegion = region;
-
-//     std::ostringstream os;
-//     SpatialIndex::id_type id = vis.encodeOid2Id(object.id());
-//     m_rtree->deleteData(region, id);
-//     std::cout << "data is deleted " << id << std::endl;
-//     std::cout << "converted id " << id << std::endl;
-
-//     std::unique_ptr<std::string> point = vis.decodeId2Oid(id);
-
-//     std::cout << "my value is " << *point << std::endl;
-
-//     m_rtree->insertData(0, 0, region, id);
-
-//     return false;
-// }
-
-modb::List<modb::Point> modb::IndexService::intervalQuery(const modb::Point& start, const modb::Point& end)
+std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const modb::Region& queryRegion)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    SpatialIndex::Region region = toSpatialRegion(queryRegion);
 
-    // false dismissal extraction needed.
-    throw std::runtime_error("Not implemented Yet");
+    modb::IndexVisitor vis;
+
+    m_mutex.lock();
+    m_rtree->intersectsWithQuery(region, vis);
+    m_mutex.unlock();
+
+    return vis.m_queryResult;
 }
 
 // it can be extended.i think it is hard to try. We can consult our prof. 
