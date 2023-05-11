@@ -18,6 +18,8 @@ namespace modb
     public:
         IndexService(const std::string& name);
 
+        ~IndexService();
+
         // when service evaluating object and writting to tree. Someone from api can query
         // bool evaluateObject(Object& object); // insertion logic in r-tree occurs here
 
@@ -33,9 +35,12 @@ namespace modb
 
 
     private:
+        IStorageManager* m_diskfile;
+        StorageManager::IBuffer* m_file;
+        ISpatialIndex* m_rtree;
+
         std::string m_name;
         std::mutex m_mutex; // libspatial index is not thread-safe.
-        ISpatialIndex* m_rtree;
     };
 
 }

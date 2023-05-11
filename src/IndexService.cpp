@@ -7,25 +7,52 @@
 #include <mutex>
 #include <string>
 #include <iostream>
+#include <filesystem>
 
 using namespace SpatialIndex;
 
 modb::IndexService::IndexService(const std::string& name) :
     m_name{ name }
 {
-    // burada index oluşturma olacak.
-    std::string storageName = name;
-    IStorageManager* diskfile = StorageManager::createNewDiskStorageManager(storageName, 4096);
+    std::string baseName = name;
 
-    StorageManager::IBuffer* file = StorageManager::createNewRandomEvictionsBuffer(*diskfile, 10, false);
-    // applies a main memory random buffer on top of the persistent storage manager
-    // (LRU buffer, etc can be created the same way).
+    std::filesystem::path idxfile{ name + ".idx" };
+    std::filesystem::path datfile{ name + ".dat" };
 
-    // Create a new, empty, RTree with dimensionality 2, minimum load 70%, using "file" as
-    // the StorageManager and the RSTAR splitting policy.
-    id_type indexIdentifier;
-    // there is a optimization on this values where very large data comes into play. TODO: reindex 
-    m_rtree = RTree::createNewRTree(*file, 0.7, 32, 32, 2, SpatialIndex::RTree::RV_RSTAR, indexIdentifier);
+    if (std::filesystem::exists(idxfile) && std::filesystem::exists(datfile)) {
+        // load existing index
+        m_diskfile = StorageManager::loadDiskStorageManager(baseName);
+        // this will try to locate and open an already existing storage manager.
+
+        m_file = StorageManager::createNewRandomEvictionsBuffer(*m_diskfile, 10, false);
+        // applies a main memory random buffer on top of the persistent storage manager
+        // (LRU buffer, etc can be created the same way).
+
+        // If we need to open an existing tree stored in the storage manager, we only
+        // have to specify the index identifier as follows
+        m_rtree = RTree::loadRTree(*m_file, 1);
+    }
+    else {
+        // create a new index
+        m_diskfile = StorageManager::createNewDiskStorageManager(baseName, 4096);
+
+        m_file = StorageManager::createNewRandomEvictionsBuffer(*m_diskfile, 10, false);
+        // applies a main memory random buffer on top of the persistent storage manager
+        // (LRU buffer, etc can be created the same way).
+
+        // Create a new, empty, RTree with dimensionality 2, minimum load 70%, using "file" as
+        // the StorageManager and the RSTAR splitting policy.
+        id_type indexIdentifier;
+        // there is a optimization on this values where very large data comes into play. TODO: reindex 
+        m_rtree = RTree::createNewRTree(*m_file, 0.7, 32, 32, 2, SpatialIndex::RTree::RV_RSTAR, indexIdentifier);
+    }
+}
+
+modb::IndexService::~IndexService() {
+    // necessary to save the index file properly upon exit
+    delete m_rtree;
+    delete m_file;
+    delete m_diskfile;
 }
 
 inline SpatialIndex::Region toSpatialRegion(const modb::Region& modbRegion) {

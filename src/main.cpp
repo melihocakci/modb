@@ -9,14 +9,21 @@
 #include <cstdint>
 #include <memory>
 #include <sstream>
+#include <signal.h>
 
 const std::string dbFileName{ "modb" };
+bool exitProgram = false;
+
+void siginthandler(int param)
+{
+    exitProgram = true;
+}
 
 void readObjects() {
     std::string line;
     modb::DatabaseResource db{dbFileName, DB_BTREE};
 
-    while (true) {
+    while (!exitProgram) {
         std::getline(std::cin, line);
 
         if (line.empty()) {
@@ -38,9 +45,12 @@ void readObjects() {
             << "read baseLocation: " << newObject.baseLocation().longitude()
             << " - " << newObject.baseLocation().latitude() << "\n\n";
     }
+
+    std::cerr << "\nmodb: exiting...\n";
 }
 
 int main(int argc, char** argv) {
+    signal(SIGINT, siginthandler);
     try {
         readObjects();
     }

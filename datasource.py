@@ -42,5 +42,3 @@ except Exception as e:
     logMessage(str(e))
 except KeyboardInterrupt:
     logMessage("exiting")
-
-{"id": "123456", "baseLocation": {"longitude": 11.11, "latitude": 11.11}}
