@@ -39,7 +39,7 @@ void modb::DatabaseResource::deserialize(const std::string& data, modb::Object& 
     inputArchive >> object;
 }
 
-int modb::DatabaseResource::putObject(const Object& object) {
+int modb::DatabaseResource::putObjectDB(const Object& object) {
     std::size_t hashedId = hasher(object.id());
     std::string objectData = serialize(object);
 
@@ -85,7 +85,7 @@ void modb::DatabaseResource::safeModLog(const std::string& logMessage) {
     }
 }
 
-int modb::DatabaseResource::updateObject(const Object& object) {
+int modb::DatabaseResource::putObject(const Object& object) {
     modb::Object oldObject{};
 
     int ret = getObject(object.id(), oldObject);
@@ -102,7 +102,7 @@ int modb::DatabaseResource::updateObject(const Object& object) {
             {longitude + 0.3, latitude + 0.3},
         };
 
-        putObject(newObject);
+        putObjectDB(newObject);
 
         m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
     }
@@ -112,7 +112,7 @@ int modb::DatabaseResource::updateObject(const Object& object) {
 
         if (pointWithinRegion(newObject.baseLocation(), oldObject.mbrRegion())) {
             newObject.mbrRegion() = oldObject.mbrRegion();
-            putObject(newObject);
+            putObjectDB(newObject);
         }
         else {
             double longitude = object.baseLocation().longitude();
@@ -123,7 +123,7 @@ int modb::DatabaseResource::updateObject(const Object& object) {
                 {longitude + 0.3, latitude + 0.3},
             };
 
-            putObject(newObject);
+            putObjectDB(newObject);
 
             // update the index
             m_index.deleteIndex(hasher(object.id()), oldObject.mbrRegion());

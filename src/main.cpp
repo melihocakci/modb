@@ -47,7 +47,7 @@ void readObjects() {
         modb::Object parsedObject{data};
         std::cout << "parsed key: " << parsedObject.id() << '\n';
 
-        db.updateObject(parsedObject);
+        db.putObject(parsedObject);
 
         modb::Object newObject;
         db.getObject(parsedObject.id(), newObject);

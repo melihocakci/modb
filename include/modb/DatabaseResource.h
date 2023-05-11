@@ -41,7 +41,7 @@ namespace modb {
         DatabaseResource(DatabaseResource& other) = default;
 
         int putObject(const Object& object);
-        int updateObject(const Object& object);
+
         int getObject(const std::size_t id, Object& retObject);
         int getObject(const std::string& id, Object& retObject);
 
@@ -50,6 +50,8 @@ namespace modb {
         ~DatabaseResource() = default;
 
     private:
+        int putObjectDB(const Object& object);
+
         std::string serialize(const Object& object);
         void deserialize(const std::string& data, Object& object);
 
