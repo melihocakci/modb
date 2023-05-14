@@ -9,18 +9,21 @@
 #include <cstdint>
 #include <memory>
 #include <sstream>
+#include <signal.h>
 
-const std::string dbFileName{ "modb.db" };
+const std::string dbFileName{ "modb" };
+bool exitProgram = false;
+
+void siginthandler(int param)
+{
+    exitProgram = true;
+}
 
 void readObjects() {
-
-    Db myDb{ NULL, 0 };
-    myDb.set_error_stream(&std::cerr);
-    myDb.open(NULL, dbFileName.c_str(), NULL, DB_BTREE, DB_CREATE, 0);
-
     std::string line;
+    modb::DatabaseResource db{dbFileName, DB_BTREE};
 
-    while (true) {
+    while (!exitProgram) {
         std::getline(std::cin, line);
 
         if (line.empty()) {
@@ -28,35 +31,37 @@ void readObjects() {
             sleep(1);
             continue;
         }
-        json data = json::parse(line);
 
+        // json data = json::parse(line);
+        // modb::Region parsedRegion{data};
+
+        // std::vector<std::string> resultset = db.intersectionQuery(parsedRegion);
+
+        // std::cout << "Query result:\n" << std::endl;
+
+        // for (std::string& id : resultset) {
+        //     std::cout << id << std::endl;
+        // }
+
+        json data = json::parse(line);
         modb::Object parsedObject{data};
         std::cout << "parsed key: " << parsedObject.id() << '\n';
 
-        modb::DatabaseResource db{"plane.db", DB_BTREE};
-
-        int ret = db.putObject(parsedObject);
-
-        if (ret) {
-            std::cerr << "modb: Record insertion failed" << std::endl;
-            throw std::exception{};
-        }
+        db.putObject(parsedObject);
 
         modb::Object newObject;
-        ret = db.getObject(parsedObject.id(), newObject);
-
-        if (ret) {
-            std::cerr << "modb: Record retreaval failed" << std::endl;
-            throw std::exception{};
-        }
+        db.getObject(parsedObject.id(), newObject);
 
         std::cout << "read key: " << newObject.id() << '\n'
             << "read baseLocation: " << newObject.baseLocation().longitude()
             << " - " << newObject.baseLocation().latitude() << "\n\n";
     }
+
+    std::cerr << "\nmodb: exiting...\n";
 }
 
 int main(int argc, char** argv) {
+    signal(SIGINT, siginthandler);
     try {
         readObjects();
     }

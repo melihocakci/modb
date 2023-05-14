@@ -2,8 +2,9 @@
 #define DATABASERESOURCE_H
 
 #include <modb/Object.h>
-#include <nlohmann/json.hpp>
+#include <modb/IndexService.h>
 
+#include <nlohmann/json.hpp>
 #include <db_cxx.h>
 
 #include <iostream>
@@ -40,18 +41,26 @@ namespace modb {
         DatabaseResource(DatabaseResource& other) = default;
 
         int putObject(const Object& object);
+
+        int getObject(const std::size_t id, Object& retObject);
         int getObject(const std::string& id, Object& retObject);
+
+        std::vector<std::string> intersectionQuery(const Region& queryRegion);
 
         ~DatabaseResource() = default;
 
     private:
+        int putObjectDB(const Object& object);
+
         std::string serialize(const Object& object);
         void deserialize(const std::string& data, Object& object);
 
         void safeModLog(const std::string&);
 
         Db m_database; // bdb source, there will be generic class for all DB later
-        std::string m_databaseName;
+        modb::IndexService m_index;
+        std::string m_name;
+
         RESOURCE_STATUS m_status = modb::DB_NONE;
         // there will be used in tracking object state and 
         // Manager use to this as garbage collector

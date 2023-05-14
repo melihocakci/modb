@@ -1,5 +1,7 @@
 #include <db_cxx.h>
 
+#include <modb/MyQueryStrategy.h>
+#include <modb/IndexService.h>
 #include <modb/DatabaseResource.h>
 #include <modb/Object.h>
 #include <nlohmann/json.hpp>
@@ -13,6 +15,12 @@
 
 #include <sys/wait.h>
 
+// // Library effective with Windows
+// #include <windows.h>
+
+// Library effective with Linux
+#include <unistd.h>
+
 const std::string dbFileName{ "test.db" };
 
 using nlohmann::json;
@@ -22,13 +30,13 @@ bool isRedisSet = false;
 pid_t apiCallStarter() {
 
     std::string filename = "api_call/opensky_test.py";
-    if(isRedisSet == true) 
+    if (isRedisSet == true)
     {
         std::stringstream ss;
         ss << "api_call/opensky_test_" << "redis" << ".py";
         std::string filename = ss.str();
 
-    } 
+    }
 
     std::string command = "python3";
 
@@ -71,15 +79,18 @@ void clearRedisCacheInSystem() {
 int main(int argc, char** argv) {
 
     modb::DatabaseResource dbResource{dbFileName, DB_BTREE};
+    modb::IndexService indexService{dbFileName, dbResource};
 
-    modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
+    // MyQueryStrategy queryStrategy;
 
-    dbResource.putObject(object);
+    // indexService.setQueryStrategy(queryStrategy);
 
-    modb::Object readRecord;
-    dbResource.getObject(object.id(), readRecord);
 
-    std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
+    // modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
+    // dbResource.putObject(object);
+    // modb::Object readRecord;
+    // dbResource.getObject(object.id(), readRecord);
+    // std::cout << "key is " << readRecord.id() << " \t" << "value is " << readRecord.mbrRegion().pointLow().latitude() << "-" << readRecord.mbrRegion().pointLow().latitude() << std::endl;
 
     [[maybe_unused]] pid_t pid = apiCallStarter();
 
@@ -96,7 +107,7 @@ int main(int argc, char** argv) {
     std::ifstream file{appSetting["pipePath"]};
 
     try {
-        while (i < 1000) {
+        while (true) {
             std::getline(file, line);
             if (line.empty()) {
                 // BusyWaiting();
@@ -113,38 +124,31 @@ int main(int argc, char** argv) {
             modb::Object parsedObject{data};
 
             std::cout << parsedObject.id() << '\n'
-                << "location : "  
+                << "location : "
                 << parsedObject.baseLocation().longitude() << '\t'
                 << parsedObject.baseLocation().latitude() << '\n'
                 << "mbrRegion:"
-                << parsedObject.mbrRegion().pointLow().longitude() << "\t" 
+                << parsedObject.mbrRegion().pointLow().longitude() << "\t"
                 << parsedObject.mbrRegion().pointLow().latitude() << "\n\t"
-                << parsedObject.mbrRegion().pointHigh().longitude() << "\t"; 
+                << parsedObject.mbrRegion().pointHigh().longitude() << "\t";
 
 
+            bool isQuickReturn = indexService.evaluateObject(parsedObject); // if it is indexed, evaluated object is written.
 
-            
+            std::cout << isQuickReturn << std::endl;
 
-            // // convert json to Object format 
-            // const std::string ObjectOid = Object.id();
-            // std::string serialized = dbResource.Serializer_().serialize(Object);
+            if (isQuickReturn) {
+                std::cout << "mbr already there." << std::endl;
+            }
 
-            // dbResource.WriteKeyValuePair(ObjectOid, serialized, modb::WRITE_NODUPDATA);
+            dbResource.putObject(parsedObject);
 
-            // modb::Object readRecord = dbResource.FindById(ObjectOid);
-
-
-            // serialize object
-
-
-            // write berkeleydb
-
-
+            sleep(0.1);
             i++;
         }
 
         // clear this if there is no redis cli
-        if(isRedisSet) 
+        if (isRedisSet)
             clearRedisCacheInSystem();
     }
     catch (std::exception& e) {

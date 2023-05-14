@@ -8,17 +8,17 @@ namespace modb {
     public:
         Point();
 
-        Point(Point& other);
+        Point(const Point& other);
 
         Point(Point&& other);
 
-        Point(float longitude, float latitude);
+        Point(double longitude, double latitude);
 
         Point(const nlohmann::json& baseLocation);
 
         ~Point() = default;
 
-        Point& operator=(Point& other);
+        Point& operator=(const Point& other);
 
         template <class Archive>
         inline void serialize(Archive& ar, unsigned int) {
@@ -26,13 +26,15 @@ namespace modb {
             ar& m_latitude;
         }
 
-        float longitude();
+        double& longitude();
+        const double& longitude() const;
 
-        float latitude();
+        double& latitude();
+        const double& latitude() const;
 
     private:
-        float m_longitude;
-        float m_latitude;
+        double m_longitude;
+        double m_latitude;
     };
 }
 

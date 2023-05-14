@@ -7,19 +7,23 @@
 #include <boost/serialization/serialization.hpp>
 
 #include <sstream>
+#include <functional>
 
 using nlohmann::json;
-using modb::Object;
+const std::hash<std::string> hasher;
 
-modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType):
+bool pointWithinRegion(const modb::Point& point, const modb::Region& region);
+
+modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType) :
     m_database{ NULL, 0 },
-    m_databaseName{ dbName }
+    m_index{ dbName },
+    m_name{ dbName }
 {
     m_database.set_error_stream(&std::cerr);
-    m_database.open(NULL, m_databaseName.c_str(), NULL, dbType, DB_CREATE, 0);
+    m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, DB_CREATE, 0);
 }
 
-std::string modb::DatabaseResource::serialize(const Object& object) {
+std::string modb::DatabaseResource::serialize(const modb::Object& object) {
     std::ostringstream outputStream{};
     boost::archive::binary_oarchive outputArchive(outputStream);
 
@@ -28,19 +32,18 @@ std::string modb::DatabaseResource::serialize(const Object& object) {
     return outputStream.str();
 }
 
-void modb::DatabaseResource::deserialize(const std::string& data, Object& object) {
+void modb::DatabaseResource::deserialize(const std::string& data, modb::Object& object) {
     std::istringstream inputStream{data};
     boost::archive::binary_iarchive inputArchive{inputStream};
 
     inputArchive >> object;
 }
 
-int modb::DatabaseResource::putObject(const Object& object) {
-    const std::string& objectId = object.id();
-
+int modb::DatabaseResource::putObjectDB(const Object& object) {
+    std::size_t hashedId = hasher(object.id());
     std::string objectData = serialize(object);
 
-    Dbt key{ const_cast<char*>(objectId.data()), static_cast<uint32_t>(objectId.length()) };
+    Dbt key{ &hashedId, static_cast<uint32_t>(sizeof(hashedId)) };
     Dbt value{ const_cast<char*>(objectData.data()), static_cast<uint32_t>(objectData.length()) };
 
     int ret = m_database.put(NULL, &key, &value, 0);
@@ -48,11 +51,11 @@ int modb::DatabaseResource::putObject(const Object& object) {
     return ret;
 }
 
-int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) {
+int modb::DatabaseResource::getObject(const std::size_t hashedId, Object& retObject) {
     Dbc* cursorp;
     m_database.cursor(NULL, &cursorp, 0);
 
-    Dbt key{ const_cast<char*>(id.data()), static_cast<uint32_t>(id.length()) };
+    Dbt key{ const_cast<std::size_t*>(&hashedId), static_cast<uint32_t>(sizeof(hashedId)) };
 
     Dbt retVal;
     int ret = cursorp->get(&key, &retVal, DB_SET);
@@ -69,11 +72,95 @@ int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) 
     return ret;
 }
 
+int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) {
+    return getObject(hasher(id), retObject);
+}
+
 void modb::DatabaseResource::safeModLog(const std::string& logMessage) {
     if (m_isSafe == false) {
         std::cerr << logMessage << std::endl;
     }
     else {
         throw std::runtime_error(logMessage);
+    }
+}
+
+int modb::DatabaseResource::putObject(const Object& object) {
+    modb::Object oldObject{};
+
+    int ret = getObject(object.id(), oldObject);
+
+    if (ret) // object not found 
+    {
+        modb::Object newObject{ object };
+
+        double longitude = object.baseLocation().longitude();
+        double latitude = object.baseLocation().latitude();
+
+        newObject.mbrRegion() = {
+            {longitude - 0.3, latitude - 0.3},
+            {longitude + 0.3, latitude + 0.3},
+        };
+
+        putObjectDB(newObject);
+
+        m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
+    }
+    else // object found
+    {
+        modb::Object newObject{ object };
+
+        if (pointWithinRegion(newObject.baseLocation(), oldObject.mbrRegion())) {
+            newObject.mbrRegion() = oldObject.mbrRegion();
+            putObjectDB(newObject);
+        }
+        else {
+            double longitude = object.baseLocation().longitude();
+            double latitude = object.baseLocation().latitude();
+
+            newObject.mbrRegion() = {
+                {longitude - 0.3, latitude - 0.3},
+                {longitude + 0.3, latitude + 0.3},
+            };
+
+            putObjectDB(newObject);
+
+            // update the index
+            m_index.deleteIndex(hasher(object.id()), oldObject.mbrRegion());
+            m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
+        }
+    }
+
+    return 0;
+}
+
+std::vector<std::string> modb::DatabaseResource::intersectionQuery(const modb::Region& queryRegion) {
+    std::vector<SpatialIndex::id_type> indexResults = m_index.intersectionQuery(queryRegion);
+    std::vector<std::string> queryResults{};
+
+    modb::Object object;
+    for (SpatialIndex::id_type id : indexResults) {
+        getObject(id, object);
+
+        if (pointWithinRegion(object.baseLocation(), queryRegion)) {
+            queryResults.push_back(object.id());
+        }
+    }
+
+    return queryResults;
+}
+
+
+bool pointWithinRegion(const modb::Point& point, const modb::Region& region) {
+    if (point.longitude() < region.pointHigh().longitude()
+        && point.longitude() > region.pointLow().longitude()
+        && point.latitude() < region.pointHigh().latitude()
+        && point.latitude() > region.pointLow().latitude())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
