@@ -8,6 +8,7 @@
 #include <db_cxx.h>
 
 #include <iostream>
+#include <functional>
 #include <memory>
 
 using nlohmann::json;
@@ -46,6 +47,8 @@ namespace modb {
         int getObject(const std::string& id, Object& retObject);
 
         std::vector<std::string> intersectionQuery(const Region& queryRegion);
+
+        void forEach(std::function<void(const Object& object)> callback);
 
         ~DatabaseResource() = default;
 

@@ -1,5 +1,6 @@
 #include <modb/Object.h>
 #include <modb/DatabaseResource.h>
+#include <modb/Common.h>
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -150,17 +151,18 @@ std::vector<std::string> modb::DatabaseResource::intersectionQuery(const modb::R
     return queryResults;
 }
 
+void modb::DatabaseResource::forEach(std::function<void(const modb::Object& object)> callback) {
+    Dbc* cursor;
+    m_database.cursor(nullptr, &cursor, 0);
+    
+    Dbt key, data;
+    while (cursor->get(&key, &data, DB_NEXT) == 0) {
+        modb::Object object;
 
-bool pointWithinRegion(const modb::Point& point, const modb::Region& region) {
-    if (point.longitude() < region.pointHigh().longitude()
-        && point.longitude() > region.pointLow().longitude()
-        && point.latitude() < region.pointHigh().latitude()
-        && point.latitude() > region.pointLow().latitude())
-    {
-        return true;
+        deserialize(std::string(static_cast<char*>(data.get_data()), data.get_size()), object); 
+
+        callback(object);
     }
-    else
-    {
-        return false;
-    }
+
+    cursor->close();
 }

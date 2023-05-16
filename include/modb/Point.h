@@ -21,7 +21,7 @@ namespace modb {
         Point& operator=(const Point& other);
 
         template <class Archive>
-        inline void serialize(Archive& ar, unsigned int) {
+        void serialize(Archive& ar, unsigned int) {
             ar& m_longitude;
             ar& m_latitude;
         }

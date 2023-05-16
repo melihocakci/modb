@@ -13,6 +13,10 @@
 
 std::string dbFileName;
 
+void siginthandler(int param)
+{
+}
+
 void executeQuery(modb::Region queryRegion) {
     modb::DatabaseResource db{dbFileName, DB_BTREE};
 
@@ -24,7 +28,7 @@ void executeQuery(modb::Region queryRegion) {
 }
 
 int main(int argc, char** argv) {
-    if (argc != 5) {
+    if (argc != 6) {
         std::cerr << "usage:\ntest_modb <database name> <pointlow longitude> <pointlow latitude> <pointhigh longitude> <pointhigh latitude>" << std::endl;
         return -1;
     }
@@ -41,6 +45,8 @@ int main(int argc, char** argv) {
             {std::stod(argv[5])}
         }
     };
+
+    signal(SIGINT, siginthandler);
 
     try {
         executeQuery(queryRegion);

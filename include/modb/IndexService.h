@@ -2,7 +2,6 @@
 #define INDEXSERVICE_H
 
 #include <modb/Object.h>
-#include <modb/Collections.h>
 
 #include <modb/Point.h>
 #include <mutex>  
@@ -28,7 +27,7 @@ namespace modb
 
         std::vector<SpatialIndex::id_type> intersectionQuery(const Region& queryRegion);
 
-        modb::List<Point> knnQuery(const Point& point); // query closest n point to that point or up to n point
+        // modb::List<Point> knnQuery(const Point& point); // query closest n point to that point or up to n point
         // modb::List<Point> intersectionQuery(const Point& start, const Point& end); // query points in interval of two point
 
 

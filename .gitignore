@@ -16,3 +16,4 @@ res2
 *.dat
 *.vcproj
 *.pyc
+result_*

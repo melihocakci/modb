@@ -91,12 +91,12 @@ std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const m
     return vis.m_queryResult;
 }
 
-// it can be extended.i think it is hard to try. We can consult our prof. 
-modb::List<modb::Point> modb::IndexService::knnQuery(const modb::Point& point)
-{
-    std::lock_guard<std::mutex> lock(m_mutex);
+// // it can be extended.i think it is hard to try. We can consult our prof. 
+// modb::List<modb::Point> modb::IndexService::knnQuery(const modb::Point& point)
+// {
+//     std::lock_guard<std::mutex> lock(m_mutex);
 
-    // here there also false dismissals when you take closest mbr point and further point .
+//     // here there also false dismissals when you take closest mbr point and further point .
 
-    throw std::runtime_error("Not implemented Yet");
-}
+//     throw std::runtime_error("Not implemented Yet");
+// }
