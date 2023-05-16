@@ -29,6 +29,7 @@ link_libraries(
 
 add_subdirectory(src/modb)
 
+add_subdirectory(src/examples)
 
 ################### BACKEND PISTACHE #################################
 ####################################################################
