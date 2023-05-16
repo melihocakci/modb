@@ -19,7 +19,7 @@ void siginthandler(int param)
     exitProgram = true;
 }
 
-void readObjects() {
+void exhaustive() {
     std::string line;
     modb::DatabaseResource db{dbFileName, DB_BTREE};
 
@@ -63,7 +63,7 @@ void readObjects() {
 int main(int argc, char** argv) {
     signal(SIGINT, siginthandler);
     try {
-        readObjects();
+        exhaustive();
     }
     catch (DbException& e)
     {

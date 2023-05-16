@@ -37,6 +37,38 @@ target_sources(${TARGET_NAME}
 )
 
 ###################################################################
+
+set(TARGET_NAME test_exhaustive)
+
+add_executable(${TARGET_NAME})
+
+target_sources(${TARGET_NAME} 
+    PRIVATE test_exhaustive.cpp
+    PRIVATE Object.cpp
+    PRIVATE Point.cpp
+    PRIVATE Region.cpp
+    PRIVATE DatabaseResource.cpp
+    PRIVATE IndexService.cpp
+    PRIVATE IndexVisitor.cpp
+)
+
+###################################################################
+
+set(TARGET_NAME test_modb)
+
+add_executable(${TARGET_NAME})
+
+target_sources(${TARGET_NAME} 
+    PRIVATE test_modb.cpp
+    PRIVATE Object.cpp
+    PRIVATE Point.cpp
+    PRIVATE Region.cpp
+    PRIVATE DatabaseResource.cpp
+    PRIVATE IndexService.cpp
+    PRIVATE IndexVisitor.cpp
+)
+
+###################################################################
 ###################### MAIN PROJECT ###############################
 # There is need to test environment above code
 
