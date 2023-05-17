@@ -1,13 +1,13 @@
-link_libraries(${TARGET_NAME} modb_objects)
+link_libraries(modb)
 
 ###################################################################
 
-set(TARGET_NAME modb)
+set(TARGET_NAME load_data)
 
 add_executable(${TARGET_NAME})
 
 target_sources(${TARGET_NAME} 
-    PRIVATE main.cpp
+    PRIVATE load_data.cpp
 )
 
 ###################################################################

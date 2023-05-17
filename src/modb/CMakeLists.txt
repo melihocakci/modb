@@ -1,4 +1,4 @@
-add_library(modb_objects OBJECT 
+add_library(modb OBJECT 
     Object.cpp
     Point.cpp
     Region.cpp

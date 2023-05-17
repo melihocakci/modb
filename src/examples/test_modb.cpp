@@ -11,19 +11,17 @@
 #include <sstream>
 #include <signal.h>
 
-std::string dbFileName;
-
 void siginthandler(int param)
 {
 }
 
-void executeQuery(modb::Region queryRegion) {
-    modb::DatabaseResource db{dbFileName, DB_BTREE};
+void executeQuery(std::string dbName, modb::Region queryRegion) {
+    modb::DatabaseResource db{dbName, DB_BTREE};
 
-    std::vector<std::string> resultset = db.intersectionQuery(queryRegion);
+    std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
 
-    for (std::string& id : resultset) {
-        std::cout << id << '\n';
+    for (modb::Object& object : resultset) {
+        std::cout << object.id() << '\n';
     }
 }
 
@@ -33,7 +31,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    dbFileName = argv[1];
+    std::string dbName = argv[1];
 
     modb::Region queryRegion = {
         {
@@ -49,7 +47,7 @@ int main(int argc, char** argv) {
     signal(SIGINT, siginthandler);
 
     try {
-        executeQuery(queryRegion);
+        executeQuery(dbName, queryRegion);
     }
     catch (DbException& e)
     {

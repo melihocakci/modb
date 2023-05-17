@@ -46,7 +46,7 @@ namespace modb {
         int getObject(const std::size_t id, Object& retObject);
         int getObject(const std::string& id, Object& retObject);
 
-        std::vector<std::string> intersectionQuery(const Region& queryRegion);
+        std::vector<Object> intersectionQuery(const Region& queryRegion);
 
         void forEach(std::function<void(const Object& object)> callback);
 

@@ -32,17 +32,6 @@ void exhaustive() {
             continue;
         }
 
-        // json data = json::parse(line);
-        // modb::Region parsedRegion{data};
-
-        // std::vector<std::string> resultset = db.intersectionQuery(parsedRegion);
-
-        // std::cout << "Query result:\n" << std::endl;
-
-        // for (std::string& id : resultset) {
-        //     std::cout << id << std::endl;
-        // }
-
         json data = json::parse(line);
         modb::Object parsedObject{data};
         std::cout << "parsed key: " << parsedObject.id() << '\n';

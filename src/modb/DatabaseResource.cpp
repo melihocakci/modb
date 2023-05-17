@@ -13,8 +13,6 @@
 using nlohmann::json;
 const std::hash<std::string> hasher;
 
-bool pointWithinRegion(const modb::Point& point, const modb::Region& region);
-
 modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType) :
     m_database{ NULL, 0 },
     m_index{ dbName },
@@ -58,15 +56,15 @@ int modb::DatabaseResource::getObject(const std::size_t hashedId, Object& retObj
 
     Dbt key{ const_cast<std::size_t*>(&hashedId), static_cast<uint32_t>(sizeof(hashedId)) };
 
-    Dbt retVal;
-    int ret = cursorp->get(&key, &retVal, DB_SET);
+    Dbt data;
+    int ret = cursorp->get(&key, &data, DB_SET);
 
     if (ret) {
         // empty result
         return ret;
     }
 
-    std::string objectData{reinterpret_cast<char*>(retVal.get_data()), retVal.get_size()};
+    std::string objectData{reinterpret_cast<char*>(data.get_data()), data.get_size()};
 
     deserialize(objectData, retObject);
 
@@ -103,7 +101,11 @@ int modb::DatabaseResource::putObject(const Object& object) {
             {longitude + 0.3, latitude + 0.3},
         };
 
-        putObjectDB(newObject);
+        ret = putObjectDB(newObject);
+
+        if (ret) {
+            return ret;
+        }
 
         m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
     }
@@ -124,7 +126,11 @@ int modb::DatabaseResource::putObject(const Object& object) {
                 {longitude + 0.3, latitude + 0.3},
             };
 
-            putObjectDB(newObject);
+            ret = putObjectDB(newObject);
+
+            if (ret) {
+                return ret;
+            }
 
             // update the index
             m_index.deleteIndex(hasher(object.id()), oldObject.mbrRegion());
@@ -135,31 +141,31 @@ int modb::DatabaseResource::putObject(const Object& object) {
     return 0;
 }
 
-std::vector<std::string> modb::DatabaseResource::intersectionQuery(const modb::Region& queryRegion) {
+std::vector<modb::Object> modb::DatabaseResource::intersectionQuery(const modb::Region& queryRegion) {
     std::vector<SpatialIndex::id_type> indexResults = m_index.intersectionQuery(queryRegion);
-    std::vector<std::string> queryResults{};
+    std::vector<modb::Object> filteredResults{};
 
     modb::Object object;
     for (SpatialIndex::id_type id : indexResults) {
         getObject(id, object);
 
         if (pointWithinRegion(object.baseLocation(), queryRegion)) {
-            queryResults.push_back(object.id());
+            filteredResults.push_back(object);
         }
     }
 
-    return queryResults;
+    return filteredResults;
 }
 
 void modb::DatabaseResource::forEach(std::function<void(const modb::Object& object)> callback) {
     Dbc* cursor;
     m_database.cursor(nullptr, &cursor, 0);
-    
+
     Dbt key, data;
     while (cursor->get(&key, &data, DB_NEXT) == 0) {
         modb::Object object;
 
-        deserialize(std::string(static_cast<char*>(data.get_data()), data.get_size()), object); 
+        deserialize(std::string(static_cast<char*>(data.get_data()), data.get_size()), object);
 
         callback(object);
     }
