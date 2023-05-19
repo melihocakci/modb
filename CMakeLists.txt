@@ -12,7 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(Boost COMPONENTS serialization)
+find_package(Boost COMPONENTS serialization asio)
 
 set(Boost_DEBUG ON)
 
@@ -25,6 +25,7 @@ link_libraries(
     db_cxx
     spatialindex
     ${Boost_LIBRARIES}
+    pthread
 )
 
 add_subdirectory(src/modb)

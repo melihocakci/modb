@@ -50,6 +50,7 @@ modb::IndexService::IndexService(const std::string& name) :
 
 modb::IndexService::~IndexService() {
     // necessary to save the index file properly upon exit
+    std::lock_guard<std::mutex> lock{m_mutex};
     delete m_rtree;
     delete m_file;
     delete m_diskfile;

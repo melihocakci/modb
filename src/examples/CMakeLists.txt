@@ -41,3 +41,13 @@ target_sources(${TARGET_NAME}
 # target_sources(${TARGET_NAME} 
 #     PRIVATE bdb-test.cpp
 # )
+
+###################################################################
+
+set(TARGET_NAME asio_test)
+
+add_executable(${TARGET_NAME})
+
+target_sources(${TARGET_NAME} 
+    PRIVATE asio_test.cpp
+)
