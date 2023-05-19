@@ -14,7 +14,7 @@ namespace modb {
 
         Region(Region&& other);
 
-        Region(Point pointLow, Point pointHigh);
+        Region(const Point& pointLow, const Point& pointHigh);
 
         Region(const nlohmann::json& mbrRegion);
 

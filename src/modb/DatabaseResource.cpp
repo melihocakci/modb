@@ -13,13 +13,14 @@
 using nlohmann::json;
 const std::hash<std::string> hasher;
 
-modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType) :
+modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType, uint32_t flags) :
     m_database{ NULL, 0 },
     m_index{ dbName },
-    m_name{ dbName }
+    m_name{ dbName },
+    m_flags{ flags }
 {
     m_database.set_error_stream(&std::cerr);
-    m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, DB_CREATE, 0);
+    m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, m_flags, 0);
 }
 
 std::string modb::DatabaseResource::serialize(const modb::Object& object) {

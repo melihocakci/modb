@@ -21,7 +21,7 @@ void siginthandler(int param)
 
 void exhaustive() {
     std::string line;
-    modb::DatabaseResource db{dbFileName, DB_BTREE};
+    modb::DatabaseResource db{dbFileName, DB_BTREE, DB_CREATE};
 
     while (!exitProgram) {
         std::getline(std::cin, line);

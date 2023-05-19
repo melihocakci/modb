@@ -20,7 +20,7 @@ void siginthandler(int param)
 }
 
 void exhaustive(const modb::Region& queryRegion) {
-    modb::DatabaseResource db{dbFileName, DB_BTREE};
+    modb::DatabaseResource db{dbFileName, DB_BTREE, DB_READ_COMMITTED};
 
     db.forEach(
         [&](const modb::Object& object) {

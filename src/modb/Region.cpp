@@ -16,7 +16,7 @@ Region::Region(Region&& other) :
     m_pointLow{ std::move(other.m_pointLow) },
     m_pointHigh{ std::move(other.m_pointHigh) } {}
 
-Region::Region(Point pointLow, Point poingHigh) :
+Region::Region(const Point& pointLow, const Point& poingHigh) :
     m_pointLow{ pointLow },
     m_pointHigh{ poingHigh } {}
 

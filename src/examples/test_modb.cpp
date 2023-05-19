@@ -16,7 +16,7 @@ void siginthandler(int param)
 }
 
 void executeQuery(std::string dbName, modb::Region queryRegion) {
-    modb::DatabaseResource db{dbName, DB_BTREE};
+    modb::DatabaseResource db{dbName, DB_BTREE, DB_READ_COMMITTED};
 
     std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
 

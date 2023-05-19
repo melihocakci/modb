@@ -38,7 +38,7 @@ namespace modb {
     class DatabaseResource
     {
     public:
-        DatabaseResource(const std::string& dbName, DBTYPE type);
+        DatabaseResource(const std::string& dbName, DBTYPE type, uint32_t flags = DB_CREATE);
         DatabaseResource(DatabaseResource& other) = default;
 
         int putObject(const Object& object);
@@ -63,6 +63,7 @@ namespace modb {
         Db m_database; // bdb source, there will be generic class for all DB later
         modb::IndexService m_index;
         std::string m_name;
+        uint32_t m_flags;
 
         RESOURCE_STATUS m_status = modb::DB_NONE;
         // there will be used in tracking object state and 
