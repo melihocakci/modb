@@ -14,7 +14,7 @@ namespace modb {
 
         Region(Region&& other);
 
-        Region(Point pointLow, Point pointHigh);
+        Region(const Point& pointLow, const Point& pointHigh);
 
         Region(const nlohmann::json& mbrRegion);
 
@@ -23,7 +23,7 @@ namespace modb {
         Region& operator=(const Region& other);
 
         template <class Archieve>
-        inline void serialize(Archieve& ar, unsigned int) {
+        void serialize(Archieve& ar, unsigned int) {
             ar& m_pointLow;
             ar& m_pointHigh;
         }

@@ -19,9 +19,9 @@ void siginthandler(int param)
     exitProgram = true;
 }
 
-void readObjects() {
+void exhaustive() {
     std::string line;
-    modb::DatabaseResource db{dbFileName, DB_BTREE};
+    modb::DatabaseResource db{dbFileName, DB_BTREE, DB_CREATE};
 
     while (!exitProgram) {
         std::getline(std::cin, line);
@@ -31,17 +31,6 @@ void readObjects() {
             sleep(1);
             continue;
         }
-
-        // json data = json::parse(line);
-        // modb::Region parsedRegion{data};
-
-        // std::vector<std::string> resultset = db.intersectionQuery(parsedRegion);
-
-        // std::cout << "Query result:\n" << std::endl;
-
-        // for (std::string& id : resultset) {
-        //     std::cout << id << std::endl;
-        // }
 
         json data = json::parse(line);
         modb::Object parsedObject{data};
@@ -63,7 +52,7 @@ void readObjects() {
 int main(int argc, char** argv) {
     signal(SIGINT, siginthandler);
     try {
-        readObjects();
+        exhaustive();
     }
     catch (DbException& e)
     {

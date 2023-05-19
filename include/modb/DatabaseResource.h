@@ -8,6 +8,7 @@
 #include <db_cxx.h>
 
 #include <iostream>
+#include <functional>
 #include <memory>
 
 using nlohmann::json;
@@ -37,7 +38,7 @@ namespace modb {
     class DatabaseResource
     {
     public:
-        DatabaseResource(const std::string& dbName, DBTYPE type);
+        DatabaseResource(const std::string& dbName, DBTYPE type, uint32_t flags = DB_CREATE);
         DatabaseResource(DatabaseResource& other) = default;
 
         int putObject(const Object& object);
@@ -45,7 +46,9 @@ namespace modb {
         int getObject(const std::size_t id, Object& retObject);
         int getObject(const std::string& id, Object& retObject);
 
-        std::vector<std::string> intersectionQuery(const Region& queryRegion);
+        std::vector<Object> intersectionQuery(const Region& queryRegion);
+
+        void forEach(std::function<void(const Object& object)> callback);
 
         ~DatabaseResource() = default;
 
@@ -60,6 +63,7 @@ namespace modb {
         Db m_database; // bdb source, there will be generic class for all DB later
         modb::IndexService m_index;
         std::string m_name;
+        uint32_t m_flags;
 
         RESOURCE_STATUS m_status = modb::DB_NONE;
         // there will be used in tracking object state and 

@@ -65,17 +65,15 @@ inline SpatialIndex::Region toSpatialRegion(const modb::Region& modbRegion) {
 void modb::IndexService::deleteIndex(const int64_t id, const modb::Region& region) {
     SpatialIndex::Region spatialRegion = toSpatialRegion(region);
 
-    m_mutex.lock();
+    std::lock_guard<std::mutex> guard{m_mutex};
     m_rtree->deleteData(spatialRegion, id);
-    m_mutex.unlock();
 }
 
 void modb::IndexService::insertIndex(const int64_t id, const modb::Region& region) {
     SpatialIndex::Region spatialRegion = toSpatialRegion(region);
 
-    m_mutex.lock();
+    std::lock_guard<std::mutex> guard{m_mutex};
     m_rtree->insertData(0, 0, spatialRegion, id);
-    m_mutex.unlock();
 }
 
 std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const modb::Region& queryRegion)
@@ -84,19 +82,18 @@ std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const m
 
     modb::IndexVisitor vis;
 
-    m_mutex.lock();
+    std::lock_guard<std::mutex> guard{m_mutex};
     m_rtree->intersectsWithQuery(region, vis);
-    m_mutex.unlock();
 
     return vis.m_queryResult;
 }
 
-// it can be extended.i think it is hard to try. We can consult our prof. 
-modb::List<modb::Point> modb::IndexService::knnQuery(const modb::Point& point)
-{
-    std::lock_guard<std::mutex> lock(m_mutex);
+// // it can be extended.i think it is hard to try. We can consult our prof. 
+// modb::List<modb::Point> modb::IndexService::knnQuery(const modb::Point& point)
+// {
+//     std::lock_guard<std::mutex> lock(m_mutex);
 
-    // here there also false dismissals when you take closest mbr point and further point .
+//     // here there also false dismissals when you take closest mbr point and further point .
 
-    throw std::runtime_error("Not implemented Yet");
-}
+//     throw std::runtime_error("Not implemented Yet");
+// }
