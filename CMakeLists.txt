@@ -16,6 +16,8 @@ find_package(Boost COMPONENTS serialization asio)
 
 set(Boost_DEBUG ON)
 
+add_subdirectory(lib/json)
+
 include_directories(
     PRIVATE include
     PRIVATE ${Boost_INCLUDE_DIRS}
@@ -26,6 +28,7 @@ link_libraries(
     spatialindex
     ${Boost_LIBRARIES}
     pthread
+    nlohmann_json::nlohmann_json
 )
 
 add_subdirectory(src/modb)

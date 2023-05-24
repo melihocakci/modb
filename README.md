@@ -1,25 +1,28 @@
+# MODB (Moving Object Database)
+
+This project implements an abstraction layer for Berkeley DB and libspatialindex that is optimized for moving objects that change position frequently. We do this using a method called QU-trade.
+
+## Downloading submodules
+
+    git submodule update --init --recursive
+
 ## Installing Berkeley DB
 
-    sudo bash -c "./build_berkeleydb.sh"
+    sudo bash -c "./build_berkeleydb.bash"
 
-## Installing spatialindex
+## Installing libspatialindex
 
-    sudo bash -c "./build_spatialindex.sh"
+    sudo bash -c "./build_spatialindex.bash"
 
-## Building modbs
+## Building modb
 
-    mkdir -p build
-    cd build
-    cmake ..
-    make
+    ./build_modb.bash
 
-## For using pipe
+## Other
 
-    cd src/pipe_example
-    g++ pipe.cpp -o pipe
-    python3 opensky_test.py
+Executables are stored under build/bin folder
 
-# why redis in python side 
+<!-- # why redis in python side 
  * holding data in pc
  * performance comparison of bdb and redis
 
@@ -30,5 +33,5 @@
     sudo nano /etc/redis/redis.conf //change supervised to systemd 
     sudo service --status-all // check your services for redis -
     sudo /etc/init.d/redis-server start 
-    sudo service --status-all // check your services for redis +
+    sudo service --status-all // check your services for redis + -->
 
