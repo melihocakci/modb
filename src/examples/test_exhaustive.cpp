@@ -15,7 +15,7 @@
 
 std::string dbFileName;
 
-void siginthandler(int param)
+void mainSIGINT(int param)
 {
 }
 
@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
         }
     };
 
-    signal(SIGINT, siginthandler);
+    signal(SIGINT, mainSIGINT);
 
     try {
         exhaustive(queryRegion);

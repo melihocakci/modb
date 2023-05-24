@@ -14,12 +14,12 @@
 const std::string dbFileName{ "modb" };
 bool exitProgram = false;
 
-void siginthandler(int param)
+void mainSIGINT(int param)
 {
     exitProgram = true;
 }
 
-void exhaustive() {
+void load_data() {
     std::string line;
     modb::DatabaseResource db{dbFileName, DB_BTREE, DB_CREATE};
 
@@ -50,9 +50,9 @@ void exhaustive() {
 }
 
 int main(int argc, char** argv) {
-    signal(SIGINT, siginthandler);
+    signal(SIGINT, mainSIGINT);
     try {
-        exhaustive();
+        load_data();
     }
     catch (DbException& e)
     {

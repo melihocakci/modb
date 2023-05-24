@@ -25,7 +25,7 @@ modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbTyp
 
 std::string modb::DatabaseResource::serialize(const modb::Object& object) {
     std::ostringstream outputStream{};
-    boost::archive::binary_oarchive outputArchive(outputStream);
+    boost::archive::binary_oarchive outputArchive{outputStream};
 
     outputArchive << object;
 

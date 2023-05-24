@@ -5,7 +5,7 @@ scriptdir=$(dirname $0)
 pushd $scriptdir > /dev/null
 
 # get number of processors
-processors=$(cat /proc/cpuinfo | grep -c ^processor)
+processors=$(grep -c ^processor /proc/cpuinfo)
 
 # builds modb
 mkdir -p build
