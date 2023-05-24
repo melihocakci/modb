@@ -2,32 +2,20 @@ link_libraries(modb)
 
 ###################################################################
 
-set(TARGET_NAME load_data)
-
-add_executable(${TARGET_NAME})
-
-target_sources(${TARGET_NAME} 
-    PRIVATE load_data.cpp
+add_executable(load_data
+    load_data.cpp
 )
 
 ###################################################################
 
-set(TARGET_NAME test_exhaustive)
-
-add_executable(${TARGET_NAME})
-
-target_sources(${TARGET_NAME} 
-    PRIVATE test_exhaustive.cpp
+add_executable(test_exhaustive 
+    test_exhaustive.cpp
 )
 
 ###################################################################
 
-set(TARGET_NAME test_modb)
-
-add_executable(${TARGET_NAME})
-
-target_sources(${TARGET_NAME} 
-    PRIVATE test_modb.cpp
+add_executable(test_modb
+    test_modb.cpp
 )
 
 ###################################################################
@@ -44,10 +32,6 @@ target_sources(${TARGET_NAME}
 
 ###################################################################
 
-set(TARGET_NAME asio_test)
-
-add_executable(${TARGET_NAME})
-
-target_sources(${TARGET_NAME} 
-    PRIVATE asio_test.cpp
+add_executable(asio_test
+    asio_test.cpp
 )
