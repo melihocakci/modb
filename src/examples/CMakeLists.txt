@@ -35,3 +35,7 @@ add_executable(test_modb
 add_executable(asio_test
     asio_test.cpp
 )
+
+add_executable(analyze_db
+    analyze_db.cpp
+)

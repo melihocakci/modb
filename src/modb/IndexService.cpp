@@ -98,3 +98,7 @@ std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const m
 
 //     throw std::runtime_error("Not implemented Yet");
 // }
+
+void modb::IndexService::queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
+    m_rtree->queryStrategy(queryStrategy);
+}

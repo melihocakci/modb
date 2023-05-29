@@ -13,11 +13,12 @@
 using nlohmann::json;
 const std::hash<std::string> hasher;
 
-modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType, uint32_t flags) :
+modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType, uint32_t flags, double mbrSize) :
     m_database{ NULL, 0 },
     m_index{ dbName },
     m_name{ dbName },
-    m_flags{ flags }
+    m_flags{ flags },
+    m_mbrSize{ mbrSize }
 {
     m_database.set_error_stream(&std::cerr);
     m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, m_flags, 0);
@@ -98,8 +99,8 @@ int modb::DatabaseResource::putObject(const Object& object) {
         double latitude = object.baseLocation().latitude();
 
         newObject.mbrRegion() = {
-            {longitude - 0.3, latitude - 0.3},
-            {longitude + 0.3, latitude + 0.3},
+            {longitude - m_mbrSize / 2, latitude - m_mbrSize / 2},
+            {longitude + m_mbrSize / 2, latitude + m_mbrSize / 2},
         };
 
         ret = putObjectDB(newObject);
@@ -122,9 +123,10 @@ int modb::DatabaseResource::putObject(const Object& object) {
             double longitude = object.baseLocation().longitude();
             double latitude = object.baseLocation().latitude();
 
+            // to be changed to a heuristic function
             newObject.mbrRegion() = {
-                {longitude - 0.3, latitude - 0.3},
-                {longitude + 0.3, latitude + 0.3},
+                {longitude - m_mbrSize / 2, latitude - m_mbrSize / 2},
+                {longitude + m_mbrSize / 2, latitude + m_mbrSize / 2},
             };
 
             ret = putObjectDB(newObject);
@@ -172,4 +174,9 @@ void modb::DatabaseResource::forEach(std::function<void(const modb::Object& obje
     }
 
     cursor->close();
+}
+
+
+void modb::DatabaseResource::queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
+    m_index.queryStrategy(queryStrategy);
 }

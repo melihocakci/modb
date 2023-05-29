@@ -19,37 +19,27 @@ void mainSIGINT(int param)
     exitProgram = true;
 }
 
-void load_data(const std::string input, const std::string output) {
+void load_data(const std::string inputFile, const std::string dbName, int lineNum, double mbrSize) {
     char buffer[buffsize];
-    FILE* fp = std::fopen(input.c_str(), "r");
+    FILE* fp = std::fopen(inputFile.c_str(), "r");
 
-    modb::DatabaseResource db{output, DB_BTREE, DB_CREATE};
+    modb::DatabaseResource db{dbName, DB_BTREE, DB_CREATE, mbrSize};
 
-    int counter = 0;
-
-    while (!exitProgram) {
+    for (int i = 0; i < lineNum; i++) {
         char* ret = std::fgets(buffer, sizeof(buffer), fp);
 
-        if (ret == NULL) {
-            std::cerr << "modb: loading finished\n";
+        if (ret == NULL || exitProgram) {
             break;
         }
-
 
         std::string line{buffer};
 
         json data = json::parse(line);
         modb::Object parsedObject{data};
 
-        std::cerr << "line: " << counter++ << '\n';
-
-        // std::cout << "parsed key: " << parsedObject.id() << '\n';
+        std::cerr << "reading line " << i << '\n';
 
         db.putObject(parsedObject);
-
-        // std::cout << "read key: " << newObject.id() << '\n'
-        //     << "read baseLocation: " << newObject.baseLocation().longitude()
-        //     << " - " << newObject.baseLocation().latitude() << "\n\n";
     }
 
     std::fclose(fp);
@@ -57,15 +47,15 @@ void load_data(const std::string input, const std::string output) {
 }
 
 int main(int argc, char** argv) {
-    if (argc != 3) {
-        std::cerr << "usage:\nasio_test <input> <output>" << std::endl;
+    if (argc != 5) {
+        std::cerr << "usage:\nload_file <input-file> <db-name> <record-number> <mbr-size>" << std::endl;
         return -1;
     }
 
     signal(SIGINT, mainSIGINT);
 
     try {
-        load_data(std::string{argv[1]}, std::string{argv[2]});
+        load_data(argv[1], argv[2], std::stoi(argv[3]), std::stod(argv[4]));
     }
     catch (DbException& e)
     {

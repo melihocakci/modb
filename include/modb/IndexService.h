@@ -27,6 +27,8 @@ namespace modb
 
         std::vector<SpatialIndex::id_type> intersectionQuery(const Region& queryRegion);
 
+        void queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy);
+
         // modb::List<Point> knnQuery(const Point& point); // query closest n point to that point or up to n point
         // modb::List<Point> intersectionQuery(const Point& start, const Point& end); // query points in interval of two point
 

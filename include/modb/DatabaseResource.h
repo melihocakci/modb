@@ -38,7 +38,7 @@ namespace modb {
     class DatabaseResource
     {
     public:
-        DatabaseResource(const std::string& dbName, DBTYPE type, uint32_t flags = DB_CREATE);
+        DatabaseResource(const std::string& dbName, DBTYPE type, uint32_t flags = DB_CREATE, double mbrSize = 0.3);
         DatabaseResource(DatabaseResource& other) = default;
 
         int putObject(const Object& object);
@@ -49,6 +49,8 @@ namespace modb {
         std::vector<Object> intersectionQuery(const Region& queryRegion);
 
         void forEach(std::function<void(const Object& object)> callback);
+
+        void queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy);
 
         ~DatabaseResource() = default;
 
@@ -69,6 +71,8 @@ namespace modb {
         // there will be used in tracking object state and 
         // Manager use to this as garbage collector
         bool m_isSafe;
+
+        double m_mbrSize;
     };
 }
 
