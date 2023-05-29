@@ -24,13 +24,13 @@
             ]
         },
         {
-            "name": "modb",
+            "name": "analyze_db",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/load_file",
+            "program": "${workspaceFolder}/build/bin/analyze_db",
             "args": [
-                "test",
-                "test_data.txt"
+                "berke",
+                "2"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

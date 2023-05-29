@@ -23,10 +23,16 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
     char buffer[buffsize];
     FILE* fp = std::fopen(inputFile.c_str(), "r");
 
+    if (fp == NULL) {
+        std::cerr << "Did you mean " << inputFile.c_str() << " is maybe incorrect" << std::endl;
+        std::cerr << "Please check your file name" <<std::endl;
+        return;
+    }
+
     modb::DatabaseResource db{dbName, DB_BTREE, DB_CREATE, mbrSize};
 
     for (int i = 0; i < lineNum; i++) {
-        char* ret = std::fgets(buffer, sizeof(buffer), fp);
+        char* ret = std::fgets(buffer, sizeof(buffer)-1, fp);
 
         if (ret == NULL || exitProgram) {
             break;

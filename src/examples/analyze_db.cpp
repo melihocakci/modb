@@ -11,10 +11,12 @@ class MyQueryStrategy : public SpatialIndex::IQueryStrategy
 private:
     gnuplotio::Gnuplot gp;
     std::queue<SpatialIndex::id_type> ids;
+    int counter;
 
 public:
     MyQueryStrategy() : gp{} {
-        gp << "set xrange [-0.05:1.15]\nset yrange [-0.05:1.15]\n";
+        counter = 0;
+        gp << "set xrange [-150:150]\nset yrange [-150:150]\n";
     }
 
     ~MyQueryStrategy()
@@ -24,6 +26,7 @@ public:
 
     void getNextEntry(const SpatialIndex::IEntry& entry, SpatialIndex::id_type& nextEntry, bool& hasNext) override
     {
+        counter++;
         SpatialIndex::IShape* ps;
         entry.getShape(&ps);
         SpatialIndex::Region* pr = dynamic_cast<SpatialIndex::Region*>(ps);
@@ -33,6 +36,16 @@ public:
         if (n != nullptr) {
             if (n->getLevel() >= 1)
             {
+             std::stringstream ss;
+                
+                ss << "set object " << entry.getIdentifier() << counter  
+                    << " rectangle from "
+                    << pr->m_pLow[0] << "," << pr->m_pLow[1]
+                    << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1]
+                    << " fillstyle empty border lc rgb 'red' lw 2\n";
+
+                gp << ss.str();
+
                 for (uint32_t cChild = 0; cChild < n->getChildrenCount(); cChild++)
                 {
                     ids.push(n->getChildIdentifier(cChild));
@@ -49,12 +62,12 @@ public:
 
                     std::stringstream ss;
 
-                    ss << "set object " << n->getIdentifier() << cChild
+                    ss << "set object " << n->getIdentifier() << cChild << counter  
                         << " rectangle from "
                         << childRegion.getLow(0) << "," << childRegion.getLow(1)
                         << " to " << childRegion.getHigh(0) << "," << childRegion.getHigh(1)
                         << " fillstyle empty border lc rgb 'blue' lw 1\n";
-
+                    gp << "plot -1 notitle\n";
                     gp << ss.str();
 
                     std::cerr << ss.str();
@@ -62,7 +75,7 @@ public:
 
                 std::stringstream ss;
 
-                ss << "set object " << entry.getIdentifier()
+                ss << "set object " << entry.getIdentifier() << counter  
                     << " rectangle from "
                     << pr->m_pLow[0] << "," << pr->m_pLow[1]
                     << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1]
@@ -93,7 +106,7 @@ public:
 
 int main(int argc, char** argv)
 {
-    if (argc != 3) {
+    if (argc != 2) {
         std::cerr << "usage:\nanalyze_db <db-name>" << std::endl;
         return -1;
     }
