@@ -36,8 +36,8 @@ try:
             sys.stdout.write(json.dumps(data))
             sys.stdout.write('\n')
             sys.stdout.flush()
-            time.sleep(0.1)
-        time.sleep(1)
+            # time.sleep(0.1)
+        time.sleep(10)
 except Exception as e:
     logMessage(str(e))
 except KeyboardInterrupt:

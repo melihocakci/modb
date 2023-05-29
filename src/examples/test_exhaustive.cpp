@@ -22,13 +22,17 @@ void mainSIGINT(int param)
 void exhaustive(const modb::Region& queryRegion) {
     modb::DatabaseResource db{dbFileName, DB_BTREE, DB_READ_COMMITTED};
 
+    int count = 0;
     db.forEach(
         [&](const modb::Object& object) {
             if (pointWithinRegion(object.baseLocation(), queryRegion)) {
                 std::cout << object.id() << '\n';
             }
+            count++;
         }
     );
+
+    std::cerr << "number of records: " << count << std::endl;
 }
 
 int main(int argc, char** argv) {

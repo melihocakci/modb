@@ -2,8 +2,8 @@ link_libraries(modb)
 
 ###################################################################
 
-add_executable(load_data
-    load_data.cpp
+add_executable(load_file
+    load_file.cpp
 )
 
 ###################################################################

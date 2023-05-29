@@ -27,8 +27,11 @@
             "name": "modb",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/modb",
-            "args": [],
+            "program": "${workspaceFolder}/build/bin/load_file",
+            "args": [
+                "test",
+                "test_data.txt"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

@@ -4,7 +4,7 @@
 scriptdir=$(dirname $0)
 pushd $scriptdir > /dev/null
 
-db_name="modb"
+db_name=$1
 
 p1=30
 p2=30

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16.3)
 
 project(modb)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 add_compile_options(-Wall -Werror)
 
@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Boost COMPONENTS serialization asio)
 
-set(Boost_DEBUG ON)
+# set(Boost_DEBUG ON)
 
 add_subdirectory(lib/json)
 
