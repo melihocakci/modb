@@ -11,6 +11,7 @@
 #include <functional>
 #include <memory>
 #include <tuple>
+#include <atomic>
 
 namespace modb {
     typedef enum {
@@ -33,6 +34,13 @@ namespace modb {
 
     } RECORD_WRITE_OPTION;
 
+    struct Stats {
+        int dbUpdates;
+        int idxUpdates;
+        std::unique_ptr<DB_BTREE_STAT> dbStats;
+        std::unique_ptr<SpatialIndex::IStatistics> idxStats;
+    };
+
     class DatabaseResource
     {
     public:
@@ -50,7 +58,7 @@ namespace modb {
 
         void queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy);
 
-        std::tuple<std::unique_ptr<DB_BTREE_STAT>, std::unique_ptr<SpatialIndex::IStatistics>> getStats();
+        std::unique_ptr<modb::Stats> getStats();
 
         ~DatabaseResource() = default;
 
@@ -73,7 +81,13 @@ namespace modb {
         bool m_isSafe;
 
         double m_mbrSize;
+
+        // statistic members
+        std::atomic<int> m_dbUpdates;
+        std::atomic<int> m_idxUpdates;
+
     };
 }
+
 
 #endif

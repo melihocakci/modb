@@ -3,6 +3,8 @@
 
 #include <modb/Region.h>
 
-bool pointWithinRegion(const modb::Point& point, const modb::Region& region);
+namespace modb {
+    bool pointWithinRegion(const Point& point, const Region& region);
+}
 
 #endif

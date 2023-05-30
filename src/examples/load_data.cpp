@@ -35,8 +35,8 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
     modb::DatabaseResource db{dbName, DB_BTREE, DB_CREATE, mbrSize};
 
     for (int i = 0; i < lineNum; i++) {
-        if (i % 100  == 0) {
-            std::cerr << "reading line " << i << '\n';
+        if (i % 100 == 0) {
+            std::cerr << "loading record " << i << '\n';
         }
 
         char* ret = std::fgets(buffer, sizeof(buffer) - 1, fp);
@@ -53,18 +53,21 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
         db.putObject(parsedObject);
     }
 
-    std::cerr << "loading finished\n\n";
+    std::cerr << "finished loading " << lineNum << " records\n\n";
     std::fclose(fp);
 
-    auto [dbStats, idxStats] = db.getStats();
+    std::unique_ptr<modb::Stats> stats = db.getStats();
 
-    std::cerr << "number of unique keys in b-tree: " << dbStats->bt_nkeys << std::endl;
-    std::cerr << "number of data items in b-tree: " << dbStats->bt_ndata << std::endl;
-    std::cerr << "level of b-tree: " << dbStats->bt_levels << std::endl << std::endl;
+    std::cerr << "number of unique keys in b-tree: " << stats->dbStats->bt_nkeys << std::endl;
+    std::cerr << "number of data items in b-tree: " << stats->dbStats->bt_ndata << std::endl;
+    std::cerr << "number of pages in b-tree: " << stats->dbStats->bt_pagecnt << std::endl;
+    std::cerr << "tree level of b-tree: " << stats->dbStats->bt_levels << std::endl << std::endl;
 
-    std::cerr << "number of objects in r-tree: " << idxStats->getNumberOfData() << std::endl;
-    std::cerr << "number of nodes in r-tree: " << idxStats->getNumberOfNodes() << std::endl;
-    std::cerr << "number of nodes in r-tree: " << idxStats->getReads() << std::endl;
+    std::cerr << "number of objects in r-tree: " << stats->idxStats->getNumberOfData() << std::endl;
+    std::cerr << "number of nodes in r-tree: " << stats->idxStats->getNumberOfNodes() << std::endl << std::endl;
+
+    std::cerr << "number of updates to b-tree: " << stats->dbUpdates << std::endl;
+    std::cerr << "number of updates to r-tree: " << stats->idxUpdates << std::endl << std::endl;
 }
 
 int main(int argc, char** argv) {

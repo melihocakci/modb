@@ -18,7 +18,9 @@ modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbTyp
     m_index{ dbName },
     m_name{ dbName },
     m_flags{ flags },
-    m_mbrSize{ mbrSize }
+    m_mbrSize{ mbrSize },
+    m_dbUpdates{ 0 },
+    m_idxUpdates{ 0 }
 {
     m_database.set_error_stream(&std::cerr);
     m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, m_flags, 0);
@@ -138,8 +140,13 @@ int modb::DatabaseResource::putObject(const Object& object) {
             // update the index
             m_index.deleteIndex(hasher(object.id()), oldObject.mbrRegion());
             m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
+
+            m_idxUpdates++;
         }
+
+        m_dbUpdates++;
     }
+
 
     return 0;
 }
@@ -181,15 +188,21 @@ void modb::DatabaseResource::queryStrategy(SpatialIndex::IQueryStrategy& querySt
     m_index.queryStrategy(queryStrategy);
 }
 
-std::tuple<std::unique_ptr<DB_BTREE_STAT>, std::unique_ptr<SpatialIndex::IStatistics>> modb::DatabaseResource::getStats() {
-    DB_BTREE_STAT* dbStat = nullptr;
-    m_database.stat(nullptr, &dbStat, DB_READ_COMMITTED);
+std::unique_ptr<modb::Stats> modb::DatabaseResource::getStats() {
+    auto stats = std::make_unique<modb::Stats>();
 
-    SpatialIndex::IStatistics* idxStat;
-    m_index.getStatistics(&idxStat);
+    stats->dbUpdates = m_dbUpdates;
+    stats->idxUpdates = m_idxUpdates;
 
-    std::tuple<std::unique_ptr<DB_BTREE_STAT>, std::unique_ptr<SpatialIndex::IStatistics>>
-        stats{std::unique_ptr<DB_BTREE_STAT>{dbStat}, std::unique_ptr<SpatialIndex::IStatistics>{idxStat}};
+    // get bdb statistics
+    DB_BTREE_STAT* dbStats;
+    m_database.stat(nullptr, &dbStats, DB_READ_COMMITTED);
+    stats->dbStats = std::unique_ptr<DB_BTREE_STAT>{dbStats};
+
+    // get spatialindex statistics
+    SpatialIndex::IStatistics* idxStats;
+    m_index.getStatistics(&idxStats);
+    stats->idxStats = std::unique_ptr<SpatialIndex::IStatistics>{idxStats};
 
     return stats;
 }
