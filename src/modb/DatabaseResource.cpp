@@ -180,3 +180,16 @@ void modb::DatabaseResource::forEach(std::function<void(const modb::Object& obje
 void modb::DatabaseResource::queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
     m_index.queryStrategy(queryStrategy);
 }
+
+std::tuple<std::unique_ptr<DB_BTREE_STAT>, std::unique_ptr<SpatialIndex::IStatistics>> modb::DatabaseResource::getStats() {
+    DB_BTREE_STAT* dbStat = nullptr;
+    m_database.stat(nullptr, &dbStat, DB_READ_COMMITTED);
+
+    SpatialIndex::IStatistics* idxStat;
+    m_index.getStatistics(&idxStat);
+
+    std::tuple<std::unique_ptr<DB_BTREE_STAT>, std::unique_ptr<SpatialIndex::IStatistics>>
+        stats{std::unique_ptr<DB_BTREE_STAT>{dbStat}, std::unique_ptr<SpatialIndex::IStatistics>{idxStat}};
+
+    return stats;
+}

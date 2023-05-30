@@ -10,6 +10,9 @@
 #include <memory>
 #include <sstream>
 #include <signal.h>
+#include <tuple>
+
+using nlohmann::json;
 
 constexpr std::size_t buffsize = 100;
 bool exitProgram = false;
@@ -25,14 +28,18 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
 
     if (fp == NULL) {
         std::cerr << "Did you mean " << inputFile.c_str() << " is maybe incorrect" << std::endl;
-        std::cerr << "Please check your file name" <<std::endl;
+        std::cerr << "Please check your file name" << std::endl;
         return;
     }
 
     modb::DatabaseResource db{dbName, DB_BTREE, DB_CREATE, mbrSize};
 
     for (int i = 0; i < lineNum; i++) {
-        char* ret = std::fgets(buffer, sizeof(buffer)-1, fp);
+        if (i % 100  == 0) {
+            std::cerr << "reading line " << i << '\n';
+        }
+
+        char* ret = std::fgets(buffer, sizeof(buffer) - 1, fp);
 
         if (ret == NULL || exitProgram) {
             break;
@@ -43,13 +50,21 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
         json data = json::parse(line);
         modb::Object parsedObject{data};
 
-        std::cerr << "reading line " << i << '\n';
-
         db.putObject(parsedObject);
     }
 
+    std::cerr << "loading finished\n\n";
     std::fclose(fp);
-    std::cerr << "modb: exiting...\n";
+
+    auto [dbStats, idxStats] = db.getStats();
+
+    std::cerr << "number of unique keys in b-tree: " << dbStats->bt_nkeys << std::endl;
+    std::cerr << "number of data items in b-tree: " << dbStats->bt_ndata << std::endl;
+    std::cerr << "level of b-tree: " << dbStats->bt_levels << std::endl << std::endl;
+
+    std::cerr << "number of objects in r-tree: " << idxStats->getNumberOfData() << std::endl;
+    std::cerr << "number of nodes in r-tree: " << idxStats->getNumberOfNodes() << std::endl;
+    std::cerr << "number of nodes in r-tree: " << idxStats->getReads() << std::endl;
 }
 
 int main(int argc, char** argv) {

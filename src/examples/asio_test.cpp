@@ -18,6 +18,7 @@
 #include <cstdio>
 
 using boost::asio::ip::udp;
+using nlohmann::json;
 
 std::atomic<bool> exitProgram = false;
 boost::asio::io_context io_context;

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16.3)
 
 project(modb)
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 add_compile_options(-Wall -Werror)
 

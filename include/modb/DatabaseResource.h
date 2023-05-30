@@ -10,9 +10,7 @@
 #include <iostream>
 #include <functional>
 #include <memory>
-
-using nlohmann::json;
-using modb::Object;
+#include <tuple>
 
 namespace modb {
     typedef enum {
@@ -38,7 +36,7 @@ namespace modb {
     class DatabaseResource
     {
     public:
-        DatabaseResource(const std::string& dbName, DBTYPE type, uint32_t flags = DB_CREATE, double mbrSize = 0.3);
+        DatabaseResource(const std::string& dbName, DBTYPE type = DB_BTREE, uint32_t flags = DB_CREATE, double mbrSize = 0.3);
         DatabaseResource(DatabaseResource& other) = default;
 
         int putObject(const Object& object);
@@ -51,6 +49,8 @@ namespace modb {
         void forEach(std::function<void(const Object& object)> callback);
 
         void queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy);
+
+        std::tuple<std::unique_ptr<DB_BTREE_STAT>, std::unique_ptr<SpatialIndex::IStatistics>> getStats();
 
         ~DatabaseResource() = default;
 

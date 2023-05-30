@@ -102,3 +102,7 @@ std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const m
 void modb::IndexService::queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
     m_rtree->queryStrategy(queryStrategy);
 }
+
+void modb::IndexService::getStatistics(SpatialIndex::IStatistics** stats) {
+    m_rtree->getStatistics(stats);
+}
