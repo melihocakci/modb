@@ -14,19 +14,20 @@ private:
     int counter;
 
 public:
-    MyQueryStrategy() : gp{} {
-        counter = 0;
-        gp << "set xrange [-150:150]\nset yrange [-150:150]\n";
+    MyQueryStrategy() : gp{}, counter{ 1 } {
+        gp << "set xrange [-200:200]\n"
+            << "set yrange [-100:100]\n"
+            << "set terminal png size 3840, 2160\n"
+            << "set output 'output.png'\n";
     }
 
     ~MyQueryStrategy()
     {
-        gp << "plot -1 notitle\n";
+        gp << "plot 0 notitle\n";
     }
 
     void getNextEntry(const SpatialIndex::IEntry& entry, SpatialIndex::id_type& nextEntry, bool& hasNext) override
     {
-        counter++;
         SpatialIndex::IShape* ps;
         entry.getShape(&ps);
         SpatialIndex::Region* pr = dynamic_cast<SpatialIndex::Region*>(ps);
@@ -36,15 +37,16 @@ public:
         if (n != nullptr) {
             if (n->getLevel() >= 1)
             {
-             std::stringstream ss;
-                
-                ss << "set object " << entry.getIdentifier() << counter  
+                std::stringstream ss;
+
+                ss << "set object " << counter++
                     << " rectangle from "
                     << pr->m_pLow[0] << "," << pr->m_pLow[1]
                     << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1]
                     << " fillstyle empty border lc rgb 'red' lw 2\n";
 
                 gp << ss.str();
+                std::cerr << ss.str();
 
                 for (uint32_t cChild = 0; cChild < n->getChildrenCount(); cChild++)
                 {
@@ -52,6 +54,17 @@ public:
                 }
             }
             else if (n->getLevel() == 0) {
+                std::stringstream ss;
+
+                ss << "set object " << counter++
+                    << " rectangle from "
+                    << pr->m_pLow[0] << "," << pr->m_pLow[1]
+                    << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1]
+                    << " fillstyle empty border lc rgb 'black' lw 2\n";
+
+                gp << ss.str();
+                std::cerr << ss.str();
+
                 for (uint32_t cChild = 0; cChild < n->getChildrenCount(); ++cChild)
                 {
                     SpatialIndex::IShape* childShape;
@@ -62,28 +75,15 @@ public:
 
                     std::stringstream ss;
 
-                    ss << "set object " << n->getIdentifier() << cChild << counter  
+                    ss << "set object " << counter++
                         << " rectangle from "
                         << childRegion.getLow(0) << "," << childRegion.getLow(1)
                         << " to " << childRegion.getHigh(0) << "," << childRegion.getHigh(1)
                         << " fillstyle empty border lc rgb 'blue' lw 1\n";
-                    gp << "plot -1 notitle\n";
-                    gp << ss.str();
 
+                    gp << ss.str();
                     std::cerr << ss.str();
                 }
-
-                std::stringstream ss;
-
-                ss << "set object " << entry.getIdentifier() << counter  
-                    << " rectangle from "
-                    << pr->m_pLow[0] << "," << pr->m_pLow[1]
-                    << " to " << pr->m_pHigh[0] << "," << pr->m_pHigh[1]
-                    << " fillstyle empty border lc rgb 'black' lw 2\n";
-
-                gp << ss.str();
-
-                std::cerr << ss.str();
             }
         }
 
