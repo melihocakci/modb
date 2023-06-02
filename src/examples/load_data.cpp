@@ -35,7 +35,7 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
     modb::DatabaseResource db{dbName, DB_BTREE, DB_CREATE, mbrSize};
 
     for (int i = 0; i < lineNum; i++) {
-        if (i % 100 == 0) {
+        if (i % 1000 == 0) {
             std::cerr << "loading record " << i << '\n';
         }
 
