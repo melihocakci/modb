@@ -37,6 +37,9 @@ namespace modb {
     struct Stats {
         int dbUpdates;
         int idxUpdates;
+        int queries;
+        int allPositives;
+        int falsePositives;
         std::unique_ptr<DB_BTREE_STAT> dbStats;
         std::unique_ptr<SpatialIndex::IStatistics> idxStats;
     };
@@ -85,7 +88,9 @@ namespace modb {
         // statistic members
         std::atomic<int> m_dbUpdates;
         std::atomic<int> m_idxUpdates;
-
+        std::atomic<int> m_queries;
+        std::atomic<int> m_allPositives;
+        std::atomic<int> m_falsePositives;
     };
 }
 

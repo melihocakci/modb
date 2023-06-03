@@ -23,6 +23,11 @@ void executeQuery(std::string dbName, modb::Region queryRegion) {
     for (modb::Object& object : resultset) {
         std::cout << object.id() << '\n';
     }
+
+    std::unique_ptr<modb::Stats> stats = db.getStats();
+
+    std::cerr << "number of all positives: " << stats->allPositives << std::endl;
+    std::cerr << "number of false positives: " << stats->falsePositives << std::endl;
 }
 
 int main(int argc, char** argv) {

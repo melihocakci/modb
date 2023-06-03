@@ -12,12 +12,12 @@ add_executable(analyze_data
 
 ###################################################################
 
-add_executable(test_exhaustive 
-    test_exhaustive.cpp
+add_executable(query_exhaustive 
+    query_exhaustive.cpp
 )
 
-add_executable(test_modb
-    test_modb.cpp
+add_executable(query_modb
+    query_modb.cpp
 )
 
 ###################################################################

@@ -20,7 +20,10 @@ modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbTyp
     m_flags{ flags },
     m_mbrSize{ mbrSize },
     m_dbUpdates{ 0 },
-    m_idxUpdates{ 0 }
+    m_idxUpdates{ 0 },
+    m_queries{ 0 },
+    m_allPositives{ 0 },
+    m_falsePositives{ 0 }
 {
     m_database.set_error_stream(&std::cerr);
     m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, m_flags, 0);
@@ -164,6 +167,11 @@ std::vector<modb::Object> modb::DatabaseResource::intersectionQuery(const modb::
         }
     }
 
+    // for statistics
+    m_queries++;
+    m_allPositives += indexResults.size();
+    m_falsePositives += indexResults.size() - filteredResults.size();
+
     return filteredResults;
 }
 
@@ -193,16 +201,19 @@ std::unique_ptr<modb::Stats> modb::DatabaseResource::getStats() {
 
     stats->dbUpdates = m_dbUpdates;
     stats->idxUpdates = m_idxUpdates;
+    stats->queries = m_queries;
+    stats->allPositives = m_allPositives;
+    stats->falsePositives = m_falsePositives;
 
     // get bdb statistics
     DB_BTREE_STAT* dbStats;
     m_database.stat(nullptr, &dbStats, DB_READ_COMMITTED);
-    stats->dbStats = std::unique_ptr<DB_BTREE_STAT>{dbStats};
+    stats->dbStats = std::unique_ptr<DB_BTREE_STAT>{ dbStats };
 
     // get spatialindex statistics
     SpatialIndex::IStatistics* idxStats;
     m_index.getStatistics(&idxStats);
-    stats->idxStats = std::unique_ptr<SpatialIndex::IStatistics>{idxStats};
+    stats->idxStats = std::unique_ptr<SpatialIndex::IStatistics>{ idxStats };
 
     return stats;
 }
