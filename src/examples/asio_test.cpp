@@ -129,9 +129,9 @@ void dataLoader(std::shared_ptr<modb::DatabaseResource> db) {
         }
 
         json data = json::parse(line);
-        modb::Object parsedObject{data};
+        modb::Object newObject{data};
 
-        db->putObject(parsedObject);
+        db->putObject(newObject);
     }
 }
 

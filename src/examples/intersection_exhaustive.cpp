@@ -1,6 +1,8 @@
-#include <db_cxx.h>
 #include <modb/Object.h>
 #include <modb/DatabaseResource.h>
+#include <modb/Common.h>
+
+#include <db_cxx.h>
 
 #include <iostream>
 #include <string>
@@ -11,23 +13,26 @@
 #include <sstream>
 #include <signal.h>
 
+std::string dbFileName;
+
 void mainSIGINT(int param)
 {
 }
 
-void executeQuery(std::string dbName, modb::Region queryRegion) {
-    modb::DatabaseResource db{dbName, DB_BTREE, DB_READ_COMMITTED};
+void exhaustive(const modb::Region& queryRegion) {
+    modb::DatabaseResource db{dbFileName, DB_BTREE, DB_READ_COMMITTED};
 
-    std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
+    int count = 0;
+    db.forEach(
+        [&](const modb::Object& object) {
+            if (pointWithinRegion(object.baseLocation(), queryRegion)) {
+                std::cout << object.id() << '\n';
+            }
+            count++;
+        }
+    );
 
-    for (modb::Object& object : resultset) {
-        std::cout << object.id() << '\n';
-    }
-
-    std::unique_ptr<modb::Stats> stats = db.getStats();
-
-    std::cerr << "number of all positives: " << stats->allPositives << std::endl;
-    std::cerr << "number of false positives: " << stats->falsePositives << std::endl;
+    std::cerr << "number of records: " << count << std::endl << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -36,7 +41,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    std::string dbName = argv[1];
+    dbFileName = argv[1];
 
     modb::Region queryRegion = {
         {
@@ -52,7 +57,7 @@ int main(int argc, char** argv) {
     signal(SIGINT, mainSIGINT);
 
     try {
-        executeQuery(dbName, queryRegion);
+        exhaustive(queryRegion);
     }
     catch (DbException& e)
     {

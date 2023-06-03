@@ -24,6 +24,7 @@ public:
     ~MyQueryStrategy()
     {
         gp << "plot 0 notitle\n";
+        std::cerr << counter << " objects in plot\n\n";
     }
 
     void getNextEntry(const SpatialIndex::IEntry& entry, SpatialIndex::id_type& nextEntry, bool& hasNext) override
@@ -46,7 +47,6 @@ public:
                     << " fillstyle empty border lc rgb 'red' lw 2\n";
 
                 gp << ss.str();
-                std::cerr << ss.str();
 
                 for (uint32_t cChild = 0; cChild < n->getChildrenCount(); cChild++)
                 {
@@ -63,7 +63,6 @@ public:
                     << " fillstyle empty border lc rgb 'black' lw 2\n";
 
                 gp << ss.str();
-                std::cerr << ss.str();
 
                 for (uint32_t cChild = 0; cChild < n->getChildrenCount(); ++cChild)
                 {
@@ -82,7 +81,6 @@ public:
                         << " fillstyle empty border lc rgb 'blue' lw 1\n";
 
                     gp << ss.str();
-                    std::cerr << ss.str();
                 }
             }
         }
