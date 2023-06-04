@@ -41,7 +41,7 @@ for mbrSize in mbrSizes:
 
 
     # start query process
-    process = subprocess.Popen(['./build/bin/query_modb', 'test', '-82',
+    process = subprocess.Popen(['./build/bin/intersection_query', 'test', '-82',
                                '27', '-81', '28'], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
     # get process output

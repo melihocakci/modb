@@ -10,9 +10,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/load_data",
             "args": [
-                "test_data.txt",
+                "random_data.txt",
                 "test",
-                "1000",
+                "10000000",
                 "0.4",
             ],
             "stopAtEntry": false,

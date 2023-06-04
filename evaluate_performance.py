@@ -34,7 +34,7 @@ for mbrSize in mbrSizes:
         dy = random.uniform(0.2, 1.0)
 
         # measure query time
-        os.system("./build/bin/test_modb test " + str(x) + " " +
+        os.system("./build/bin/intersection_query test " + str(x) + " " +
                   str(y) + " " + str(x + dx) + " " + str(y + dy))
 
     end = time.time()
