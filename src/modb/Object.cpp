@@ -27,6 +27,11 @@ Object::Object(std::string id, Point baseLocation, Region mbrRegion) :
     m_baseLocation{ baseLocation },
     m_mbrRegion{ mbrRegion } {}
 
+Object::Object(std::string id, Point baseLocation) :
+    m_oid{ id },
+    m_baseLocation{ baseLocation },
+    m_mbrRegion{} {}
+
 Object& Object::operator=(const Object& other) {
     m_oid = other.m_oid;
     m_baseLocation = other.m_baseLocation;

@@ -18,6 +18,8 @@ namespace modb {
 
         Object(Object&& other);
 
+        Object(std::string id, Point baseLocation);
+
         Object(std::string id, Point baseLocation, Region mbrRegion);
 
         Object(const nlohmann::json& json);

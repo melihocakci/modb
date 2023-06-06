@@ -12,6 +12,9 @@
 #include <signal.h>
 #include <tuple>
 
+#define INSERT 1
+#define QUERY 2
+
 using nlohmann::json;
 
 constexpr std::size_t buffsize = 100;
@@ -46,11 +49,31 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
         }
 
         std::string line{buffer};
+        std::stringstream ss{line};
 
-        json data = json::parse(line);
-        modb::Object parsedObject{data};
+        int operation;
+        ss >> operation;
 
-        db.putObject(parsedObject);
+        if (operation == INSERT) {
+            std::string id;
+            double longitude, latitude;
+
+            ss >> id >> longitude >> latitude;
+            modb::Object newObject{id, { longitude, latitude }};
+
+            db.putObject(newObject);
+        }
+        else if (operation == QUERY) {
+            double lowlong, lowlat, highlong, highlat;
+
+            ss >> lowlong >> lowlat >> highlong >> highlat;
+
+            [[maybe_unused]] std::vector resultset = db.intersectionQuery({ {lowlong, lowlat}, {highlong, highlat} });
+
+            // std::cerr << "query region: " << lowlong << ' ' << lowlat << ' ' << highlong << ' ' << highlat << '\n';
+            // std::cerr << "resultset size: " << resultset.size() << '\n';
+        }
+
     }
 
     std::cerr << "finished loading " << lineNum << " records\n\n";
@@ -68,11 +91,14 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
 
     std::cerr << "number of updates to b-tree: " << stats->dbUpdates << std::endl;
     std::cerr << "number of updates to r-tree: " << stats->idxUpdates << std::endl << std::endl;
+
+    std::cerr << "number of all positives: " << stats->allPositives << std::endl;
+    std::cerr << "number of false positives: " << stats->falsePositives << std::endl << std::endl;
 }
 
 int main(int argc, char** argv) {
     if (argc != 5) {
-        std::cerr << "usage:\nload_data <input-file> <db-name> <record-number> <mbr-size>" << std::endl;
+        std::cerr << "usage:\nload_query <input-file> <db-name> <record-number> <mbr-size>" << std::endl;
         return -1;
     }
 

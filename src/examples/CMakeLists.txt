@@ -25,3 +25,9 @@ add_executable(intersection_query
 add_executable(asio_test
     asio_test.cpp
 )
+
+###################################################################
+
+add_executable(load_query
+    load_query.cpp
+)
