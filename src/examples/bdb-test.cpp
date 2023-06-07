@@ -1,8 +1,8 @@
 #include <db_cxx.h>
 
 #include <modb/MyQueryStrategy.h>
-#include <modb/IndexService.h>
-#include <modb/DatabaseResource.h>
+#include <modb/IndexManager.h>
+#include <modb/DatabaseManager.h>
 #include <modb/Object.h>
 #include <nlohmann/json.hpp>
 
@@ -78,12 +78,12 @@ void clearRedisCacheInSystem() {
 
 int main(int argc, char** argv) {
 
-    modb::DatabaseResource dbResource{dbFileName, DB_BTREE};
-    modb::IndexService indexService{dbFileName, dbResource};
+    modb::DatabaseManager dbResource{dbFileName, DB_BTREE};
+    modb::IndexManager IndexManager{dbFileName, dbResource};
 
     // MyQueryStrategy queryStrategy;
 
-    // indexService.setQueryStrategy(queryStrategy);
+    // IndexManager.setQueryStrategy(queryStrategy);
 
 
     // modb::Object object{ "a3a5d9", { 1.2, 1.3 }, { { 2.2, 1.2 }, {0.3, 0.3} } };;
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
                 << parsedObject.mbrRegion().pointHigh().longitude() << "\t";
 
 
-            bool isQuickReturn = indexService.evaluateObject(parsedObject); // if it is indexed, evaluated object is written.
+            bool isQuickReturn = IndexManager.evaluateObject(parsedObject); // if it is indexed, evaluated object is written.
 
             std::cout << isQuickReturn << std::endl;
 

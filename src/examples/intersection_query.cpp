@@ -1,6 +1,6 @@
 #include <db_cxx.h>
 #include <modb/Object.h>
-#include <modb/DatabaseResource.h>
+#include <modb/DatabaseManager.h>
 
 #include <iostream>
 #include <string>
@@ -16,7 +16,7 @@ void mainSIGINT(int param)
 }
 
 void executeQuery(std::string dbName, modb::Region queryRegion) {
-    modb::DatabaseResource db{dbName, DB_BTREE, DB_READ_COMMITTED};
+    modb::DatabaseManager db{dbName, DB_BTREE, DB_READ_COMMITTED};
 
     std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
 

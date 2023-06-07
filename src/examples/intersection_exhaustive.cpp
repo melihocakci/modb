@@ -1,5 +1,5 @@
 #include <modb/Object.h>
-#include <modb/DatabaseResource.h>
+#include <modb/DatabaseManager.h>
 #include <modb/Common.h>
 
 #include <db_cxx.h>
@@ -20,7 +20,7 @@ void mainSIGINT(int param)
 }
 
 void exhaustive(const modb::Region& queryRegion) {
-    modb::DatabaseResource db{dbFileName, DB_BTREE, DB_READ_COMMITTED};
+    modb::DatabaseManager db{dbFileName, DB_BTREE, DB_READ_COMMITTED};
 
     int count = 0;
     db.forEach(

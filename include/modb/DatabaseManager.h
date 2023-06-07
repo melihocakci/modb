@@ -1,8 +1,8 @@
-#ifndef DATABASERESOURCE_H
-#define DATABASERESOURCE_H
+#ifndef DATABASEMANAGER_H
+#define DATABASEMANAGER_H
 
 #include <modb/Object.h>
-#include <modb/IndexService.h>
+#include <modb/IndexManager.h>
 
 #include <nlohmann/json.hpp>
 #include <db_cxx.h>
@@ -11,6 +11,7 @@
 #include <functional>
 #include <memory>
 #include <tuple>
+#include <chrono>
 #include <atomic>
 
 namespace modb {
@@ -42,13 +43,18 @@ namespace modb {
         int falsePositives;
         std::unique_ptr<DB_BTREE_STAT> dbStats;
         std::unique_ptr<SpatialIndex::IStatistics> idxStats;
+        int64_t dbPutTime;
+        int64_t dbGetTime;
+        int64_t idxPutTime;
+        int64_t queryTime;
+        int64_t filterTime;
     };
 
-    class DatabaseResource
+    class DatabaseManager
     {
     public:
-        DatabaseResource(const std::string& dbName, DBTYPE type = DB_BTREE, uint32_t flags = DB_CREATE, double mbrSize = 0.3);
-        DatabaseResource(DatabaseResource& other) = default;
+        DatabaseManager(const std::string& dbName, DBTYPE type = DB_BTREE, uint32_t flags = DB_CREATE, double mbrSize = 0.3);
+        DatabaseManager(DatabaseManager& other) = default;
 
         int putObject(const Object& object);
 
@@ -63,7 +69,7 @@ namespace modb {
 
         std::unique_ptr<modb::Stats> getStats();
 
-        ~DatabaseResource() = default;
+        ~DatabaseManager() = default;
 
     private:
         int putObjectDB(const Object& object);
@@ -74,7 +80,7 @@ namespace modb {
         void safeModLog(const std::string&);
 
         Db m_database; // bdb source, there will be generic class for all DB later
-        modb::IndexService m_index;
+        modb::IndexManager m_index;
         std::string m_name;
         uint32_t m_flags;
 
@@ -88,9 +94,16 @@ namespace modb {
         // statistic members
         std::atomic<int> m_dbUpdates;
         std::atomic<int> m_idxUpdates;
+    
         std::atomic<int> m_queries;
         std::atomic<int> m_allPositives;
         std::atomic<int> m_falsePositives;
+
+        std::atomic<int64_t> m_dbPutTime;
+        std::atomic<int64_t> m_dbGetTime;
+        std::atomic<int64_t> m_idxPutTime;
+        std::atomic<int64_t> m_queryTime;
+        std::atomic<int64_t> m_filterTime;
     };
 }
 

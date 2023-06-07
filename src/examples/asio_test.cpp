@@ -1,4 +1,4 @@
-#include <modb/DatabaseResource.h>
+#include <modb/DatabaseManager.h>
 
 #include <boost/asio/placeholders.hpp>
 #include <boost/asio/ip/udp.hpp>
@@ -32,7 +32,7 @@ void SIGINT_handler(int param)
 class udp_server
 {
 public:
-    udp_server(boost::asio::io_context& io_context, unsigned short port, std::shared_ptr<modb::DatabaseResource> db) :
+    udp_server(boost::asio::io_context& io_context, unsigned short port, std::shared_ptr<modb::DatabaseManager> db) :
         socket_(io_context, udp::endpoint(udp::v4(), port)),
         db_(db)
     {
@@ -107,15 +107,15 @@ private:
     udp::socket socket_;
     udp::endpoint remote_endpoint_;
     boost::array<char, 100> recv_buffer_;
-    std::shared_ptr<modb::DatabaseResource> db_;
+    std::shared_ptr<modb::DatabaseManager> db_;
 };
 
-void udpServer(std::shared_ptr<modb::DatabaseResource> db, unsigned short port) {
+void udpServer(std::shared_ptr<modb::DatabaseManager> db, unsigned short port) {
     udp_server server(io_context, port, db);
     io_context.run();
 }
 
-void dataLoader(std::shared_ptr<modb::DatabaseResource> db) {
+void dataLoader(std::shared_ptr<modb::DatabaseManager> db) {
     std::string line;
 
     while (!exitProgram)
@@ -144,7 +144,7 @@ int main(int argc, char** argv) {
     signal(SIGINT, SIGINT_handler);
 
     try {
-        const auto db = std::make_shared<modb::DatabaseResource>(std::string(argv[1]), DB_BTREE, DB_CREATE);
+        const auto db = std::make_shared<modb::DatabaseManager>(std::string(argv[1]), DB_BTREE, DB_CREATE);
 
         std::thread loaderThread{dataLoader, db};
         std::thread serverThread{udpServer, db, static_cast<unsigned short>(std::stoi(argv[2]))};

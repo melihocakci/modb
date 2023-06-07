@@ -4,7 +4,7 @@
 #include <spatialindex/SpatialIndex.h>
 #include <gnuplot-iostream.h>
 
-#include <modb/DatabaseResource.h>
+#include <modb/DatabaseManager.h>
 
 class MyQueryStrategy : public SpatialIndex::IQueryStrategy
 {
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 
     try
     {
-        modb::DatabaseResource db{argv[1], DB_BTREE, DB_READ_COMMITTED};
+        modb::DatabaseManager db{argv[1], DB_BTREE, DB_READ_COMMITTED};
 
         MyQueryStrategy qs;
         db.queryStrategy(qs);

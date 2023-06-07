@@ -1,5 +1,5 @@
 #include <modb/Object.h>
-#include <modb/DatabaseResource.h>
+#include <modb/DatabaseManager.h>
 #include <modb/Common.h>
 
 #include <boost/archive/binary_oarchive.hpp>
@@ -13,7 +13,7 @@
 using nlohmann::json;
 const std::hash<std::string> hasher;
 
-modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbType, uint32_t flags, double mbrSize) :
+modb::DatabaseManager::DatabaseManager(const std::string& dbName, DBTYPE dbType, uint32_t flags, double mbrSize) :
     m_database{ NULL, 0 },
     m_index{ dbName },
     m_name{ dbName },
@@ -23,13 +23,18 @@ modb::DatabaseResource::DatabaseResource(const std::string& dbName, DBTYPE dbTyp
     m_idxUpdates{ 0 },
     m_queries{ 0 },
     m_allPositives{ 0 },
-    m_falsePositives{ 0 }
+    m_falsePositives{ 0 },
+    m_dbPutTime{ 0 },
+    m_dbGetTime{ 0 },
+    m_idxPutTime{ 0 },
+    m_queryTime{ 0 },
+    m_filterTime{ 0 }
 {
     m_database.set_error_stream(&std::cerr);
     m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, m_flags, 0);
 }
 
-std::string modb::DatabaseResource::serialize(const modb::Object& object) {
+std::string modb::DatabaseManager::serialize(const modb::Object& object) {
     std::ostringstream outputStream{};
     boost::archive::binary_oarchive outputArchive{outputStream};
 
@@ -38,14 +43,14 @@ std::string modb::DatabaseResource::serialize(const modb::Object& object) {
     return outputStream.str();
 }
 
-void modb::DatabaseResource::deserialize(const std::string& data, modb::Object& object) {
+void modb::DatabaseManager::deserialize(const std::string& data, modb::Object& object) {
     std::istringstream inputStream{data};
     boost::archive::binary_iarchive inputArchive{inputStream};
 
     inputArchive >> object;
 }
 
-int modb::DatabaseResource::putObjectDB(const Object& object) {
+int modb::DatabaseManager::putObjectDB(const Object& object) {
     std::size_t hashedId = hasher(object.id());
     std::string objectData = serialize(object);
 
@@ -57,7 +62,7 @@ int modb::DatabaseResource::putObjectDB(const Object& object) {
     return ret;
 }
 
-int modb::DatabaseResource::getObject(const std::size_t hashedId, Object& retObject) {
+int modb::DatabaseManager::getObject(const std::size_t hashedId, Object& retObject) {
     Dbc* cursorp;
     m_database.cursor(NULL, &cursorp, 0);
 
@@ -78,11 +83,11 @@ int modb::DatabaseResource::getObject(const std::size_t hashedId, Object& retObj
     return ret;
 }
 
-int modb::DatabaseResource::getObject(const std::string& id, Object& retObject) {
+int modb::DatabaseManager::getObject(const std::string& id, Object& retObject) {
     return getObject(hasher(id), retObject);
 }
 
-void modb::DatabaseResource::safeModLog(const std::string& logMessage) {
+void modb::DatabaseManager::safeModLog(const std::string& logMessage) {
     if (m_isSafe == false) {
         std::cerr << logMessage << std::endl;
     }
@@ -91,10 +96,15 @@ void modb::DatabaseResource::safeModLog(const std::string& logMessage) {
     }
 }
 
-int modb::DatabaseResource::putObject(const Object& object) {
+int modb::DatabaseManager::putObject(const Object& object) {
     modb::Object oldObject{};
 
+    // auto start = std::chrono::system_clock::now();
     int ret = getObject(object.id(), oldObject);
+    // auto end = std::chrono::system_clock::now();
+
+    // auto diff = end - start;
+    // m_dbGetTime += diff.count();
 
     if (ret) // object not found 
     {
@@ -154,7 +164,7 @@ int modb::DatabaseResource::putObject(const Object& object) {
     return 0;
 }
 
-std::vector<modb::Object> modb::DatabaseResource::intersectionQuery(const modb::Region& queryRegion) {
+std::vector<modb::Object> modb::DatabaseManager::intersectionQuery(const modb::Region& queryRegion) {
     std::vector<SpatialIndex::id_type> indexResults = m_index.intersectionQuery(queryRegion);
     std::vector<modb::Object> filteredResults{};
 
@@ -175,7 +185,7 @@ std::vector<modb::Object> modb::DatabaseResource::intersectionQuery(const modb::
     return filteredResults;
 }
 
-void modb::DatabaseResource::forEach(std::function<void(const modb::Object& object)> callback) {
+void modb::DatabaseManager::forEach(std::function<void(const modb::Object& object)> callback) {
     Dbc* cursor;
     m_database.cursor(nullptr, &cursor, 0);
 
@@ -192,11 +202,11 @@ void modb::DatabaseResource::forEach(std::function<void(const modb::Object& obje
 }
 
 
-void modb::DatabaseResource::queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
+void modb::DatabaseManager::queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
     m_index.queryStrategy(queryStrategy);
 }
 
-std::unique_ptr<modb::Stats> modb::DatabaseResource::getStats() {
+std::unique_ptr<modb::Stats> modb::DatabaseManager::getStats() {
     auto stats = std::make_unique<modb::Stats>();
 
     stats->dbUpdates = m_dbUpdates;

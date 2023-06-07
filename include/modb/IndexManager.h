@@ -1,5 +1,5 @@
-#ifndef INDEXSERVICE_H
-#define INDEXSERVICE_H
+#ifndef INDEXMANAGER_H
+#define INDEXMANAGER_H
 
 #include <modb/Object.h>
 
@@ -10,12 +10,12 @@
 
 namespace modb
 {
-    class IndexService
+    class IndexManager
     {
     public:
-        IndexService(const std::string& name);
+        IndexManager(const std::string& name);
 
-        ~IndexService();
+        ~IndexManager();
 
         // when service evaluating object and writting to tree. Someone from api can query
         // bool evaluateObject(Object& object); // insertion logic in r-tree occurs here

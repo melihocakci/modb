@@ -1,4 +1,4 @@
-#include <modb/IndexService.h>
+#include <modb/IndexManager.h>
 #include <modb/IndexVisitor.h>
 
 #include <spatialindex/SpatialIndex.h>
@@ -11,7 +11,7 @@
 
 using namespace SpatialIndex;
 
-modb::IndexService::IndexService(const std::string& name) :
+modb::IndexManager::IndexManager(const std::string& name) :
     m_name{ name }
 {
     std::string baseName = name;
@@ -48,7 +48,7 @@ modb::IndexService::IndexService(const std::string& name) :
     }
 }
 
-modb::IndexService::~IndexService() {
+modb::IndexManager::~IndexManager() {
     // necessary to save the index file properly upon exit
     std::lock_guard<std::mutex> lock{m_mutex};
     delete m_rtree;
@@ -63,21 +63,21 @@ inline SpatialIndex::Region toSpatialRegion(const modb::Region& modbRegion) {
     return SpatialIndex::Region{plow, phigh, 2};
 }
 
-void modb::IndexService::deleteIndex(const int64_t id, const modb::Region& region) {
+void modb::IndexManager::deleteIndex(const int64_t id, const modb::Region& region) {
     SpatialIndex::Region spatialRegion = toSpatialRegion(region);
 
     std::lock_guard<std::mutex> guard{m_mutex};
     m_rtree->deleteData(spatialRegion, id);
 }
 
-void modb::IndexService::insertIndex(const int64_t id, const modb::Region& region) {
+void modb::IndexManager::insertIndex(const int64_t id, const modb::Region& region) {
     SpatialIndex::Region spatialRegion = toSpatialRegion(region);
 
     std::lock_guard<std::mutex> guard{m_mutex};
     m_rtree->insertData(0, 0, spatialRegion, id);
 }
 
-std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const modb::Region& queryRegion)
+std::vector<SpatialIndex::id_type> modb::IndexManager::intersectionQuery(const modb::Region& queryRegion)
 {
     SpatialIndex::Region region = toSpatialRegion(queryRegion);
 
@@ -90,7 +90,7 @@ std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const m
 }
 
 // // it can be extended.i think it is hard to try. We can consult our prof. 
-// modb::List<modb::Point> modb::IndexService::knnQuery(const modb::Point& point)
+// modb::List<modb::Point> modb::IndexManager::knnQuery(const modb::Point& point)
 // {
 //     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -99,10 +99,10 @@ std::vector<SpatialIndex::id_type> modb::IndexService::intersectionQuery(const m
 //     throw std::runtime_error("Not implemented Yet");
 // }
 
-void modb::IndexService::queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
+void modb::IndexManager::queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
     m_rtree->queryStrategy(queryStrategy);
 }
 
-void modb::IndexService::getStatistics(SpatialIndex::IStatistics** stats) {
+void modb::IndexManager::getStatistics(SpatialIndex::IStatistics** stats) {
     m_rtree->getStatistics(stats);
 }
