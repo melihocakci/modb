@@ -2,6 +2,7 @@ build/
 debug/
 release/
 
+lib/pistache
 appsetting.json
 
 data
@@ -18,3 +19,6 @@ res2
 *.pyc
 result_*
 *.png
+*.db
+*.idx
+*.dat
