@@ -6,4 +6,5 @@ add_library(modb OBJECT
     IndexManager.cpp
     IndexVisitor.cpp
     Common.cpp
+    Timer.cpp
 )

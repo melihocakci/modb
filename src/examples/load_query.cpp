@@ -81,22 +81,25 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
 
     std::unique_ptr<modb::Stats> stats = db.getStats();
 
-    std::cerr << "number of unique keys in b-tree: " << stats->dbStats->bt_nkeys << std::endl;
-    std::cerr << "number of data items in b-tree: " << stats->dbStats->bt_ndata << std::endl;
-    std::cerr << "number of pages in b-tree: " << stats->dbStats->bt_pagecnt << std::endl;
-    std::cerr << "tree level of b-tree: " << stats->dbStats->bt_levels << std::endl << std::endl;
+    std::cerr << "number of unique keys in b-tree:\t" << stats->dbStats->bt_nkeys << std::endl;
+    std::cerr << "number of data items in b-tree:\t" << stats->dbStats->bt_ndata << std::endl;
+    std::cerr << "number of pages in b-tree:\t" << stats->dbStats->bt_pagecnt << std::endl;
+    std::cerr << "tree level of b-tree:\t" << stats->dbStats->bt_levels << std::endl << std::endl;
 
-    std::cerr << "number of objects in r-tree: " << stats->idxStats->getNumberOfData() << std::endl;
-    std::cerr << "number of nodes in r-tree: " << stats->idxStats->getNumberOfNodes() << std::endl << std::endl;
+    std::cerr << "number of objects in r-tree:\t" << stats->idxStats->getNumberOfData() << std::endl;
+    std::cerr << "number of nodes in r-tree:\t" << stats->idxStats->getNumberOfNodes() << std::endl << std::endl;
 
-    std::cerr << "number of updates to b-tree: " << stats->dbUpdates << std::endl;
-    std::cerr << "number of updates to r-tree: " << stats->idxUpdates << std::endl << std::endl;
+    std::cerr << "number of updates to b-tree:\t" << stats->dbUpdates << std::endl;
+    std::cerr << "number of updates to r-tree:\t" << stats->idxUpdates << std::endl << std::endl;
 
-    std::cerr << "number of all positives: " << stats->allPositives << std::endl;
-    std::cerr << "number of false positives: " << stats->falsePositives << std::endl << std::endl;
+    std::cerr << "number of all positives:\t" << stats->allPositives << std::endl;
+    std::cerr << "number of false positives:\t" << stats->falsePositives << std::endl << std::endl;
 
-    std::cerr << "time spent for b-tree writes: " << stats->dbPutTime << std::endl;
-    std::cerr << "time spent for r-tree writes: " << stats->idxPutTime << std::endl;
+    std::cerr << "time spent for b-tree writes:\t" << (double)stats->dbWriteTime / (1000 * 1000 * 1000) << "s" << std::endl;
+    std::cerr << "time spent for r-tree writes:\t" << (double)stats->idxWriteTime / (1000 * 1000 * 1000) << "s" << std::endl;
+    std::cerr << "time spent for b-tree reads:\t" << (double)stats->dbReadTime / (1000 * 1000 * 1000) << "s" << std::endl;
+    std::cerr << "time spent for queries:  \t" << (double)stats->queryTime / (1000 * 1000 * 1000) << "s" << std::endl;
+    std::cerr << "time spent for filtering:\t" << (double)stats->filterTime / (1000 * 1000 * 1000) << "s" << std::endl;
 
 }
 
