@@ -1,6 +1,4 @@
 
-
-
 #include <cstring>
 #include <iostream>
 
@@ -8,15 +6,9 @@
 #include <gnuplot-iostream.h>
 
 #include <modb/DatabaseManager.h>
+#include <modb/SendDataWS.h>
 
-// websocket 
-#include <boost/beast/core.hpp> 
-#include <boost/beast/websocket.hpp>
-#include <iostream>
-#include <string>
-#include <thread>
 
-using boost::asio::ip::tcp;
 
 
 // write data to pipe
@@ -117,101 +109,10 @@ public:
 
 // read data from pipe and send buffer using 
 // TODO : i need to get rid of irp communication and use salt thread with shared variable
-class SendDataWS {
-private:
-    const std::string& m_address;
-    const unsigned short& m_port;
-    const std::string& m_pipeLocation;
-    std::thread producerConsumerThread;
-
-    bool m_running ;
-
-    int sendData() {
-
-        m_running = true;
-        auto const address = boost::asio::ip::make_address(m_address);
-        auto const port = m_port;
-
-        boost::asio::io_context ioc{1};
-
-        tcp::acceptor acceptor{ioc, {address, port}};
-
-        while(m_running) {
-        tcp::socket socket{ioc};
-        acceptor.accept(socket);
-        std::cout << "socket accepted." << std::endl;
-
-        std::thread producerConsumerThread{[q {std::move(socket)}, pipeLocation{std::move(m_pipeLocation)} ]() {
-            std::ifstream file{pipeLocation};
-            boost::beast::websocket::stream<tcp::socket> ws {std::move(const_cast<tcp::socket&>(q))};
-            
-            ws.accept();
-
-            while(1) 
-            {
-
-                try {
-                    boost::beast::flat_buffer buffer;
-
-                    ws.read(buffer);
-
-                    auto out = boost::beast::buffers_to_string(buffer.cdata());
-
-                    std::cout << out << std::endl; // message from client
-
-                    // take data from pipe
-                    std::string line;
-                    // std::cout << "Hey main Program Working" << std::endl;
-                    std::getline(file, line);
-
-                    // Convert string to buffer
-                    boost::beast::string_view sv{line};
-                    boost::asio::const_buffer buffer = boost::asio::buffer(sv.data(), sv.size());
-
-
-                    // write data to pipe
-                    ws.write(buffer.data());
-
-                } catch (boost::beast::system_error const& e) 
-                {
-                    if(e.code() != boost::beast::websocket::error::closed)
-                    std::cerr << e.what() << '\n';
-                }
-            }
-
-        }};//.detach();
-        }
-
-    }
-
-public:
-    SendDataWS(const std::string& address, const unsigned short port, const std::string& pipeLocation) : 
-    m_address{address},
-    m_port{port},
-    m_pipeLocation(pipeLocation) {}
-    
-    void startDataSendProcess () 
-    {
-        sendData();
-    }
-
-    void stopDataSendProcess() 
-    {
-        if (producerConsumerThread.joinable()) {
-            m_running = false;
-            producerConsumerThread.join();
-        }
-    }
-};
-
-
 int main(int argc, char** argv)
 {
-    std::string pipeLocation = "/tmp/wsPipe";
 
-    int result = mkfifo(pipeLocation.c_str(), 0666);
-
-    SendDataWS sendDataWs{"127.0.0.1", 8083, pipeLocation};    
+    modb::SendDataWS sendDataWs{"127.0.0.1", "/tmp/wsPipe", 8083};    
 
     if (argc != 2) {
         std::cerr << "usage:\nanalyze_db <db-name>" << std::endl;
@@ -226,14 +127,14 @@ int main(int argc, char** argv)
         MyQueryStrategy qs;
         db.queryStrategy(qs);
 
+        
     }
     catch (Tools::Exception& e)
     {
         std::cerr << e.what() << std::endl;
         return -1;
     }
-    // finally
-    sendDataWs.stopDataSendProcess();
+    
 
     return 0;
 }

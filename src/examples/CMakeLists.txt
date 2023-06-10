@@ -31,3 +31,15 @@ add_executable(asio_test
 add_executable(load_query
     load_query.cpp
 )
+
+###################################################################
+
+add_executable(load_bdb_websocket
+    load_bdb_websocket.cpp
+)
+
+###################################################################
+
+add_executable (analyze_data_websocket
+    analyze_data_websocket.cpp
+)
