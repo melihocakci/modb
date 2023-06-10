@@ -17,7 +17,8 @@ namespace modb
                 modb::Point m_secondPoint;
             public:
                 IntersectionSendOption(SendDataWS&) ;
-                
+                modb::Point firstPoint(); 
+                modb::Point secondPoint(); 
                 void startDataSendProcess();
                 void buildOption() override;
                 void buildOption (modb::Point, modb::Point);

@@ -33,8 +33,8 @@ void executeQuery(std::string dbName, modb::Region queryRegion) {
 }
 
 int main(int argc, char** argv) {
-    if (argc != 6) {
-        std::cerr << "usage:\ntest_modb <database name> <pointlow longitude> <pointlow latitude> <pointhigh longitude> <pointhigh latitude>" << std::endl;
+    if (argc != 2) {
+        std::cerr << "usage:\ntest_modb <database name> " << std::endl;
         return -1;
     }
     std::string pipeLocation = "/tmp/wsPipe";
@@ -50,17 +50,24 @@ int main(int argc, char** argv) {
     });
 
 
+    std::unique_lock<std::mutex> lock(sendDataWs.pipeWriterLock);
+    sendDataWs.cv.wait(lock, [&sendDataWs] { return sendDataWs.isPipeWriterFree.load(); });
+    
+    if (!pipeWriter.is_open()) {
+        std::cerr << "Failed to open the named pipe for writing." << std::endl;
+    }
+
 
     std::string dbName = argv[1];
 
     modb::Region queryRegion = {
         {
-            {std::stod(argv[2])},
-            {std::stod(argv[3])}
+            {sender.firstPoint().latitude()},
+            {sender.firstPoint().longitude()}
         },
         {
-            {std::stod(argv[4])},
-            {std::stod(argv[5])}
+            {sender.secondPoint().latitude()},
+            {sender.secondPoint().longitude()}
         }
     };
 

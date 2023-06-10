@@ -43,3 +43,9 @@ add_executable(load_bdb_websocket
 add_executable (analyze_data_websocket
     analyze_data_websocket.cpp
 )
+
+###################################################################
+
+add_executable( intersection_query_websocket 
+    intersection_query_websocket.cpp
+)

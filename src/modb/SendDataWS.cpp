@@ -132,9 +132,10 @@ void SendDataWS::startDataSendProcess(modb::websocket::SendOptionEnum option, mo
                 
                 if (modb::websocket::IntersectionSendOption* sendOption = dynamic_cast<modb::websocket::IntersectionSendOption*>(decorator)) {
                     // The downcast is successful, access derived class-specific members
-                    modb::Point fPoint{std::stod("out[0]"),std::stod("out[1]")};
-                    modb::Point lPoint{std::stod("out[2]"),std::stod("out{3}")};
+                    modb::Point fPoint{std::stod(splitStrings[0]), std::stod(splitStrings[1])};
+                    modb::Point lPoint{std::stod(splitStrings[2]), std::stod(splitStrings[3])};
                     sendOption->buildOption( fPoint, lPoint );
+                    std::cout << "casting is done" << std::endl;
                 }
             }
 

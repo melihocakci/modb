@@ -3,6 +3,7 @@
 #include <modb/SendOption.h>
 #include <modb/SendDataWS.h>
 
+
 using namespace modb::websocket;
 
 IntersectionSendOption::IntersectionSendOption(SendDataWS& ws) :  m_sendDataWS{ws}, m_firstPoint{}, m_secondPoint{} { }
@@ -12,6 +13,14 @@ void IntersectionSendOption::startDataSendProcess() {
     m_sendDataWS.startDataSendProcess(modb::websocket::SendOptionEnum::Intersection, sendOptionPtr);
 
 // m_sendDataWS.startDataSendProcess(modb::websocket::SendOptionEnum::Intersection, const_cast<modb::websocket::SendOption*>(static_cast<const modb::websocket::SendOption*>(this)));
+}
+
+modb::Point IntersectionSendOption::firstPoint() {
+    return m_firstPoint;
+}
+
+modb::Point IntersectionSendOption::secondPoint() {
+    return m_secondPoint;
 }
 
 void IntersectionSendOption::buildOption() {
