@@ -1,6 +1,7 @@
 #ifndef SENDDATAWS_H
 #define SENDDATAWS_H
 
+
 #include <boost/beast/core.hpp> 
 #include <boost/beast/websocket.hpp>
 #include <iostream>
@@ -11,12 +12,14 @@
 
 #include <condition_variable>
 
+#include <modb/SendOption.h>
+
 namespace modb
 {
 
     namespace websocket {
 
-        enum SendOption {
+        enum SendOptionEnum {
             SnapShot, // send all database to socket 
             Intersection, // send interval queries to web
             Tree // see mbr and tree structure maybe this is same functionality with snapshot
@@ -31,10 +34,11 @@ namespace modb
 
             SendDataWS();
             SendDataWS(const std::string& address, const std::string& pipeLocation, const int& port);
-            // SendDataWS(const SendDataWS& other);
+            SendDataWS(const SendDataWS& other);
             // SendDataWS(SendDataWS&& other);
             ~SendDataWS();
-            void startDataSendProcess(SendOption option);
+            void startDataSendProcess(SendOptionEnum, modb::websocket::SendOption*);
+            void startDataSendProcess();
             std::ofstream& pipeWriter();
         private:
             const std::string& m_address;

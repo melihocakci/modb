@@ -7,4 +7,5 @@ add_library(modb OBJECT
     IndexVisitor.cpp
     Common.cpp
     SendDataWS.cpp
+    IntersectionSendOption.cpp
 )

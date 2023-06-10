@@ -43,7 +43,7 @@ void load_data( const std::string dbName ) {
 
     // int a = 5;
     std::thread dataSendProcess = std::thread([&sendDataWs]() {
-       sendDataWs.startDataSendProcess(modb::websocket::SendOption::SnapShot);
+       sendDataWs.startDataSendProcess();
         // std::cout << "run to the hill" << a << std::endl;
     });
     

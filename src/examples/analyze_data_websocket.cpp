@@ -1,4 +1,7 @@
+/*
 
+    TODO: THIS IS NOT WORKED
+*/
 #include <cstring>
 #include <iostream>
 
@@ -122,7 +125,7 @@ int main(int argc, char** argv)
     try
     {
         modb::DatabaseManager db{argv[1], DB_BTREE, DB_READ_COMMITTED};
-        sendDataWs.startDataSendProcess(modb::websocket::SendOption::SnapShot);
+        sendDataWs.startDataSendProcess();
 
         MyQueryStrategy qs;
         db.queryStrategy(qs);

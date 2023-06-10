@@ -1,6 +1,13 @@
+#include <boost/algorithm/string.hpp>
 // websocket 
 #include <modb/SendDataWS.h>
+#include <modb/Point.h>
+#include <modb/IntersectionSendOption.h>
+
 #include <csignal>
+#include <atomic>
+
+#include <string>
 
 using modb::websocket::SendDataWS;
 using boost::asio::ip::tcp;
@@ -11,10 +18,10 @@ SendDataWS::SendDataWS() :
     m_pipeLocation{ "/tmp/wsPipe" } ,
     m_port{ 8080 }{}
 
-// SendDataWS::SendDataWS(const SendDataWS& other) :
-//     m_address{ other.m_address },
-//     m_pipeLocation{ other.m_pipeLocation } ,
-//     m_port{ other.m_port }{}
+SendDataWS::SendDataWS(const SendDataWS& other) :
+    m_address{ other.m_address },
+    m_pipeLocation{ other.m_pipeLocation } ,
+    m_port{ other.m_port.load() } { }
 
 // SendDataWS::SendDataWS(SendDataWS&& other) :
 //     m_address{ std::move(other.m_address) },
@@ -85,8 +92,84 @@ SendDataWS::~SendDataWS()
     
 }
 
+// first is option that changes sendoption, second is generic decorator that is implemented on over option.
+void SendDataWS::startDataSendProcess(modb::websocket::SendOptionEnum option, modb::websocket::SendOption* decorator )
+{
+    auto const address = boost::asio::ip::make_address(m_address);
+    auto const port = m_port.load();
 
-void SendDataWS::startDataSendProcess(modb::websocket::SendOption option)
+    boost::asio::io_context ioc{1};
+
+    tcp::acceptor acceptor{ioc, { address, static_cast<short unsigned int>(port) }};
+
+    
+    tcp::socket socket{ioc};
+    acceptor.accept(socket);
+    std::cout << "socket accepted." << std::endl;
+
+    std::ifstream file{m_pipeLocation};
+    boost::beast::websocket::stream<tcp::socket> ws {std::move(const_cast<tcp::socket&>(socket))};
+
+    // block all thread
+    ws.accept();
+    
+    
+
+    while (!isJoined)
+    {
+
+        try {
+            boost::beast::flat_buffer buffer_read;
+
+            if (option == modb::websocket::SendOptionEnum::Intersection) {
+                ws.read(buffer_read);
+
+                auto out = boost::beast::buffers_to_string(buffer_read.cdata());
+                std::vector<std::string> splitStrings;
+                boost::split(splitStrings, out, boost::is_any_of(","));
+
+                std::cout << out << std::endl; // message from client
+                
+                if (modb::websocket::IntersectionSendOption* sendOption = dynamic_cast<modb::websocket::IntersectionSendOption*>(decorator)) {
+                    // The downcast is successful, access derived class-specific members
+                    modb::Point fPoint{std::stod("out[0]"),std::stod("out[1]")};
+                    modb::Point lPoint{std::stod("out[2]"),std::stod("out{3}")};
+                    sendOption->buildOption( fPoint, lPoint );
+                }
+            }
+
+
+            // take data from pipe
+            std::string line;
+
+            // conditional variable
+            {
+            // std::lock_guard<std::mutex> lock(pipeWriterLock);
+                isPipeWriterFree.store(true);
+            }
+            cv.notify_all();
+
+            if (std::getline(file, line)) {
+                // Process the buffer data as needed
+                std::cout << "Received data: " << line << std::endl;
+                // write data to pipe
+                ws.write(boost::asio::buffer(line));
+            }
+
+
+        }
+        catch (boost::beast::system_error const& e)
+        {
+            if (e.code() != boost::beast::websocket::error::closed)
+                std::cerr << e.what() << '\n';
+        }
+    }
+    file.close();
+//.detach();
+
+}
+
+void SendDataWS::startDataSendProcess()
 {
     auto const address = boost::asio::ip::make_address(m_address);
     auto const port = m_port.load();
@@ -111,15 +194,7 @@ void SendDataWS::startDataSendProcess(modb::websocket::SendOption option)
     {
 
         try {
-            // boost::beast::flat_buffer buffer_read;
-
-            // ws.read(buffer_read);
-
-            // auto out = boost::beast::buffers_to_string(buffer_read.cdata());
-
-            // std::cout << out << std::endl; // message from client
-
-            // take data from pipe
+            
             std::string line;
 
             // conditional variable
