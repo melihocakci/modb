@@ -1,7 +1,7 @@
 // import logo from './logo.svg';
 // import './leaflet.css';
 
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState, React } from 'react'
 
 import { MenuContext, PieNameContext, menuOption } from './components/MenuContext';
 
@@ -14,24 +14,32 @@ import DropdownLeft from './components/DropdownLeft';
 import L from 'leaflet';
 
 import personIcon from './icons/person.png'
+import planeIcon from './icons/dot.png'
 
 
 
 function App() {
 
-  const [ selectArea, setSelectArea ] = useState(false);
-  const [ rectangleBounds, setRectangelBound ] = useState([
+  const defaultRectangle = [
     [41-5, 28-5], // Southwest coordinates
     [41+5, 28+5], // Northeast coordinates
-  ])
+  ]
+
+  const [ selectArea, setSelectArea ] = useState(false);
+  const [ rectangleBounds, setRectangleBounds ] = useState(defaultRectangle)
   
   const [option, setOption] = useState(-1)
+  const [socketClosed, setSocketClosed] = useState(false);
   const [clickOnceInterval, setClickOnceInterval] = useState(true);
-  
+  const [planes, setPlanes] = useState([])
 
   useEffect(()=>{
     console.log("option triggered", option)
-  },[option])
+    if ( option === menuOption.clearSelectInterval ) {
+      setRectangleBounds(defaultRectangle);
+      setClickOnceInterval(true);
+    }
+  },[option, socketClosed])
   
 
   const tileLayerStyle = {
@@ -88,14 +96,70 @@ function App() {
     iconSize: [25, 25], // Customize the size of the marker icon
   });
 
+  const planeCustomIcon = L.icon({
+    iconUrl: planeIcon,
+    iconSize: [15, 15], // Customize the size of the marker icon
+  });
 
-  const printAllDataToMap = ()=> {
-    
+
+  const printAllDataToMap = () => {
+    console.log("printing all data first is ");
+    console.log(planes[0]);
+    console.log( "location"  + planes[0].location[0] + planes[0].type);
+
     return (
       <>
-      
+        {planes.map((item, index) => {
+          return item.type === 'point' ? (
+            <>
+              <Marker key={index}  position={[item.location[0], item.location[1]]} icon={planeCustomIcon}>
+                <Popup>
+                  {item.id}<br />
+                </Popup>
+              </Marker>
+            </>
+          ) : (
+            null
+          );
+        })}
       </>
-    )
+    );
+  }
+
+  const connectSocket = () => {
+    // read from websocket and read it to store data.
+    const socket = new WebSocket('ws://127.0.0.1:8083');
+
+    // Connection opened
+    socket.onopen = () => {
+      console.log('WebSocket connection established.');
+    };
+
+    // Listen for messages
+    socket.onmessage = (event) => {
+      const data = event.data;
+      console.log('Received data:', data);
+      
+      const parts = data.split(',');
+      planes.push({type: parts[0], id: parts[1], location: [parts[2], parts[3]]});
+
+      // Process the received data here
+      // ...
+      // storeData(data)
+    };
+
+    // Connection closed
+    socket.onclose = () => {
+      console.log('WebSocket connection closed.');
+      setSocketClosed(true);
+      // use effect use
+    };
+
+    // while(!socketClosed) { }
+
+    console.log("now return");
+    
+    
   }
 
   return (
@@ -110,10 +174,12 @@ function App() {
           <DropdownLeft style={{ zIndex: 9999 }} onClick={handleClicked}></DropdownLeft>
 
         </MenuContext.Provider>
-        {(option === menuOption.clearOrTakeSnapshot) ? (printAllDataToMap) : null}
+        {(option === menuOption.takeSnapshot) ? (connectSocket()) : null}
+        {(socketClosed && option !== menuOption.clearTakeSnapshot) ? (printAllDataToMap()) : null}
+
         <Marker position={[40.90858286754887, 29.235305786132816]} icon={customIcon}>
           <Popup>
-            You are here <br />.
+            You are here <br />
           </Popup>
         </Marker>
         {(option == menuOption.selectInterval && clickOnceInterval) ? (<Rectangle bounds={rectangleBounds} color="red" fillOpacity={0.5} />) : (null)}
