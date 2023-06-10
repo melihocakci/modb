@@ -105,7 +105,8 @@ public:
 int main(int argc, char** argv)
 {
     if (argc != 2) {
-        std::cerr << "usage:\nanalyze_db <db-name>" << std::endl;
+        std::cerr << "usage:\n";
+        std::cerr << "analyze_data <db-name>" << std::endl;
         return -1;
     }
 

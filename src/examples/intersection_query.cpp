@@ -18,9 +18,9 @@ void mainSIGINT(int param)
 void executeQuery(std::string dbName, modb::Region queryRegion) {
     modb::DatabaseManager db{dbName, DB_BTREE, DB_READ_COMMITTED};
 
-    std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
+    auto [truePositives, falsePositives] = db.intersectionQuery(queryRegion);
 
-    for (modb::Object& object : resultset) {
+    for (modb::Object& object : truePositives) {
         std::cout << object.id() << '\n';
     }
 
@@ -32,7 +32,8 @@ void executeQuery(std::string dbName, modb::Region queryRegion) {
 
 int main(int argc, char** argv) {
     if (argc != 6) {
-        std::cerr << "usage:\ntest_modb <database name> <pointlow longitude> <pointlow latitude> <pointhigh longitude> <pointhigh latitude>" << std::endl;
+        std::cerr << "usage:\n";
+        std::cerr << "intersection_query <database name> <pointlow longitude> <pointlow latitude> <pointhigh longitude> <pointhigh latitude>" << std::endl;
         return -1;
     }
 

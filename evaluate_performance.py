@@ -18,7 +18,7 @@ for mbrSize in mbrSizes:
 
     # measure load time
     start = time.time()
-    os.system("./build/bin/load_data test_data_long.txt test " +
+    os.system("./build/bin/load_data dataset_json_long.txt test " +
               str(recordCount) + " " + str(mbrSize) + " > /dev/null")
     end = time.time()
     load_times.append(end - start)

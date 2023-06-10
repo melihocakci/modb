@@ -26,7 +26,7 @@ modb::DatabaseManager::DatabaseManager(const std::string& dbName, DBTYPE dbType,
     m_env->set_cachesize(0, 100 * 1024 * 1024, 0);
     // m_env->set_lg_bsize(10 * 1024 * 1024);
     // m_env->set_lg_max(10 * 1024 * 1024);
-    m_env->set_flags(DB_TXN_NOSYNC, 1);
+    m_env->set_flags(DB_TXN_NOSYNC | DB_NOLOCKING, 1);
     // m_env->set_flags(DB_AUTO_COMMIT, 1);
     m_env->open(".", DB_CREATE | DB_INIT_MPOOL, 0);
 
@@ -194,7 +194,7 @@ int modb::DatabaseManager::putObject(const Object& object) {
     return 0;
 }
 
-std::vector<modb::Object> modb::DatabaseManager::intersectionQuery(const modb::Region& queryRegion) {
+std::tuple<std::vector<modb::Object>, std::vector<modb::Object>> modb::DatabaseManager::intersectionQuery(const modb::Region& queryRegion) {
     std::vector<SpatialIndex::id_type> indexResults;
 
     {
@@ -203,7 +203,8 @@ std::vector<modb::Object> modb::DatabaseManager::intersectionQuery(const modb::R
         indexResults = m_index.intersectionQuery(queryRegion);
     }
 
-    std::vector<modb::Object> filteredResults{};
+    std::vector<modb::Object> truePositives{};
+    std::vector<modb::Object> falsePositives{};
 
     {
         modb::Timer timer{&m_stats.filterTime};
@@ -213,7 +214,10 @@ std::vector<modb::Object> modb::DatabaseManager::intersectionQuery(const modb::R
             getObject(id, object);
 
             if (pointWithinRegion(object.baseLocation(), queryRegion)) {
-                filteredResults.push_back(object);
+                truePositives.push_back(object);
+            }
+            else {
+                falsePositives.push_back(object);
             }
         }
     }
@@ -221,9 +225,9 @@ std::vector<modb::Object> modb::DatabaseManager::intersectionQuery(const modb::R
     // for statistics
     m_stats.queries++;
     m_stats.allPositives += indexResults.size();
-    m_stats.falsePositives += indexResults.size() - filteredResults.size();
+    m_stats.falsePositives += indexResults.size() - truePositives.size();
 
-    return filteredResults;
+    return { truePositives, falsePositives };
 }
 
 void modb::DatabaseManager::forEach(std::function<void(const modb::Object& object)> callback) {

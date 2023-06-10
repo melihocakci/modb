@@ -68,7 +68,7 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
 
             ss >> lowlong >> lowlat >> highlong >> highlat;
 
-            [[maybe_unused]] std::vector resultset = db.intersectionQuery({ {lowlong, lowlat}, {highlong, highlat} });
+            db.intersectionQuery({ {lowlong, lowlat}, {highlong, highlat} });
 
             // std::cerr << "query region: " << lowlong << ' ' << lowlat << ' ' << highlong << ' ' << highlat << '\n';
             // std::cerr << "resultset size: " << resultset.size() << '\n';
@@ -105,7 +105,8 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
 
 int main(int argc, char** argv) {
     if (argc != 5) {
-        std::cerr << "usage:\nload_query <input-file> <db-name> <record-number> <mbr-size>" << std::endl;
+        std::cerr << "usage:\n";
+        std::cerr << "load_query <input-file> <db-name> <record-number> <mbr-size>" << std::endl;
         return -1;
     }
 
