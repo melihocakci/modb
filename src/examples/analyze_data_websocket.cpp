@@ -112,7 +112,7 @@ public:
 int main(int argc, char** argv)
 {
 
-    modb::SendDataWS sendDataWs{"127.0.0.1", "/tmp/wsPipe", 8083};    
+    modb::websocket::SendDataWS sendDataWs{"127.0.0.1", "/tmp/wsPipe", 8083};    
 
     if (argc != 2) {
         std::cerr << "usage:\nanalyze_db <db-name>" << std::endl;
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     try
     {
         modb::DatabaseManager db{argv[1], DB_BTREE, DB_READ_COMMITTED};
-        sendDataWs.startDataSendProcess();
+        sendDataWs.startDataSendProcess(modb::websocket::SendOption::SnapShot);
 
         MyQueryStrategy qs;
         db.queryStrategy(qs);

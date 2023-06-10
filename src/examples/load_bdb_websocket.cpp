@@ -33,7 +33,7 @@ void load_data( const std::string dbName ) {
     std::string pipeLocation = "/tmp/wsPipe";
     
     
-    modb::SendDataWS sendDataWs{"127.0.0.1", pipeLocation, 8083};
+    modb::websocket::SendDataWS sendDataWs{"127.0.0.1", pipeLocation, 8083};
 
     // std::ofstream deneme{"/tmp/wsPipe"};
 
@@ -43,7 +43,7 @@ void load_data( const std::string dbName ) {
 
     // int a = 5;
     std::thread dataSendProcess = std::thread([&sendDataWs]() {
-       sendDataWs.startDataSendProcess();
+       sendDataWs.startDataSendProcess(modb::websocket::SendOption::SnapShot);
         // std::cout << "run to the hill" << a << std::endl;
     });
     

@@ -2,7 +2,7 @@
 #include <modb/SendDataWS.h>
 #include <csignal>
 
-using modb::SendDataWS;
+using modb::websocket::SendDataWS;
 using boost::asio::ip::tcp;
 
 
@@ -85,7 +85,8 @@ SendDataWS::~SendDataWS()
     
 }
 
-void SendDataWS::startDataSendProcess()
+
+void SendDataWS::startDataSendProcess(modb::websocket::SendOption option)
 {
     auto const address = boost::asio::ip::make_address(m_address);
     auto const port = m_port.load();
