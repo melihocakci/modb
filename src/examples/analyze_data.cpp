@@ -15,10 +15,10 @@ private:
 
 public:
     MyQueryStrategy() : gp{}, counter{ 1 } {
-        gp << "set xrange [-200:200]\n"
-            << "set yrange [-100:100]\n"
+        gp << "set xrange [-180:180]\n"
+            << "set yrange [-90:90]\n"
             << "set terminal png size 3840, 2160\n"
-            << "set output 'output.png'\n";
+            << "set output 'analyze_data.png'\n";
     }
 
     ~MyQueryStrategy()

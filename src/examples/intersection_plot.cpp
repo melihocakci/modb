@@ -37,7 +37,7 @@ void executeQuery(std::string dbName, modb::Region queryRegion) {
     gp << "set xrange [" << queryRegion.pointLow().longitude() - 0.5 << ":" << queryRegion.pointHigh().longitude() + 0.5 << "]\n"
         << "set yrange [" << queryRegion.pointLow().latitude() - 0.5 << ":" << queryRegion.pointHigh().latitude() + 0.5 << "]\n"
         << "set terminal png size 3840, 2160\n"
-        << "set output 'output.png'\n";
+        << "set output 'intersection_plot.png'\n";
 
     int counter = 1;
 

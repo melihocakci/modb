@@ -14,7 +14,7 @@ processors=$(grep -c ^processor /proc/cpuinfo)
 pushd lib/spatialindex > /dev/null
 mkdir -p build
 pushd build > /dev/null
-cmake -D SIDX_BUILD_TESTS=ON ..
+cmake -D SIDX_BUILD_TESTS=OFF ..
 make -j$processors
 
 # checks if compilation finished successfully

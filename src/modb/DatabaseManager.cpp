@@ -23,12 +23,13 @@ modb::DatabaseManager::DatabaseManager(const std::string& dbName, DBTYPE dbType,
 {
     m_env = new DbEnv{ (uint32_t)0 };
     m_env->set_error_stream(&std::cerr);
-    m_env->set_cachesize(0, 100 * 1024 * 1024, 0);
-    // m_env->set_lg_bsize(10 * 1024 * 1024);
-    // m_env->set_lg_max(10 * 1024 * 1024);
+    m_env->set_cache_max(0, 400 * 1024 * 1024);
+    m_env->set_cachesize(0, 200 * 1024 * 1024, 0);
+    m_env->set_lg_bsize(10 * 1024 * 1024);
+    m_env->set_lg_max(10 * 1024 * 1024);
     m_env->set_flags(DB_TXN_NOSYNC | DB_NOLOCKING, 1);
     // m_env->set_flags(DB_AUTO_COMMIT, 1);
-    m_env->open(".", DB_CREATE | DB_INIT_MPOOL, 0);
+    m_env->open(".", DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE, 0);
 
     m_database = new Db{ m_env, 0 };
     m_database->set_error_stream(&std::cerr);
