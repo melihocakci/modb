@@ -114,14 +114,14 @@ void SendDataWS::startDataSendProcess(modb::websocket::SendOptionEnum option, mo
     ws.accept();
     
     
-
+    bool readOnce = true;
     while (!isJoined)
     {
 
         try {
             boost::beast::flat_buffer buffer_read;
 
-            if (option == modb::websocket::SendOptionEnum::Intersection) {
+            if (readOnce && option == modb::websocket::SendOptionEnum::Intersection) {
                 ws.read(buffer_read);
 
                 auto out = boost::beast::buffers_to_string(buffer_read.cdata());
@@ -137,6 +137,8 @@ void SendDataWS::startDataSendProcess(modb::websocket::SendOptionEnum option, mo
                     sendOption->buildOption( fPoint, lPoint );
                     std::cout << "casting is done" << std::endl;
                 }
+
+                readOnce = false;
             }
 
 

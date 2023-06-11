@@ -63,42 +63,42 @@ int main(int argc, char** argv) {
 
     // signal(SIGINT, mainSIGINT);
 
-    try {
-        modb::DatabaseManager db{dbName, DB_BTREE, DB_READ_COMMITTED};
+    // try {
+    modb::DatabaseManager db{dbName, DB_BTREE, DB_READ_COMMITTED};
 
-        std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
+    std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
 
-        for (modb::Object& object : resultset) {
-            std::stringstream ss;
-            std:: cout << "writing to pipe : " << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
-            ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
-            pipeWriter << ss.str();
-        }
-
-        std::unique_ptr<modb::Stats> stats = db.getStats();
-
-        std::cerr << "number of all positives: " << stats->allPositives << std::endl;
-        std::cerr << "number of false positives: " << stats->falsePositives << std::endl << std::endl;
-        try
-        {
-            
-            /* code */
-            sendDataWs.isJoined.store(true);
-            dataSendProcess.join();
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+    for (modb::Object& object : resultset) {
+        std::stringstream ss;
+        std:: cout << "writing to pipe : " << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
+        ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
+        pipeWriter << ss.str() << std::endl;
     }
-    catch (DbException& e)
+
+    std::unique_ptr<modb::Stats> stats = db.getStats();
+
+    std::cerr << "number of all positives: " << stats->allPositives << std::endl;
+    std::cerr << "number of false positives: " << stats->falsePositives << std::endl << std::endl;
+    try
     {
-        std::cerr << e.what() << std::endl;
-        return 1;
+        
+        /* code */
+        sendDataWs.isJoined.store(true);
+        dataSendProcess.join();
     }
-    catch (std::exception& e)
+    catch(const std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
-        return 1;
+        std::cerr << e.what() << '\n';
     }
+    // }
+    // catch (DbException& e)
+    // {
+    //     std::cerr << e.what() << std::endl;
+    //     return 1;
+    // }
+    // catch (std::exception& e)
+    // {
+    //     std::cerr << e.what() << std::endl;
+    //     return 1;
+    // }
 }
