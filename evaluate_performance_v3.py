@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # inputs
-recordCount = 30000
+recordCount = 50000
 rectangleSizes = [0.05, 0.1, 0.2]
 query_samples = 200
 
@@ -17,12 +17,16 @@ idxUpdates = []
 allPositives = []
 falsePositives = []
 
+queryTime = []
+filterTime = []
+idxWriteTime = []
+
 for rectangleSize in rectangleSizes:
     # remove previous file
     os.system("rm test.*")
 
     # start load process
-    process = subprocess.Popen(['./build/bin/load_data', 'dataset_json_long.txt', 'test', str(
+    process = subprocess.Popen(['./build/bin/load_query', 'dataset_mixed_long.txt', 'test', str(
         recordCount), str(rectangleSize)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
     # get process output
@@ -35,29 +39,23 @@ for rectangleSize in rectangleSizes:
 
     # save results
     dbUpdates.append(
-        int(re.search('number of updates to b-tree: ([0-9]+)', errStr).group(1)))
+        int(re.search('number of updates to b-tree:\s+([0-9]+)', errStr).group(1)))
     idxUpdates.append(
-        int(re.search('number of updates to r-tree: ([0-9]+)', errStr).group(1)))
+        int(re.search('number of updates to r-tree:\s+([0-9]+)', errStr).group(1)))
 
-
-    # start query process
-    process = subprocess.Popen(['./build/bin/intersection_query', 'test', '-82',
-                               '27', '-81', '28'], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-
-    # get process output
-    out, err = process.communicate()
-
-    errStr = err.decode()
-
-    sys.stderr.write(errStr)
-    sys.stderr.flush()
-
-    # save results
     allPositives.append(int(
-        re.search('number of all positives: ([0-9]+)', errStr).group(1)))
+        re.search('number of all positives:\s+([0-9]+)', errStr).group(1)))
     falsePositives.append(int(
-        re.search('number of false positives: ([0-9]+)', errStr).group(1)))
+        re.search('number of false positives:\s+([0-9]+)', errStr).group(1)))
+    
+    queryTime.append(float(
+        re.search('time spent for queries:\s+([0-9]*\.[0-9]+)s', errStr).group(1)))
+    filterTime.append(float(
+        re.search('time spent for filtering:\s+([0-9]*\.[0-9]+)s', errStr).group(1)))
+    idxWriteTime.append(float(
+        re.search('time spent for r-tree writes:\s+([0-9]*\.[0-9]+)s', errStr).group(1)))
 
+##################################################
 
 # Define the data
 labels = list(map(str, rectangleSizes))
@@ -89,6 +87,7 @@ plt.legend()
 plt.savefig('update_stats.png')
 plt.clf()
 
+##################################################
 
 # Define the data
 labels = list(map(str, rectangleSizes))
@@ -118,4 +117,51 @@ plt.legend()
 
 # Display the chart
 plt.savefig('query_stats.png')
+plt.clf()
+
+##################################################
+
+# Define the data
+labels = list(map(str, rectangleSizes))
+values1 = queryTime
+values2 = filterTime
+
+# Set the positions of the bars and their width
+bar_width = 0.35
+index = np.arange(len(labels))
+bar_positions1 = index
+bar_positions2 = index + bar_width
+
+# Plot the bars
+plt.bar(bar_positions1, values1, width=bar_width, label='Query Time')
+plt.bar(bar_positions2, values2, width=bar_width, label='Filter Time')
+
+# Add labels and title
+plt.xlabel('Rectangle Size')
+plt.ylabel('Time (seconds)')
+plt.title('Query and Filter times For Different Rectangle Sizes')
+
+# Set the x-axis tick labels
+plt.xticks(index + bar_width/2, labels)
+
+# Add a legend
+plt.legend()
+
+# Display the chart
+plt.savefig('query_times.png')
+plt.clf()
+
+#####################################################################
+
+# Plot the bar chart
+plt.bar(list(map(str, rectangleSizes)), idxWriteTime)
+
+# Add labels and title
+plt.xlabel('Rectangle size')
+plt.ylabel('Time (seconds)')
+plt.title('Write time of R-tree for Different Rectangle Sizes')
+
+# Save the plot as a PNG file
+plt.savefig('idx_write_times.png')
+
 plt.clf()

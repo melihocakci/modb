@@ -98,7 +98,7 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
     std::cerr << "time spent for b-tree writes:\t" << (double)stats->dbWriteTime / (1000 * 1000 * 1000) << "s" << std::endl;
     std::cerr << "time spent for r-tree writes:\t" << (double)stats->idxWriteTime / (1000 * 1000 * 1000) << "s" << std::endl;
     std::cerr << "time spent for b-tree reads:\t" << (double)stats->dbReadTime / (1000 * 1000 * 1000) << "s" << std::endl;
-    std::cerr << "time spent for queries:  \t" << (double)stats->queryTime / (1000 * 1000 * 1000) << "s" << std::endl;
+    std::cerr << "time spent for queries:\t" << (double)stats->queryTime / (1000 * 1000 * 1000) << "s" << std::endl;
     std::cerr << "time spent for filtering:\t" << (double)stats->filterTime / (1000 * 1000 * 1000) << "s" << std::endl;
 
 }

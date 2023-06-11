@@ -5,21 +5,21 @@ import random
 
 # inputs
 recordCount = 10000
-mbrSizes = [5.0, 0.5, 0.05]
+rectangleSizes = [5.0, 0.5, 0.05]
 query_samples = 200
 
 # outputs
 load_times = []
 query_times = []
 
-for mbrSize in mbrSizes:
+for rectangleSize in rectangleSizes:
     # remove previous file
     os.system("rm test.*")
 
     # measure load time
     start = time.time()
     os.system("./build/bin/load_data dataset_json_long.txt test " +
-              str(recordCount) + " " + str(mbrSize) + " > /dev/null")
+              str(recordCount) + " " + str(rectangleSize) + " > /dev/null")
     end = time.time()
     load_times.append(end - start)
 
@@ -42,13 +42,13 @@ for mbrSize in mbrSizes:
     query_times.append(end - start)
 
 # Plot the bar chart
-plt.bar(list(map(str, mbrSizes)), load_times)
+plt.bar(list(map(str, rectangleSizes)), load_times)
 
 # Add labels and title
-plt.xlabel('MBR size')
+plt.xlabel('Rectangle size')
 plt.ylabel('Time (seconds)')
 plt.title('Loading Time of ' + str(recordCount) +
-          ' Records for Different MBR Sizes')
+          ' Records for Different Rectangle Sizes')
 
 # Save the plot as a PNG file
 plt.savefig('load_times.png')
@@ -58,13 +58,13 @@ plt.clf()
 #####################################################################
 
 # Plot the bar chart
-plt.bar(list(map(str, mbrSizes)), query_times)
+plt.bar(list(map(str, rectangleSizes)), query_times)
 
 # Add labels and title
-plt.xlabel('MBR size')
+plt.xlabel('Rectangle size')
 plt.ylabel('Time (seconds)')
 plt.title('Query Time of ' + str(recordCount) +
-          ' Records for Different MBR Sizes')
+          ' Records for Different Rectangle Sizes')
 
 # Save the plot as a PNG file
 plt.savefig('query_times.png')

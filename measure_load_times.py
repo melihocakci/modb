@@ -6,7 +6,7 @@ import numpy as np
 
 # inputs
 recordCounts = [2000, 4000, 6000, 8000, 10000]
-querySamples = 200
+querySamples = 100
 
 # outputs
 writeTimes = []
@@ -18,7 +18,7 @@ for recordCount in recordCounts:
 
     start = time.time()
     # start load process
-    os.system('./build/bin/load_data dataset_json_long.txt test ' +
+    os.system('./build/bin/load_query dataset_mixed_long.txt test ' +
               str(recordCount) + ' 0.4')
     end = time.time()
 
