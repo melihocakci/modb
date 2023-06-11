@@ -5,21 +5,21 @@ import random
 
 # inputs
 recordCount = 10000
-rectangleSizes = [5.0, 0.5, 0.05]
+windowSizes = [5.0, 0.5, 0.05]
 query_samples = 200
 
 # outputs
 load_times = []
 query_times = []
 
-for rectangleSize in rectangleSizes:
+for windowSize in windowSizes:
     # remove previous file
     os.system("rm test.*")
 
     # measure load time
     start = time.time()
     os.system("./build/bin/load_data dataset_json_long.txt test " +
-              str(recordCount) + " " + str(rectangleSize) + " > /dev/null")
+              str(recordCount) + " " + str(windowSize) + " > /dev/null")
     end = time.time()
     load_times.append(end - start)
 
@@ -42,13 +42,13 @@ for rectangleSize in rectangleSizes:
     query_times.append(end - start)
 
 # Plot the bar chart
-plt.bar(list(map(str, rectangleSizes)), load_times)
+plt.bar(list(map(str, windowSizes)), load_times)
 
 # Add labels and title
-plt.xlabel('Rectangle size')
+plt.xlabel('Window size')
 plt.ylabel('Time (seconds)')
 plt.title('Loading Time of ' + str(recordCount) +
-          ' Records for Different Rectangle Sizes')
+          ' Records for Different Window Sizes')
 
 # Save the plot as a PNG file
 plt.savefig('load_times.png')
@@ -58,13 +58,13 @@ plt.clf()
 #####################################################################
 
 # Plot the bar chart
-plt.bar(list(map(str, rectangleSizes)), query_times)
+plt.bar(list(map(str, windowSizes)), query_times)
 
 # Add labels and title
-plt.xlabel('Rectangle size')
+plt.xlabel('Window size')
 plt.ylabel('Time (seconds)')
 plt.title('Query Time of ' + str(recordCount) +
-          ' Records for Different Rectangle Sizes')
+          ' Records for Different Window Sizes')
 
 # Save the plot as a PNG file
 plt.savefig('query_times.png')

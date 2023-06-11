@@ -56,7 +56,7 @@ bar_positions2 = index + bar_width
 
 # Plot the bars
 plt.bar(bar_positions1, values1, width=bar_width, label='write time')
-plt.bar(bar_positions2, values2, width=bar_width, label='query time')
+plt.bar(bar_positions2, values2, width=bar_width, label='100 random query time')
 
 # Add labels and title
 plt.xlabel('Record Count')

@@ -7,7 +7,7 @@ import numpy as np
 
 # inputs
 recordCount = 30000
-rectangleSizes = [0.05, 0.1, 0.2]
+windowSizes = [0.05, 0.1, 0.2]
 query_samples = 200
 
 # outputs
@@ -17,13 +17,13 @@ idxUpdates = []
 allPositives = []
 falsePositives = []
 
-for rectangleSize in rectangleSizes:
+for windowSize in windowSizes:
     # remove previous file
     os.system("rm test.*")
 
     # start load process
     process = subprocess.Popen(['./build/bin/load_data', 'dataset_json_long.txt', 'test', str(
-        recordCount), str(rectangleSize)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        recordCount), str(windowSize)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
     # get process output
     out, err = process.communicate()
@@ -60,7 +60,7 @@ for rectangleSize in rectangleSizes:
 
 
 # Define the data
-labels = list(map(str, rectangleSizes))
+labels = list(map(str, windowSizes))
 values1 = dbUpdates
 values2 = idxUpdates
 
@@ -75,9 +75,9 @@ plt.bar(bar_positions1, values1, width=bar_width, label='B-tree Updates')
 plt.bar(bar_positions2, values2, width=bar_width, label='R-tree Updates')
 
 # Add labels and title
-plt.xlabel('Rectangle Size')
+plt.xlabel('Window Size')
 plt.ylabel('Number of Updates')
-plt.title('Update Rates for Different Rectangle Sizes')
+plt.title('Update Rates for Different Window Sizes')
 
 # Set the x-axis tick labels
 plt.xticks(index + bar_width/2, labels)
@@ -91,7 +91,7 @@ plt.clf()
 
 
 # Define the data
-labels = list(map(str, rectangleSizes))
+labels = list(map(str, windowSizes))
 values1 = allPositives
 values2 = falsePositives
 
@@ -106,9 +106,9 @@ plt.bar(bar_positions1, values1, width=bar_width, label='All Positives')
 plt.bar(bar_positions2, values2, width=bar_width, label='False Positives')
 
 # Add labels and title
-plt.xlabel('Rectangle Size')
+plt.xlabel('Window Size')
 plt.ylabel('Number of Positives')
-plt.title('Number of Positive Query Results for Different Rectangle Sizes')
+plt.title('Number of Positive Query Results for Different Window Sizes')
 
 # Set the x-axis tick labels
 plt.xticks(index + bar_width/2, labels)

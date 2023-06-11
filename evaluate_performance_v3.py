@@ -7,7 +7,7 @@ import numpy as np
 
 # inputs
 recordCount = 50000
-rectangleSizes = [0.05, 0.1, 0.2]
+windowSizes = [0.05, 0.1, 0.2]
 query_samples = 200
 
 # outputs
@@ -21,13 +21,13 @@ queryTime = []
 filterTime = []
 idxWriteTime = []
 
-for rectangleSize in rectangleSizes:
+for windowSize in windowSizes:
     # remove previous file
     os.system("rm test.*")
 
     # start load process
     process = subprocess.Popen(['./build/bin/load_query', 'dataset_mixed_long.txt', 'test', str(
-        recordCount), str(rectangleSize)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        recordCount), str(windowSize)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
     # get process output
     out, err = process.communicate()
@@ -58,7 +58,7 @@ for rectangleSize in rectangleSizes:
 ##################################################
 
 # Define the data
-labels = list(map(str, rectangleSizes))
+labels = list(map(str, windowSizes))
 values1 = dbUpdates
 values2 = idxUpdates
 
@@ -73,9 +73,9 @@ plt.bar(bar_positions1, values1, width=bar_width, label='B-tree Updates')
 plt.bar(bar_positions2, values2, width=bar_width, label='R-tree Updates')
 
 # Add labels and title
-plt.xlabel('Rectangle Size')
+plt.xlabel('Window Size')
 plt.ylabel('Number of Updates')
-plt.title('Update Rates for Different Rectangle Sizes')
+plt.title('Update Rates for Different Window Sizes')
 
 # Set the x-axis tick labels
 plt.xticks(index + bar_width/2, labels)
@@ -90,7 +90,7 @@ plt.clf()
 ##################################################
 
 # Define the data
-labels = list(map(str, rectangleSizes))
+labels = list(map(str, windowSizes))
 values1 = allPositives
 values2 = falsePositives
 
@@ -105,9 +105,9 @@ plt.bar(bar_positions1, values1, width=bar_width, label='All Positives')
 plt.bar(bar_positions2, values2, width=bar_width, label='False Positives')
 
 # Add labels and title
-plt.xlabel('Rectangle Size')
+plt.xlabel('Window Size')
 plt.ylabel('Number of Positives')
-plt.title('Number of Positive Query Results for Different Rectangle Sizes')
+plt.title('Number of Positive Query Results for Different Window Sizes')
 
 # Set the x-axis tick labels
 plt.xticks(index + bar_width/2, labels)
@@ -122,7 +122,7 @@ plt.clf()
 ##################################################
 
 # Define the data
-labels = list(map(str, rectangleSizes))
+labels = list(map(str, windowSizes))
 values1 = queryTime
 values2 = filterTime
 
@@ -137,9 +137,9 @@ plt.bar(bar_positions1, values1, width=bar_width, label='Query Time')
 plt.bar(bar_positions2, values2, width=bar_width, label='Filter Time')
 
 # Add labels and title
-plt.xlabel('Rectangle Size')
+plt.xlabel('Window Size')
 plt.ylabel('Time (seconds)')
-plt.title('Query and Filter times For Different Rectangle Sizes')
+plt.title('Query and Filter times For Different Window Sizes')
 
 # Set the x-axis tick labels
 plt.xticks(index + bar_width/2, labels)
@@ -154,12 +154,12 @@ plt.clf()
 #####################################################################
 
 # Plot the bar chart
-plt.bar(list(map(str, rectangleSizes)), idxWriteTime)
+plt.bar(list(map(str, windowSizes)), idxWriteTime)
 
 # Add labels and title
-plt.xlabel('Rectangle size')
+plt.xlabel('Window size')
 plt.ylabel('Time (seconds)')
-plt.title('Write time of R-tree for Different Rectangle Sizes')
+plt.title('Write time of R-tree for Different Window Sizes')
 
 # Save the plot as a PNG file
 plt.savefig('idx_write_times.png')
