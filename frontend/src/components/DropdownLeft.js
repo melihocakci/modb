@@ -47,7 +47,7 @@ const DropdownLeft = () => {
         <a href="#" className="icon fa fa-camera" option="selectInterval" onClick={isClearPhase}>Camera</a>
         <a href="#" className="icon fa fa-cloud" option="showAllMbr" onClick={isClearPhase}>The Cloud</a>
         <a href="#" className="icon fa fa-bell" option="takeSnapshot" onClick={isClearPhase}>Alerts</a>
-        <a href="#" className="icon fa fa-search" option="selectParameter" onClick={isClearPhase}>Shipyards</a>
+        <a href="#" className="icon fa fa-search" option="queryIntersection">Shipyards</a>
         <a href="#" className="icon fa fa-area-chart" option="showStatistics" onClick={isClearPhase}>Stats</a>
       </nav>
     </div>
