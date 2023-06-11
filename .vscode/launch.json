@@ -82,7 +82,7 @@
             "name": "load_bdb_websocket",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/load_bdb_websocket",
+            "program": "${workspaceFolder}/build/bin/   ",
             "args": [
                 "test"
             ],

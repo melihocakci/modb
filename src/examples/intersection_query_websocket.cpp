@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
     for (modb::Object& object : resultset) {
         std::stringstream ss;
         std:: cout << "writing to pipe : " << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
-        ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
+        ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude();
         pipeWriter << ss.str() << std::endl;
     }
 
@@ -84,6 +84,7 @@ int main(int argc, char** argv) {
         
         /* code */
         sendDataWs.isJoined.store(true);
+        pipeWriter.close();
         dataSendProcess.join();
     }
     catch(const std::exception& e)

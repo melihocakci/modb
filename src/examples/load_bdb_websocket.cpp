@@ -59,14 +59,15 @@ void load_data( const std::string dbName ) {
         // Write to the pipe
         std::stringstream ss;
 
-        ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
-        pipeWriter << ss.str();
+        ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() ;
+        pipeWriter << ss.str() << std::endl;
     });
     
     try
     {
         /* code */
         sendDataWs.isJoined.store(true);
+        pipeWriter.close();
         dataSendProcess.join();
     }
     catch(const std::exception& e)
