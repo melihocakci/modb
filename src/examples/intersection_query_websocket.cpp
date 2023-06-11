@@ -13,24 +13,13 @@
 #include <sstream>
 #include <signal.h>
 
-void mainSIGINT(int param)
-{
-}
+// void mainSIGINT(int param)
+// {
+// }
 
-void executeQuery(std::string dbName, modb::Region queryRegion) {
-    modb::DatabaseManager db{dbName, DB_BTREE, DB_READ_COMMITTED};
-
-    std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
-
-    for (modb::Object& object : resultset) {
-        std::cout << object.id() << '\n';
-    }
-
-    std::unique_ptr<modb::Stats> stats = db.getStats();
-
-    std::cerr << "number of all positives: " << stats->allPositives << std::endl;
-    std::cerr << "number of false positives: " << stats->falsePositives << std::endl << std::endl;
-}
+// void executeQuery(std::string dbName, modb::Region queryRegion, std::ofstream& pipeWriter) {
+    
+// }
 
 int main(int argc, char** argv) {
     if (argc != 2) {
@@ -57,24 +46,50 @@ int main(int argc, char** argv) {
         std::cerr << "Failed to open the named pipe for writing." << std::endl;
     }
 
+    pipeWriter << "onur" << std::endl;
 
     std::string dbName = argv[1];
 
     modb::Region queryRegion = {
         {
-            {sender.firstPoint().latitude()},
-            {sender.firstPoint().longitude()}
+            {sender.firstPoint().longitude()},
+            {sender.firstPoint().latitude()}
         },
         {
-            {sender.secondPoint().latitude()},
-            {sender.secondPoint().longitude()}
+            {sender.secondPoint().longitude()},
+            {sender.secondPoint().latitude()}
         }
     };
 
-    signal(SIGINT, mainSIGINT);
+    // signal(SIGINT, mainSIGINT);
 
     try {
-        executeQuery(dbName, queryRegion);
+        modb::DatabaseManager db{dbName, DB_BTREE, DB_READ_COMMITTED};
+
+        std::vector<modb::Object> resultset = db.intersectionQuery(queryRegion);
+
+        for (modb::Object& object : resultset) {
+            std::stringstream ss;
+            std:: cout << "writing to pipe : " << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
+            ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl;
+            pipeWriter << ss.str();
+        }
+
+        std::unique_ptr<modb::Stats> stats = db.getStats();
+
+        std::cerr << "number of all positives: " << stats->allPositives << std::endl;
+        std::cerr << "number of false positives: " << stats->falsePositives << std::endl << std::endl;
+        try
+        {
+            
+            /* code */
+            sendDataWs.isJoined.store(true);
+            dataSendProcess.join();
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
     }
     catch (DbException& e)
     {

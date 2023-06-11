@@ -234,7 +234,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/build/bin/intersection_query",
             "args": [
-                "test",
+                "/home/onur/moving-object-db-system/test",
                 "-82",
                 "27",
                 "-81",
@@ -264,7 +264,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/build/bin/intersection_query_websocket",
             "args": [
-                "test"
+                "/home/onur/moving-object-db-system/test"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
