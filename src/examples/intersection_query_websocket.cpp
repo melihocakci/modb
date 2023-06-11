@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
         std::cerr << "Failed to open the named pipe for writing." << std::endl;
     }
 
-    pipeWriter << "onur" << std::endl;
+    // pipeWriter << "onur" << std::endl;
 
     std::string dbName = argv[1];
 

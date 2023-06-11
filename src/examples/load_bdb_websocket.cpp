@@ -59,8 +59,8 @@ void load_data( const std::string dbName ) {
         // Write to the pipe
         std::stringstream ss;
 
-        ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() ;
-        pipeWriter << ss.str() << std::endl;
+        ss << "point," << object.id() << "," << object.baseLocation().latitude() << "," << object.baseLocation().longitude() << std::endl ;
+        pipeWriter << ss.str() ;
     });
     
     try
