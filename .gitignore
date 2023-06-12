@@ -1,6 +1,9 @@
 build/
 debug/
 release/
+node_modules/
+
+lib/pistache
 
 appsetting.json
 

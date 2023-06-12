@@ -7,4 +7,6 @@ add_library(modb OBJECT
     IndexVisitor.cpp
     Common.cpp
     Timer.cpp
+    SendDataWS.cpp
+    IntersectionSendOption.cpp
 )
