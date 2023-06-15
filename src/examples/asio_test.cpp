@@ -74,9 +74,9 @@ private:
             &queryRegion.pointHigh().latitude()
         );
 
-        std::vector<modb::Object> resultset = db_->intersectionQuery(queryRegion);
+        auto [truePositives, falsePositives] = db_->intersectionQuery(queryRegion);
 
-        std::for_each(resultset.begin(), resultset.end(),
+        std::for_each(truePositives.begin(), truePositives.end(),
             [&](const modb::Object& object) {
                 reply->append(object.id() + '\n');
             }
@@ -137,7 +137,8 @@ void dataLoader(std::shared_ptr<modb::DatabaseManager> db) {
 
 int main(int argc, char** argv) {
     if (argc != 3) {
-        std::cerr << "usage:\nasio_test <database-name> <port-number>" << std::endl;
+        std::cerr << "usage:\n";
+        std::cerr << "asio_test <database-name> <port-number>" << std::endl;
         return -1;
     }
 

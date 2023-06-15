@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # inputs
-recordCount = 40000
+recordCount = 10000
 mbrSizes = [0.05, 0.1, 0.2]
 query_samples = 200
 
@@ -22,7 +22,7 @@ for mbrSize in mbrSizes:
     os.system("rm test.*")
 
     # start load process
-    process = subprocess.Popen(['./build/bin/load_data', 'test_data_long.txt', 'test', str(
+    process = subprocess.Popen(['./build/bin/load_data', 'dataset_json_long.txt', 'test', str(
         recordCount), str(mbrSize)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
     # get process output

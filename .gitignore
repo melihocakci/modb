@@ -21,3 +21,5 @@ res2
 *.pyc
 result_*
 *.png
+__db.*
+log.*

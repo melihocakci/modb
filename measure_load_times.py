@@ -18,7 +18,7 @@ for recordCount in recordCounts:
 
     start = time.time()
     # start load process
-    os.system('./build/bin/load_data test_data_long.txt test ' +
+    os.system('./build/bin/load_data dataset_json_long.txt test ' +
               str(recordCount) + ' 0.4')
     end = time.time()
 

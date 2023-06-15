@@ -8,4 +8,5 @@ add_library(modb OBJECT
     Common.cpp
     SendDataWS.cpp
     IntersectionSendOption.cpp
+    Timer.cpp
 )

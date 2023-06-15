@@ -15,10 +15,10 @@ private:
 
 public:
     MyQueryStrategy() : gp{}, counter{ 1 } {
-        gp << "set xrange [-200:200]\n"
-            << "set yrange [-100:100]\n"
+        gp << "set xrange [-180:180]\n"
+            << "set yrange [-90:90]\n"
             << "set terminal png size 3840, 2160\n"
-            << "set output 'output.png'\n";
+            << "set output 'analyze_data.png'\n";
     }
 
     ~MyQueryStrategy()
@@ -105,7 +105,8 @@ public:
 int main(int argc, char** argv)
 {
     if (argc != 2) {
-        std::cerr << "usage:\nanalyze_db <db-name>" << std::endl;
+        std::cerr << "usage:\n";
+        std::cerr << "analyze_data <db-name>" << std::endl;
         return -1;
     }
 

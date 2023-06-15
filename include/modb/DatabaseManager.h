@@ -36,18 +36,25 @@ namespace modb {
     } RECORD_WRITE_OPTION;
 
     struct Stats {
+        inline ~Stats() {
+            delete dbStats;
+            delete idxStats;
+        }
+
         int dbUpdates;
         int idxUpdates;
         int queries;
         int allPositives;
         int falsePositives;
-        std::unique_ptr<DB_BTREE_STAT> dbStats;
-        std::unique_ptr<SpatialIndex::IStatistics> idxStats;
-        int64_t dbPutTime;
-        int64_t dbGetTime;
-        int64_t idxPutTime;
+
+        int64_t dbWriteTime;
+        int64_t dbReadTime;
+        int64_t idxWriteTime;
         int64_t queryTime;
         int64_t filterTime;
+
+        DB_BTREE_STAT* dbStats;
+        SpatialIndex::IStatistics* idxStats;
     };
 
     class DatabaseManager
@@ -61,7 +68,7 @@ namespace modb {
         int getObject(const std::size_t id, Object& retObject);
         int getObject(const std::string& id, Object& retObject);
 
-        std::vector<Object> intersectionQuery(const Region& queryRegion);
+        std::tuple<std::vector<modb::Object>, std::vector<modb::Object>> intersectionQuery(const Region& queryRegion);
 
         void forEach(std::function<void(const Object& object)> callback);
 
@@ -69,17 +76,20 @@ namespace modb {
 
         std::unique_ptr<modb::Stats> getStats();
 
-        ~DatabaseManager() = default;
+        ~DatabaseManager();
 
     private:
         int putObjectDB(const Object& object);
+        void insertIndex(const int64_t id, const modb::Region& region);
+        void deleteIndex(const int64_t id, const modb::Region& region);
 
         std::string serialize(const Object& object);
         void deserialize(const std::string& data, Object& object);
 
         void safeModLog(const std::string&);
 
-        Db m_database; // bdb source, there will be generic class for all DB later
+        DbEnv* m_env;
+        Db* m_database; // bdb source, there will be generic class for all DB later
         modb::IndexManager m_index;
         std::string m_name;
         uint32_t m_flags;
@@ -92,18 +102,7 @@ namespace modb {
         double m_mbrSize;
 
         // statistic members
-        std::atomic<int> m_dbUpdates;
-        std::atomic<int> m_idxUpdates;
-    
-        std::atomic<int> m_queries;
-        std::atomic<int> m_allPositives;
-        std::atomic<int> m_falsePositives;
-
-        std::atomic<int64_t> m_dbPutTime;
-        std::atomic<int64_t> m_dbGetTime;
-        std::atomic<int64_t> m_idxPutTime;
-        std::atomic<int64_t> m_queryTime;
-        std::atomic<int64_t> m_filterTime;
+        modb::Stats m_stats;
     };
 }
 

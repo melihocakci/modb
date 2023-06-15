@@ -1,6 +1,7 @@
 #include <modb/Object.h>
 #include <modb/DatabaseManager.h>
 #include <modb/Common.h>
+#include <modb/Timer.h>
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -14,24 +15,36 @@ using nlohmann::json;
 const std::hash<std::string> hasher;
 
 modb::DatabaseManager::DatabaseManager(const std::string& dbName, DBTYPE dbType, uint32_t flags, double mbrSize) :
-    m_database{ NULL, 0 },
     m_index{ dbName },
     m_name{ dbName },
     m_flags{ flags },
     m_mbrSize{ mbrSize },
-    m_dbUpdates{ 0 },
-    m_idxUpdates{ 0 },
-    m_queries{ 0 },
-    m_allPositives{ 0 },
-    m_falsePositives{ 0 },
-    m_dbPutTime{ 0 },
-    m_dbGetTime{ 0 },
-    m_idxPutTime{ 0 },
-    m_queryTime{ 0 },
-    m_filterTime{ 0 }
+    m_stats{}
 {
-    m_database.set_error_stream(&std::cerr);
-    m_database.open(NULL, (m_name + ".db").c_str(), NULL, dbType, m_flags, 0);
+    m_env = new DbEnv{ (uint32_t)0 };
+    m_env->set_error_stream(&std::cerr);
+    m_env->set_cache_max(0, 400 * 1024 * 1024);
+    m_env->set_cachesize(0, 200 * 1024 * 1024, 0);
+    m_env->set_lg_bsize(10 * 1024 * 1024);
+    m_env->set_lg_max(10 * 1024 * 1024);
+    m_env->set_flags(DB_TXN_NOSYNC | DB_NOLOCKING, 1);
+    // m_env->set_flags(DB_AUTO_COMMIT, 1);
+    m_env->open(".", DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE, 0);
+
+    m_database = new Db{ m_env, 0 };
+    m_database->set_error_stream(&std::cerr);
+    m_database->set_pagesize(4096);
+    // m_database->set_flags(DB_REVSPLITOFF);
+    // m_database->set_flags(DB_TXN_WRITE_NOSYNC);
+    m_database->open(NULL, (m_name + ".db").c_str(), NULL, dbType, m_flags, 0);
+}
+
+modb::DatabaseManager::~DatabaseManager() {
+    m_database->close(0);
+    delete m_database;
+
+    m_env->close(0);
+    delete m_env;
 }
 
 std::string modb::DatabaseManager::serialize(const modb::Object& object) {
@@ -57,19 +70,42 @@ int modb::DatabaseManager::putObjectDB(const Object& object) {
     Dbt key{ &hashedId, static_cast<uint32_t>(sizeof(hashedId)) };
     Dbt value{ const_cast<char*>(objectData.data()), static_cast<uint32_t>(objectData.length()) };
 
-    int ret = m_database.put(NULL, &key, &value, 0);
+    int ret;
+
+    {
+        modb::Timer timer{&m_stats.dbWriteTime};
+
+        ret = m_database->put(NULL, &key, &value, 0);
+    }
 
     return ret;
 }
 
+void modb::DatabaseManager::insertIndex(const int64_t id, const modb::Region& region) {
+    modb::Timer timer{&m_stats.idxWriteTime};
+
+    m_index.insertIndex(id, region);
+}
+
+void modb::DatabaseManager::deleteIndex(const int64_t id, const modb::Region& region) {
+    modb::Timer timer{&m_stats.idxWriteTime};
+
+    m_index.deleteIndex(id, region);
+}
+
 int modb::DatabaseManager::getObject(const std::size_t hashedId, Object& retObject) {
+
     Dbc* cursorp;
-    m_database.cursor(NULL, &cursorp, 0);
+    m_database->cursor(NULL, &cursorp, 0);
 
     Dbt key{ const_cast<std::size_t*>(&hashedId), static_cast<uint32_t>(sizeof(hashedId)) };
 
     Dbt data;
-    int ret = cursorp->get(&key, &data, DB_SET);
+    int ret;
+    {
+        modb::Timer timer{&m_stats.dbReadTime};
+        ret = cursorp->get(&key, &data, DB_SET);
+    }
 
     if (ret) {
         // empty result
@@ -99,12 +135,7 @@ void modb::DatabaseManager::safeModLog(const std::string& logMessage) {
 int modb::DatabaseManager::putObject(const Object& object) {
     modb::Object oldObject{};
 
-    // auto start = std::chrono::system_clock::now();
     int ret = getObject(object.id(), oldObject);
-    // auto end = std::chrono::system_clock::now();
-
-    // auto diff = end - start;
-    // m_dbGetTime += diff.count();
 
     if (ret) // object not found 
     {
@@ -124,7 +155,7 @@ int modb::DatabaseManager::putObject(const Object& object) {
             return ret;
         }
 
-        m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
+        insertIndex(hasher(object.id()), newObject.mbrRegion());
     }
     else // object found
     {
@@ -151,43 +182,58 @@ int modb::DatabaseManager::putObject(const Object& object) {
             }
 
             // update the index
-            m_index.deleteIndex(hasher(object.id()), oldObject.mbrRegion());
-            m_index.insertIndex(hasher(object.id()), newObject.mbrRegion());
+            deleteIndex(hasher(object.id()), oldObject.mbrRegion());
+            insertIndex(hasher(object.id()), newObject.mbrRegion());
 
-            m_idxUpdates++;
+            m_stats.idxUpdates++;
         }
 
-        m_dbUpdates++;
+        m_stats.dbUpdates++;
     }
 
 
     return 0;
 }
 
-std::vector<modb::Object> modb::DatabaseManager::intersectionQuery(const modb::Region& queryRegion) {
-    std::vector<SpatialIndex::id_type> indexResults = m_index.intersectionQuery(queryRegion);
-    std::vector<modb::Object> filteredResults{};
+std::tuple<std::vector<modb::Object>, std::vector<modb::Object>> modb::DatabaseManager::intersectionQuery(const modb::Region& queryRegion) {
+    std::vector<SpatialIndex::id_type> indexResults;
 
-    modb::Object object;
-    for (SpatialIndex::id_type id : indexResults) {
-        getObject(id, object);
+    {
+        modb::Timer timer{&m_stats.queryTime};
 
-        if (pointWithinRegion(object.baseLocation(), queryRegion)) {
-            filteredResults.push_back(object);
+        indexResults = m_index.intersectionQuery(queryRegion);
+    }
+
+    std::vector<modb::Object> truePositives{};
+    std::vector<modb::Object> falsePositives{};
+
+    {
+        modb::Timer timer{&m_stats.filterTime};
+
+        modb::Object object;
+        for (SpatialIndex::id_type id : indexResults) {
+            getObject(id, object);
+
+            if (pointWithinRegion(object.baseLocation(), queryRegion)) {
+                truePositives.push_back(object);
+            }
+            else {
+                falsePositives.push_back(object);
+            }
         }
     }
 
     // for statistics
-    m_queries++;
-    m_allPositives += indexResults.size();
-    m_falsePositives += indexResults.size() - filteredResults.size();
+    m_stats.queries++;
+    m_stats.allPositives += indexResults.size();
+    m_stats.falsePositives += indexResults.size() - truePositives.size();
 
-    return filteredResults;
+    return { truePositives, falsePositives };
 }
 
 void modb::DatabaseManager::forEach(std::function<void(const modb::Object& object)> callback) {
     Dbc* cursor;
-    m_database.cursor(nullptr, &cursor, 0);
+    m_database->cursor(nullptr, &cursor, 0);
 
     Dbt key, data;
     while (cursor->get(&key, &data, DB_NEXT) == 0) {
@@ -207,23 +253,13 @@ void modb::DatabaseManager::queryStrategy(SpatialIndex::IQueryStrategy& queryStr
 }
 
 std::unique_ptr<modb::Stats> modb::DatabaseManager::getStats() {
-    auto stats = std::make_unique<modb::Stats>();
-
-    stats->dbUpdates = m_dbUpdates;
-    stats->idxUpdates = m_idxUpdates;
-    stats->queries = m_queries;
-    stats->allPositives = m_allPositives;
-    stats->falsePositives = m_falsePositives;
+    auto stats = std::make_unique<modb::Stats>(m_stats);
 
     // get bdb statistics
-    DB_BTREE_STAT* dbStats;
-    m_database.stat(nullptr, &dbStats, DB_READ_COMMITTED);
-    stats->dbStats = std::unique_ptr<DB_BTREE_STAT>{ dbStats };
+    m_database->stat(nullptr, &stats->dbStats, DB_READ_COMMITTED);
 
     // get spatialindex statistics
-    SpatialIndex::IStatistics* idxStats;
-    m_index.getStatistics(&idxStats);
-    stats->idxStats = std::unique_ptr<SpatialIndex::IStatistics>{ idxStats };
+    m_index.getStatistics(&stats->idxStats);
 
     return stats;
 }

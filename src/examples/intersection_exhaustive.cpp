@@ -37,7 +37,8 @@ void exhaustive(const modb::Region& queryRegion) {
 
 int main(int argc, char** argv) {
     if (argc != 6) {
-        std::cerr << "usage:\ntest_modb <database name> <pointlow longitude> <pointlow latitude> <pointhigh longitude> <pointhigh latitude>" << std::endl;
+        std::cerr << "usage:\n";
+        std::cerr << "intersection_exhaustive <database name> <pointlow longitude> <pointlow latitude> <pointhigh longitude> <pointhigh latitude>" << std::endl;
         return -1;
     }
 

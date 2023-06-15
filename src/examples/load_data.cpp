@@ -72,7 +72,8 @@ void load_data(const std::string inputFile, const std::string dbName, int lineNu
 
 int main(int argc, char** argv) {
     if (argc != 5) {
-        std::cerr << "usage:\nload_data <input-file> <db-name> <record-number> <mbr-size>" << std::endl;
+        std::cerr << "usage:\n";
+        std::cerr << "load_data <input-file> <db-name> <record-number> <mbr-size>" << std::endl;
         return -1;
     }
 
