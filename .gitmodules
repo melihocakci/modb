@@ -7,3 +7,6 @@
 [submodule "lib/pistache"]
 	path = lib/pistache
 	url = https://github.com/pistacheio/pistache.git
+[submodule "src/simulation_flock/BoidsWebGPU"]
+	path = src/simulation_flock/BoidsWebGPU
+	url = https://github.com/onrdmr/BoidsWebGPU.git
