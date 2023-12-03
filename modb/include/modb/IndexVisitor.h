@@ -1,5 +1,4 @@
-#ifndef INDEXVISITOR_H
-#define INDEXVISITOR_H
+#pragma once
 
 #include <spatialindex/SpatialIndex.h>
 
@@ -20,5 +19,3 @@ namespace modb
         void visitData(std::vector<const SpatialIndex::IData*>& v) override;
     };
 }
-
-#endif

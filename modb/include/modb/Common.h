@@ -1,10 +1,7 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 #include <modb/Region.h>
 
 namespace modb {
     bool pointWithinRegion(const Point& point, const Region& region);
 }
-
-#endif

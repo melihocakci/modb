@@ -1,5 +1,4 @@
-#ifndef INDEXMANAGER_H
-#define INDEXMANAGER_H
+#pragma once
 
 #include <modb/Object.h>
 
@@ -47,5 +46,3 @@ namespace modb
     };
 
 }
-
-#endif

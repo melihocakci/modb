@@ -1,5 +1,4 @@
-#ifndef SENDOPTION_H
-#define SENDOPTION_H
+#pragma once
 
 #include <iostream>
 
@@ -23,5 +22,3 @@ namespace modb
         };
     }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef DATABASEMANAGER_H
-#define DATABASEMANAGER_H
+#pragma once
 
 #include <modb/Object.h>
 #include <modb/IndexManager.h>
@@ -105,6 +104,3 @@ namespace modb {
         modb::Stats m_stats;
     };
 }
-
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef REGION_H
-#define REGION_H
+#pragma once
 
 #include <modb/Point.h>
 
@@ -40,5 +39,3 @@ namespace modb {
     };
 
 }
-
-#endif

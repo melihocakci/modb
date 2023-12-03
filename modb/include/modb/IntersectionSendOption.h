@@ -1,5 +1,4 @@
-#ifndef INTERSECTIONSENDOPTION_H
-#define INTERSECTIONSENDOPTION_H
+#pragma once
 
 #include <modb/SendDataWS.h>
 #include <modb/SendOption.h>
@@ -27,5 +26,3 @@ namespace modb
 
     }
 }
-
-#endif

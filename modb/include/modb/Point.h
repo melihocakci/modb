@@ -1,5 +1,4 @@
-#ifndef POINT_H
-#define POINT_H
+#pragma once
 
 #include <nlohmann/json.hpp>
 
@@ -37,5 +36,3 @@ namespace modb {
         double m_latitude;
     };
 }
-
-#endif

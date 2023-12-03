@@ -1,5 +1,4 @@
-#ifndef TIMER_H
-#define TIMER_H
+#pragma once
 
 #include <atomic>
 #include <chrono>
@@ -17,5 +16,3 @@ namespace modb {
         std::chrono::_V2::system_clock::time_point m_end;
     };
 }
-
-#endif

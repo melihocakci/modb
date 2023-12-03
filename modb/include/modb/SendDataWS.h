@@ -1,6 +1,4 @@
-#ifndef SENDDATAWS_H
-#define SENDDATAWS_H
-
+#pragma once
 
 #include <boost/beast/core.hpp> 
 #include <boost/beast/websocket.hpp>
@@ -55,4 +53,3 @@ namespace modb
     }
 
 }
-#endif
