@@ -9,7 +9,7 @@ add_compile_options(-Wall -Werror)
 
 add_link_options(-pie)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 
 ############################## libraries ##############################
