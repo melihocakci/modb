@@ -4,6 +4,3 @@
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/nlohmann/json.git
-[submodule "lib/pistache"]
-	path = lib/pistache
-	url = https://github.com/pistacheio/pistache.git
