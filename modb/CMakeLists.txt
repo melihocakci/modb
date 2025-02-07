@@ -9,8 +9,6 @@ target_sources(${PROJECT_NAME}
         src/IndexManager.cpp
         src/IndexVisitor.cpp
         src/Common.cpp
-        src/SendDataWS.cpp
-        src/IntersectionSendOption.cpp
         src/Timer.cpp   
 )
 
@@ -23,10 +21,12 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         db_cxx
         spatialindex
-        nlohmann::json
+        boost_serialization
+        boost_iostreams
+        boost_filesystem
 )
 
-target_compile_options(${PROJECT_NAME}
+target_compile_options(${PROJECT_NAME} BEFORE
     PRIVATE
-        -fpic
+        -fpie
 )

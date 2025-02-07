@@ -1,6 +1,6 @@
 #include <modb/Region.h>
+#include <utility>
 
-using nlohmann::json;
 using modb::Region;
 using modb::Point;
 
@@ -19,10 +19,6 @@ Region::Region(Region&& other) :
 Region::Region(const Point& pointLow, const Point& poingHigh) :
     m_pointLow{ pointLow },
     m_pointHigh{ poingHigh } {}
-
-Region::Region(const json& mbrRegion) :
-    m_pointLow{ mbrRegion["pointLow"] },
-    m_pointHigh{ mbrRegion["pointHigh"] } {}
 
 Region& Region::operator=(const Region& other) {
     m_pointLow = other.m_pointLow;

@@ -7,26 +7,14 @@ project(modb LANGUAGES CXX)
 
 add_compile_options(-Wall -Werror)
 
-add_link_options(-pie)
-
 set(CMAKE_CXX_STANDARD 20)
 
 
 ############################## libraries ##############################
 
 find_package(Boost REQUIRED COMPONENTS serialization iostreams filesystem)
-
-include_directories(
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_libraries(
-    ${Boost_LIBRARIES}
-)
-
-add_library(json INTERFACE)
-target_include_directories(json INTERFACE lib/json/single_include)
-add_library(nlohmann::json ALIAS json)
+include_directories(BEFORE SYSTEM ${Boost_INCLUDE_DIRS})
+link_directories(BEFORE ${Boost_LIBRARIES})
 
 
 ############################## options ##############################

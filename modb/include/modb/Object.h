@@ -3,8 +3,6 @@
 #include <modb/Point.h>
 #include <modb/Region.h>
 
-#include <nlohmann/json.hpp>
-
 #include <string>
 
 namespace modb {
@@ -20,8 +18,6 @@ namespace modb {
         Object(std::string id, Point baseLocation);
 
         Object(std::string id, Point baseLocation, Region mbrRegion);
-
-        Object(const nlohmann::json& json);
 
         Object& operator=(const Object& other);
 

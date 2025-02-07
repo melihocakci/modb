@@ -3,7 +3,6 @@
 #include <modb/Object.h>
 #include <modb/IndexManager.h>
 
-#include <nlohmann/json.hpp>
 #include <db_cxx.h>
 
 #include <iostream>

@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-using nlohmann::json;
 using modb::Object;
 using modb::Region;
 using modb::Point;
@@ -39,11 +38,6 @@ Object& Object::operator=(const Object& other) {
 
     return *this;
 }
-
-Object::Object(const json& json) :
-    m_oid{ json["id"] },
-    m_baseLocation{ json["baseLocation"] },
-    m_mbrRegion{ /*json["mbrRegion"]*/ } {}
 
 std::string& Object::id() { return m_oid; }
 const std::string& Object::id() const { return m_oid; }

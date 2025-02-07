@@ -3,7 +3,6 @@
 #include <utility>
 #include <memory>
 
-using nlohmann::json;
 using modb::Point;
 
 Point::Point() :
@@ -28,10 +27,6 @@ Point& Point::operator=(const Point& other) {
 
     return *this;
 }
-
-Point::Point(const json& baseLocation) :
-    m_longitude{ baseLocation["longitude"] },
-    m_latitude{ baseLocation["latitude"] } {}
 
 double& Point::longitude() { return m_longitude; }
 const double& Point::longitude() const { return m_longitude; }

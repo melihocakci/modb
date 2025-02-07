@@ -11,7 +11,6 @@
 #include <sstream>
 #include <functional>
 
-using nlohmann::json;
 const std::hash<std::string> hasher;
 
 modb::DatabaseManager::DatabaseManager(const std::string& dbName, DBTYPE dbType, uint32_t flags, double mbrSize) :

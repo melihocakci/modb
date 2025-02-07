@@ -1,7 +1,5 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 namespace modb {
     class Point {
     public:
@@ -12,8 +10,6 @@ namespace modb {
         Point(Point&& other);
 
         Point(double longitude, double latitude);
-
-        Point(const nlohmann::json& baseLocation);
 
         ~Point() = default;
 
