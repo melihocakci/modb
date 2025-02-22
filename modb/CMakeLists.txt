@@ -1,32 +1,15 @@
-add_library(${PROJECT_NAME} STATIC)
-
-target_sources(${PROJECT_NAME}
-    PRIVATE
-        src/Object.cpp
-        src/Point.cpp
-        src/Region.cpp
-        src/DatabaseManager.cpp
-        src/IndexManager.cpp
-        src/IndexVisitor.cpp
-        src/Common.cpp
-        src/Timer.cpp   
-)
+add_library(${PROJECT_NAME} INTERFACE)
 
 target_include_directories(${PROJECT_NAME}
-    PUBLIC
+    INTERFACE
         include
 )
 
 target_link_libraries(${PROJECT_NAME}
-    PUBLIC
+    INTERFACE
         db_cxx
         spatialindex
         boost_serialization
         boost_iostreams
         boost_filesystem
-)
-
-target_compile_options(${PROJECT_NAME} BEFORE
-    PRIVATE
-        -fpie
 )

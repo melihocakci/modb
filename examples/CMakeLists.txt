@@ -2,9 +2,9 @@ link_libraries(modb)
 
 ###################################################################
 
-add_executable(load_data
-    src/load_data.cpp
-)
+# add_executable(load_data
+#     src/load_data.cpp
+# )
 
 # add_executable(analyze_data
 #     src/analyze_data.cpp
@@ -54,3 +54,7 @@ add_executable(load_data
 # add_executable(intersection_plot
 #     src/intersection_plot.cpp
 # )
+
+add_executable(refactor
+    src/refactor.cpp
+)
