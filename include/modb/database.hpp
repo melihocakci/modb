@@ -46,7 +46,7 @@ namespace modb
 
             modb::object<T, N> obj{ id, location, keep_region ? result.second.region : generate_region(location), data };
 
-            int ret = put_object(obj);
+            int ret = put_object_db(obj);
             if (ret) {
                 return ret;
             }
@@ -58,70 +58,33 @@ namespace modb
             return 0;
         }
 
-        // std::tuple<std::vector<modb::Object>, std::vector<modb::Object>> intersection_query(const modb::rectangle<N>& query_region) {
-        //     std::vector<SpatialIndex::id_type> indexResults;
+        std::vector<modb::object<T, N>> intersection_query(const modb::rectangle<N>& query_region) const noexcept {
+            std::vector<int64_t> index_results = intersection_query_idx(query_region);
 
+            std::vector<modb::object<T, N>> true_positives;
 
-        //     indexResults = intersection_query(query_region);
+            for (int64_t id : index_results) {
+                modb::object obj = get_object(id);
 
-        //     std::vector<modb::Object> truePositives{};
-        //     std::vector<modb::Object> falsePositives{};
+                if (intersects(obj.location, query_region)) {
+                    true_positives.push_back(std::move(obj));
+                }
+            }
 
-        //     {
-        //         modb::Timer timer{ &m_stats.filterTime };
+            return true_positives;
+        }
 
-        //         modb::Object object;
-        //         for (SpatialIndex::id_type id : indexResults) {
-        //             getObject(id, object);
+        void for_each(std::function<void(const modb::object<T, N>& obj)> callback) const noexcept {
+            Dbc* cursor;
+            db->cursor(nullptr, &cursor, 0);
 
-        //             if (pointWithinRegion(object.baseLocation(), queryRegion)) {
-        //                 truePositives.push_back(object);
-        //             }
-        //             else {
-        //                 falsePositives.push_back(object);
-        //             }
-        //         }
-        //     }
+            Dbt key, data;
+            while (cursor->get(&key, &data, DB_NEXT) == 0) {
+                callback(deserialize(data.get_data(), data.get_size()));
+            }
 
-        //     // for statistics
-        //     m_stats.queries++;
-        //     m_stats.allPositives += indexResults.size();
-        //     m_stats.falsePositives += indexResults.size() - truePositives.size();
-
-        //     return { truePositives, falsePositives };
-        // }
-
-        // void forEach(std::function<void(const modb::Object& object)> callback) {
-        //     Dbc* cursor;
-        //     m_database->cursor(nullptr, &cursor, 0);
-
-        //     Dbt key, data;
-        //     while (cursor->get(&key, &data, DB_NEXT) == 0) {
-        //         modb::Object object;
-
-        //         deserialize(std::string(static_cast<char*>(data.get_data()), data.get_size()), object);
-
-        //         callback(object);
-        //     }
-
-        //     cursor->close();
-        // }
-
-        // void queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
-        //     m_index.queryStrategy(queryStrategy);
-        // }
-
-        // std::unique_ptr<modb::Stats> getStats() {
-        //     auto stats = std::make_unique<modb::Stats>(m_stats);
-
-        //     // get bdb statistics
-        //     m_database->stat(nullptr, &stats->dbStats, DB_READ_COMMITTED);
-
-        //     // get spatialindex statistics
-        //     m_index.getStatistics(&stats->idxStats);
-
-        //     return stats;
-        // }
+            cursor->close();
+        }
 
     private:
         bool intersects(const modb::point<N>& location, const modb::rectangle<N>& region) const noexcept {
@@ -165,7 +128,7 @@ namespace modb
             return obj;
         }
 
-        int put_object(const modb::object<T, N>& obj) const noexcept {
+        int put_object_db(const modb::object<T, N>& obj) const noexcept {
             std::string object_data = serialize(obj);
 
             Dbt key{ &obj.id, sizeof(obj.id) };
@@ -201,7 +164,7 @@ namespace modb
             idx->insertData(0, nullptr, spatial_region, id);
         }
 
-        std::vector<int64_t> intersection_query(const modb::rectangle<N>& query_region) const noexcept {
+        std::vector<int64_t> intersection_query_idx(const modb::rectangle<N>& query_region) const noexcept {
             SpatialIndex::Region spatial_region = to_spatial_region(query_region);
             index_visitor vis;
 
