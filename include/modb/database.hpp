@@ -1,78 +1,29 @@
 #pragma once
 
 #include <modb/data_structures.hpp>
+#include <modb/db_container.hpp>
+#include <modb/idx_container.hpp>
 #include <spatialindex/SpatialIndex.h>
 #include <db_cxx.h>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <mutex>
-#include <filesystem>
-#include <memory>
+#include <string>
 #include <utility>
 
 namespace modb
 {
-    namespace fs = std::filesystem;
-
     template <typename T, int N> requires (N > 0)
         class database
     {
     public:
-        database(std::string_view db_name) :
-            db_name{ db_name }
+        database(const std::string& name) noexcept :
+            db{ name },
+            idx{ name, N }
         {
-            initiate_db();
-            initiate_index();
         }
 
-        void initiate_db() {
-            db_env = new DbEnv{ 0u };
-            db_env->set_error_stream(&std::cerr);
-            db_env->set_cache_max(0, 400 * 1024 * 1024);
-            db_env->set_cachesize(0, 200 * 1024 * 1024, 0);
-            db_env->set_lg_bsize(10 * 1024 * 1024);
-            db_env->set_lg_max(10 * 1024 * 1024);
-            db_env->set_flags(DB_TXN_NOSYNC | DB_NOLOCKING, 1);
-            // db_env->set_flags(DB_AUTO_COMMIT, 1);
-            db_env->open(".", DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE, 0);
-
-            db = new Db{ db_env, 0u };
-            db->set_error_stream(&std::cerr);
-            db->set_pagesize(4096);
-            // db->set_flags(DB_REVSPLITOFF);
-            // db->set_flags(DB_TXN_WRITE_NOSYNC);
-            db->open(NULL, (db_name + ".db").c_str(), NULL, DB_BTREE, DB_CREATE, 0);
-        }
-
-        void initiate_index() {
-            if (fs::exists(db_name + ".idx") && fs::exists(db_name + ".dat")) {
-                idx_file = SpatialIndex::StorageManager::loadDiskStorageManager(db_name);
-                idx_buffer = SpatialIndex::StorageManager::createNewRandomEvictionsBuffer(*idx_file, 10, false);
-                idx = SpatialIndex::RTree::loadRTree(*idx_buffer, 1);
-            }
-            else {
-                idx_file = SpatialIndex::StorageManager::createNewDiskStorageManager(db_name, 4096);
-                idx_buffer = SpatialIndex::StorageManager::createNewRandomEvictionsBuffer(*idx_file, 10, false);
-                SpatialIndex::id_type index_identifier;
-                idx = SpatialIndex::RTree::createNewRTree(*idx_buffer, 0.7, 32, 32, N, SpatialIndex::RTree::RV_RSTAR, index_identifier);
-            }
-        }
-
-        ~database() {
-            if (db) {
-                db->close(0);
-                delete db;
-            }
-
-            if (db_env) {
-                db_env->close(0);
-                delete db_env;
-            }
-
-            delete idx;
-            delete idx_buffer;
-            delete idx_file;
-        }
-
-        std::pair<int, modb::object<T, N>> get_object(const int64_t id) {
+        std::pair<int, modb::object<T, N>> get_object(const int64_t id) const noexcept {
             Dbc* cursor;
             db->cursor(NULL, &cursor, 0);
 
@@ -84,18 +35,18 @@ namespace modb
                 return { ret, {} };
             }
 
-            std::string_view data_string{ reinterpret_cast<char*>(value.get_data()), value.get_size() };
+            std::string_view data_string{ value.get_data(), value.get_size() };
             return { 0, deserialize(data_string) };
         }
 
-        int put_object(const int64_t id, const modb::point<N>& location, const T& data) {
-            auto result = get_object(object.id);
+        int put_object(const int64_t id, const modb::point<N>& location, const T& data) const noexcept {
+            std::pair<int, modb::object<T, N>> result = get_object(id);
 
             bool keep_region = result.first == 0 && intersects(location, result.second.region);
 
             modb::object<T, N> obj{ id, location, keep_region ? result.second.region : generate_region(location), data };
 
-            int ret = insert_object(obj);
+            int ret = put_object(obj);
             if (ret) {
                 return ret;
             }
@@ -107,73 +58,73 @@ namespace modb
             return 0;
         }
 
-        std::tuple<std::vector<modb::Object>, std::vector<modb::Object>> intersection_query(const modb::rectangle<N>& query_region) {
-            std::vector<SpatialIndex::id_type> indexResults;
+        // std::tuple<std::vector<modb::Object>, std::vector<modb::Object>> intersection_query(const modb::rectangle<N>& query_region) {
+        //     std::vector<SpatialIndex::id_type> indexResults;
 
-   
-            indexResults = intersection_query(query_region);
 
-            std::vector<modb::Object> truePositives{};
-            std::vector<modb::Object> falsePositives{};
+        //     indexResults = intersection_query(query_region);
 
-            {
-                modb::Timer timer{ &m_stats.filterTime };
+        //     std::vector<modb::Object> truePositives{};
+        //     std::vector<modb::Object> falsePositives{};
 
-                modb::Object object;
-                for (SpatialIndex::id_type id : indexResults) {
-                    getObject(id, object);
+        //     {
+        //         modb::Timer timer{ &m_stats.filterTime };
 
-                    if (pointWithinRegion(object.baseLocation(), queryRegion)) {
-                        truePositives.push_back(object);
-                    }
-                    else {
-                        falsePositives.push_back(object);
-                    }
-                }
-            }
+        //         modb::Object object;
+        //         for (SpatialIndex::id_type id : indexResults) {
+        //             getObject(id, object);
 
-            // for statistics
-            m_stats.queries++;
-            m_stats.allPositives += indexResults.size();
-            m_stats.falsePositives += indexResults.size() - truePositives.size();
+        //             if (pointWithinRegion(object.baseLocation(), queryRegion)) {
+        //                 truePositives.push_back(object);
+        //             }
+        //             else {
+        //                 falsePositives.push_back(object);
+        //             }
+        //         }
+        //     }
 
-            return { truePositives, falsePositives };
-        }
+        //     // for statistics
+        //     m_stats.queries++;
+        //     m_stats.allPositives += indexResults.size();
+        //     m_stats.falsePositives += indexResults.size() - truePositives.size();
 
-        void forEach(std::function<void(const modb::Object& object)> callback) {
-            Dbc* cursor;
-            m_database->cursor(nullptr, &cursor, 0);
+        //     return { truePositives, falsePositives };
+        // }
 
-            Dbt key, data;
-            while (cursor->get(&key, &data, DB_NEXT) == 0) {
-                modb::Object object;
+        // void forEach(std::function<void(const modb::Object& object)> callback) {
+        //     Dbc* cursor;
+        //     m_database->cursor(nullptr, &cursor, 0);
 
-                deserialize(std::string(static_cast<char*>(data.get_data()), data.get_size()), object);
+        //     Dbt key, data;
+        //     while (cursor->get(&key, &data, DB_NEXT) == 0) {
+        //         modb::Object object;
 
-                callback(object);
-            }
+        //         deserialize(std::string(static_cast<char*>(data.get_data()), data.get_size()), object);
 
-            cursor->close();
-        }
+        //         callback(object);
+        //     }
 
-        void queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
-            m_index.queryStrategy(queryStrategy);
-        }
+        //     cursor->close();
+        // }
 
-        std::unique_ptr<modb::Stats> getStats() {
-            auto stats = std::make_unique<modb::Stats>(m_stats);
+        // void queryStrategy(SpatialIndex::IQueryStrategy& queryStrategy) {
+        //     m_index.queryStrategy(queryStrategy);
+        // }
 
-            // get bdb statistics
-            m_database->stat(nullptr, &stats->dbStats, DB_READ_COMMITTED);
+        // std::unique_ptr<modb::Stats> getStats() {
+        //     auto stats = std::make_unique<modb::Stats>(m_stats);
 
-            // get spatialindex statistics
-            m_index.getStatistics(&stats->idxStats);
+        //     // get bdb statistics
+        //     m_database->stat(nullptr, &stats->dbStats, DB_READ_COMMITTED);
 
-            return stats;
-        }
+        //     // get spatialindex statistics
+        //     m_index.getStatistics(&stats->idxStats);
+
+        //     return stats;
+        // }
 
     private:
-        bool intersects(const modb::point<N>& location, const modb::rectangle<N>& region) {
+        bool intersects(const modb::point<N>& location, const modb::rectangle<N>& region) const noexcept {
             for (int i = 0; i < N; i++) {
                 if (location.coordinates[i] < region.min.coordinates[i] || location.coordinates[i] > region.max.coordinates[i]) {
                     return false;
@@ -183,7 +134,7 @@ namespace modb
             return true;
         }
 
-        modb::rectangle<N> generate_region(const modb::point<N>& location) {
+        modb::rectangle<N> generate_region(const modb::point<N>& location) const noexcept {
             constexpr double half_size = 0.15;
             modb::rectangle<N> region;
 
@@ -195,26 +146,26 @@ namespace modb
             return region;
         }
 
-        std::string serialize(const modb::object<T, N>& obj) {
-            std::ostringstream outputStream{};
-            boost::archive::binary_oarchive outputArchive{ outputStream };
+        std::string serialize(const modb::object<T, N>& obj) const noexcept {
+            std::ostringstream output_stream{};
+            boost::archive::binary_oarchive output_archive{ output_stream };
 
-            outputArchive << obj;
+            output_archive << obj;
 
-            return outputStream.str();
+            return output_stream.str();
         }
 
-        modb::object<T, N> deserialize(std::string_view data) {
-            std::istringstream inputStream{ data };
-            boost::archive::binary_iarchive inputArchive{ inputStream };
+        modb::object<T, N> deserialize(std::string_view data) const noexcept {
+            std::istringstream input_stream{ data };
+            boost::archive::binary_iarchive input_archive{ input_stream };
 
             modb::object<T, N> obj;
-            inputArchive >> obj;
+            input_archive >> obj;
 
             return obj;
         }
 
-        int insert_object(const modb::object<T, N>& obj) {
+        int put_object(const modb::object<T, N>& obj) const noexcept {
             std::string object_data = serialize(obj);
 
             Dbt key{ &obj.id, sizeof(obj.id) };
@@ -232,26 +183,25 @@ namespace modb
             }
         };
 
-        SpatialIndex::Region to_spatial_region(const modb::rectangle<N>& region) {
+        SpatialIndex::Region to_spatial_region(const modb::rectangle<N>& region) const noexcept {
             return SpatialIndex::Region{ region.min, region.max, N };
         }
 
-        void delete_index(const int64_t id, const modb::rectangle<N>& region) {
+        void delete_index(const int64_t id, const modb::rectangle<N>& region) const noexcept {
             SpatialIndex::Region spatial_region = to_spatial_region(region);
 
             std::lock_guard<std::mutex> guard{ idx_lock };
             idx->deleteData(spatial_region, id);
         }
 
-        void insert_index(const int64_t id, const modb::rectangle<N>& region) {
+        void insert_index(const int64_t id, const modb::rectangle<N>& region) const noexcept {
             SpatialIndex::Region spatial_region = to_spatial_region(region);
 
             std::lock_guard<std::mutex> guard{ idx_lock };
             idx->insertData(0, nullptr, spatial_region, id);
         }
 
-        std::vector<int64_t> intersection_query(const modb::rectangle<N>& query_region)
-        {
+        std::vector<int64_t> intersection_query(const modb::rectangle<N>& query_region) const noexcept {
             SpatialIndex::Region spatial_region = to_spatial_region(query_region);
             index_visitor vis;
 
@@ -264,14 +214,9 @@ namespace modb
         // todo: add knn query. It is not implemented in the original code.
 
 
-        std::string db_name;
+        modb::db_container db;
+        modb::idx_container idx;
+
         std::mutex idx_lock;
-
-        DbEnv* db_env;
-        Db* db;
-
-        SpatialIndex::IStorageManager* idx_file;
-        SpatialIndex::StorageManager::IBuffer* idx_buffer;
-        SpatialIndex::ISpatialIndex* idx;
     };
 }
