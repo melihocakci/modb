@@ -6,11 +6,11 @@
 namespace modb {
     template <int N>
     struct point {
-        std::array<double, N> coordinates;
+        double coordinates[N];
 
         template <class Archive>
         void serialize(Archive& ar, unsigned int) {
-            ar << coordinates;
+            ar& coordinates;
         }
     };
 
@@ -21,8 +21,8 @@ namespace modb {
 
         template <class Archive>
         void serialize(Archive& ar, unsigned int) {
-            ar << min;
-            ar << max;
+            ar& min;
+            ar& max;
         }
     };
 
@@ -35,10 +35,10 @@ namespace modb {
 
         template <class Archive>
         void serialize(Archive& ar, unsigned int) {
-            ar << id;
-            ar << location;
-            ar << region;
-            ar << data;
+            ar& id;
+            ar& location;
+            ar& region;
+            ar& data;
         }
     };
 }

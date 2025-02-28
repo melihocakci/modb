@@ -23,11 +23,11 @@ namespace modb
         {
         }
 
-        std::pair<int, modb::object<T, N>> get_object(const int64_t id) const noexcept {
+        std::pair<int, modb::object<T, N>> get_object(int64_t id) const noexcept {
             Dbc* cursor;
             db->cursor(NULL, &cursor, 0);
 
-            Dbt key{ id, sizeof(id) };
+            Dbt key{ &id, sizeof(id) };
             Dbt value;
             int ret = cursor->get(&key, &value, DB_SET);
 
@@ -35,24 +35,28 @@ namespace modb
                 return { ret, {} };
             }
 
-            std::string_view data_string{ value.get_data(), value.get_size() };
+            const std::string data_string{ reinterpret_cast<char*>(value.get_data()), value.get_size() };
             return { 0, deserialize(data_string) };
         }
 
         int put_object(const int64_t id, const modb::point<N>& location, const T& data) const noexcept {
-            std::pair<int, modb::object<T, N>> result = get_object(id);
+            const auto [get_ret, old_obj] = get_object(id);
 
-            bool keep_region = result.first == 0 && intersects(location, result.second.region);
+            bool update_region = get_ret != 0 || (get_ret == 0 && !intersects(location, old_obj.region));
 
-            modb::object<T, N> obj{ id, location, keep_region ? result.second.region : generate_region(location), data };
+            modb::object<T, N> new_obj{ id, location, update_region ? generate_region(location) : old_obj.region, data };
 
-            int ret = put_object_db(obj);
-            if (ret) {
-                return ret;
+            int put_ret = put_object_db(new_obj);
+            if (put_ret) {
+                return put_ret;
             }
 
-            if (!keep_region) {
-                insert_index(obj.id, obj.region);
+            if (update_region) {
+                if (get_ret == 0) {
+                    delete_index(id, old_obj.region);
+                }
+
+                insert_index(id, new_obj.region);
             }
 
             return 0;
@@ -80,7 +84,7 @@ namespace modb
 
             Dbt key, data;
             while (cursor->get(&key, &data, DB_NEXT) == 0) {
-                callback(deserialize(data.get_data(), data.get_size()));
+                callback(deserialize({ data.get_data(), data.get_size() }));
             }
 
             cursor->close();
@@ -118,7 +122,7 @@ namespace modb
             return output_stream.str();
         }
 
-        modb::object<T, N> deserialize(std::string_view data) const noexcept {
+        modb::object<T, N> deserialize(const std::string& data) const noexcept {
             std::istringstream input_stream{ data };
             boost::archive::binary_iarchive input_archive{ input_stream };
 
@@ -128,11 +132,11 @@ namespace modb
             return obj;
         }
 
-        int put_object_db(const modb::object<T, N>& obj) const noexcept {
+        int put_object_db(modb::object<T, N> obj) const noexcept {
             std::string object_data = serialize(obj);
 
             Dbt key{ &obj.id, sizeof(obj.id) };
-            Dbt value{ object_data.data(), object_data.length() };
+            Dbt value{ object_data.data(), static_cast<u_int32_t>(object_data.length()) };
 
             return db->put(NULL, &key, &value, 0);
         }
@@ -147,14 +151,14 @@ namespace modb
         };
 
         SpatialIndex::Region to_spatial_region(const modb::rectangle<N>& region) const noexcept {
-            return SpatialIndex::Region{ region.min, region.max, N };
+            return SpatialIndex::Region{ region.min.coordinates, region.max.coordinates, N };
         }
 
-        void delete_index(const int64_t id, const modb::rectangle<N>& region) const noexcept {
+        bool delete_index(const int64_t id, const modb::rectangle<N>& region) const noexcept {
             SpatialIndex::Region spatial_region = to_spatial_region(region);
 
             std::lock_guard<std::mutex> guard{ idx_lock };
-            idx->deleteData(spatial_region, id);
+            return idx->deleteData(spatial_region, id);
         }
 
         void insert_index(const int64_t id, const modb::rectangle<N>& region) const noexcept {
@@ -180,6 +184,6 @@ namespace modb
         modb::db_container db;
         modb::idx_container idx;
 
-        std::mutex idx_lock;
+        mutable std::mutex idx_lock;
     };
 }
