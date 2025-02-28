@@ -6,7 +6,7 @@
 #include <mutex>
 #include <filesystem>
 #include <memory>
-#include <optional>
+#include <utility>
 
 namespace modb
 {
@@ -67,83 +67,51 @@ namespace modb
                 delete db_env;
             }
 
-            std::lock_guard<std::mutex> lock{ idx_lock };
             delete idx;
             delete idx_buffer;
             delete idx_file;
         }
 
-        int putObject(const Object& object) {
-            modb::Object oldObject{};
+        std::pair<int, modb::object<T, N>> get_object(const int64_t id) {
+            Dbc* cursor;
+            db->cursor(NULL, &cursor, 0);
 
-            int ret = getObject(object.id(), oldObject);
+            Dbt key{ id, sizeof(id) };
+            Dbt value;
+            int ret = cursor->get(&key, &value, DB_SET);
 
-            if (ret) // object not found 
-            {
-                modb::Object newObject{ object };
-
-                double longitude = object.baseLocation().longitude();
-                double latitude = object.baseLocation().latitude();
-
-                newObject.mbrRegion() = {
-                    {longitude - m_mbrSize / 2, latitude - m_mbrSize / 2},
-                    {longitude + m_mbrSize / 2, latitude + m_mbrSize / 2},
-                };
-
-                ret = putObjectDB(newObject);
-
-                if (ret) {
-                    return ret;
-                }
-
-                insertIndex(hasher(object.id()), newObject.mbrRegion());
-            }
-            else // object found
-            {
-                modb::Object newObject{ object };
-
-                if (pointWithinRegion(newObject.baseLocation(), oldObject.mbrRegion())) {
-                    newObject.mbrRegion() = oldObject.mbrRegion();
-                    putObjectDB(newObject);
-                }
-                else {
-                    double longitude = object.baseLocation().longitude();
-                    double latitude = object.baseLocation().latitude();
-
-                    // to be changed to a heuristic function
-                    newObject.mbrRegion() = {
-                        {longitude - m_mbrSize / 2, latitude - m_mbrSize / 2},
-                        {longitude + m_mbrSize / 2, latitude + m_mbrSize / 2},
-                    };
-
-                    ret = putObjectDB(newObject);
-
-                    if (ret) {
-                        return ret;
-                    }
-
-                    // update the index
-                    deleteIndex(hasher(object.id()), oldObject.mbrRegion());
-                    insertIndex(hasher(object.id()), newObject.mbrRegion());
-
-                    m_stats.idxUpdates++;
-                }
-
-                m_stats.dbUpdates++;
+            if (ret) {
+                return { ret, {} };
             }
 
+            std::string_view data_string{ reinterpret_cast<char*>(value.get_data()), value.get_size() };
+            return { 0, deserialize(data_string) };
+        }
+
+        int put_object(const int64_t id, const modb::point<N>& location, const T& data) {
+            auto result = get_object(object.id);
+
+            bool keep_region = result.first == 0 && intersects(location, result.second.region);
+
+            modb::object<T, N> obj{ id, location, keep_region ? result.second.region : generate_region(location), data };
+
+            int ret = insert_object(obj);
+            if (ret) {
+                return ret;
+            }
+
+            if (!keep_region) {
+                insert_index(obj.id, obj.region);
+            }
 
             return 0;
         }
 
-        std::tuple<std::vector<modb::Object>, std::vector<modb::Object>> intersectionQuery(const modb::Region& queryRegion) {
+        std::tuple<std::vector<modb::Object>, std::vector<modb::Object>> intersection_query(const modb::rectangle<N>& query_region) {
             std::vector<SpatialIndex::id_type> indexResults;
 
-            {
-                modb::Timer timer{ &m_stats.queryTime };
-
-                indexResults = m_index.intersectionQuery(queryRegion);
-            }
+   
+            indexResults = intersection_query(query_region);
 
             std::vector<modb::Object> truePositives{};
             std::vector<modb::Object> falsePositives{};
@@ -205,8 +173,28 @@ namespace modb
         }
 
     private:
-        // Berkeley DB methods
-        
+        bool intersects(const modb::point<N>& location, const modb::rectangle<N>& region) {
+            for (int i = 0; i < N; i++) {
+                if (location.coordinates[i] < region.min.coordinates[i] || location.coordinates[i] > region.max.coordinates[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        modb::rectangle<N> generate_region(const modb::point<N>& location) {
+            constexpr double half_size = 0.15;
+            modb::rectangle<N> region;
+
+            for (int i = 0; i < N; i++) {
+                region.min.coordinates[i] = location.coordinates[i] - half_size;
+                region.max.coordinates[i] = location.coordinates[i] + half_size;
+            }
+
+            return region;
+        }
+
         std::string serialize(const modb::object<T, N>& obj) {
             std::ostringstream outputStream{};
             boost::archive::binary_oarchive outputArchive{ outputStream };
@@ -226,7 +214,7 @@ namespace modb
             return obj;
         }
 
-        int put_record(const modb::object<T, N>& obj) {
+        int insert_object(const modb::object<T, N>& obj) {
             std::string object_data = serialize(obj);
 
             Dbt key{ &obj.id, sizeof(obj.id) };
@@ -234,26 +222,6 @@ namespace modb
 
             return db->put(NULL, &key, &value, 0);
         }
-
-        std::optional<modb::object<T, N>> get_record(const int64_t id) {
-            Dbc* cursor;
-            db->cursor(NULL, &cursor, 0);
-
-            Dbt key{ id, sizeof(id) };
-            Dbt value;
-            int ret = cursor->get(&key, &value, DB_SET);
-
-            if (ret) {
-                errno = ret;
-                return std::nullopt;
-            }
-
-            std::string_view data_string{ reinterpret_cast<char*>(value.get_data()), value.get_size() };
-            return deserialize(data_string);
-        }
-
-
-        // SpatialIndex methods
 
         class index_visitor : public SpatialIndex::IVisitor {
         public:
@@ -279,7 +247,7 @@ namespace modb
             SpatialIndex::Region spatial_region = to_spatial_region(region);
 
             std::lock_guard<std::mutex> guard{ idx_lock };
-            idx->insertData(0, 0, spatial_region, id);
+            idx->insertData(0, nullptr, spatial_region, id);
         }
 
         std::vector<int64_t> intersection_query(const modb::rectangle<N>& query_region)
