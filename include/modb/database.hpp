@@ -63,12 +63,16 @@ namespace modb
         }
 
         std::vector<modb::object<T, N>> intersection_query(const modb::rectangle<N>& query_region) const noexcept {
+            if (!is_valid(query_region)) {
+                return {};
+            }
+
             std::vector<int64_t> index_results = intersection_query_idx(query_region);
 
             std::vector<modb::object<T, N>> true_positives;
 
             for (int64_t id : index_results) {
-                modb::object obj = get_object(id);
+                auto [ret, obj] = get_object(id);
 
                 if (intersects(obj.location, query_region)) {
                     true_positives.push_back(std::move(obj));
@@ -91,9 +95,19 @@ namespace modb
         }
 
     private:
+        bool is_valid(const modb::rectangle<N>& region) const noexcept {
+            for (int i = 0; i < N; i++) {
+                if (region.min.arr[i] > region.max.arr[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         bool intersects(const modb::point<N>& location, const modb::rectangle<N>& region) const noexcept {
             for (int i = 0; i < N; i++) {
-                if (location.coordinates[i] < region.min.coordinates[i] || location.coordinates[i] > region.max.coordinates[i]) {
+                if (location.arr[i] < region.min.arr[i] || location.arr[i] > region.max.arr[i]) {
                     return false;
                 }
             }
@@ -106,8 +120,8 @@ namespace modb
             modb::rectangle<N> region;
 
             for (int i = 0; i < N; i++) {
-                region.min.coordinates[i] = location.coordinates[i] - half_size;
-                region.max.coordinates[i] = location.coordinates[i] + half_size;
+                region.min.arr[i] = location.arr[i] - half_size;
+                region.max.arr[i] = location.arr[i] + half_size;
             }
 
             return region;
@@ -141,17 +155,8 @@ namespace modb
             return db->put(NULL, &key, &value, 0);
         }
 
-        class index_visitor : public SpatialIndex::IVisitor {
-        public:
-            std::vector<int64_t> query_result;
-
-            void visitData(const SpatialIndex::IData& d) override {
-                query_result.push_back(d.getIdentifier());
-            }
-        };
-
         SpatialIndex::Region to_spatial_region(const modb::rectangle<N>& region) const noexcept {
-            return SpatialIndex::Region{ region.min.coordinates, region.max.coordinates, N };
+            return SpatialIndex::Region{ region.min.arr, region.max.arr, N };
         }
 
         bool delete_index(const int64_t id, const modb::rectangle<N>& region) const noexcept {
@@ -167,6 +172,19 @@ namespace modb
             std::lock_guard<std::mutex> guard{ idx_lock };
             idx->insertData(0, nullptr, spatial_region, id);
         }
+
+        class index_visitor : public SpatialIndex::IVisitor {
+        public:
+            std::vector<int64_t> query_result;
+
+            void visitNode(const SpatialIndex::INode& d) override {}
+
+            void visitData(const SpatialIndex::IData& d) override {
+                query_result.push_back(d.getIdentifier());
+            }
+
+            void visitData(std::vector<const SpatialIndex::IData*>& v) {}
+        };
 
         std::vector<int64_t> intersection_query_idx(const modb::rectangle<N>& query_region) const noexcept {
             SpatialIndex::Region spatial_region = to_spatial_region(query_region);

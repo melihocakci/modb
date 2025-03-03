@@ -6,11 +6,11 @@
 namespace modb {
     template <int N>
     struct point {
-        double coordinates[N];
+        double arr[N];
 
         template <class Archive>
         void serialize(Archive& ar, unsigned int) {
-            ar& coordinates;
+            ar& arr;
         }
     };
 
