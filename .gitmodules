@@ -1,6 +1,3 @@
-[submodule "lib/opensky-api"]
-	path = lib/opensky-api
+[submodule "examples/lib/opensky-api"]
+	path = examples/lib/opensky-api
 	url = https://github.com/openskynetwork/opensky-api
-[submodule "lib/json"]
-	path = lib/json
-	url = https://github.com/nlohmann/json.git
